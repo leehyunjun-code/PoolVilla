@@ -33,7 +33,7 @@ export default function Home() {
     if (checkIn && checkOut) {
       const start = new Date(checkIn)
       const end = new Date(checkOut)
-      const diffTime = Math.abs(end - start)
+      const diffTime = Math.abs(end.getTime() - start.getTime())
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
       setNights(diffDays > 0 ? diffDays : 1)
     }
@@ -254,7 +254,7 @@ export default function Home() {
               <div className="p-8">
                 <h3 className="text-2xl font-semibold mb-2">Premium Play Villa</h3>
                 <ul className="text-gray-600">
-                  <li>• 일반 멘트</li>
+                  <li>• 실내 수영장</li>
                 </ul>
               </div>
             </div>
