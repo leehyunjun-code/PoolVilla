@@ -120,8 +120,6 @@ export default function Home() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
-                  <h2 className="text-4xl font-bold mb-3">{slide.title}</h2>
-                  <p className="text-lg opacity-90">{slide.subtitle}</p>
                 </div>
               </div>
             </SwiperSlide>
@@ -321,6 +319,7 @@ export default function Home() {
             </div>
           </div>
 
+			
           {/* 세로줄 */}
           <div className="border-l border-gray-300 my-4"></div>
 
