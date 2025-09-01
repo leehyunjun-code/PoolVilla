@@ -115,7 +115,7 @@ export default function Home() {
               <div className="relative w-full h-full">
                 <img 
                   src={slide.image} 
-                  alt={slide.title}
+                  alt={`Slide ${slide.id}`}
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
