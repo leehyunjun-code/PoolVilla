@@ -50,11 +50,11 @@ export default function LocationPage() {
                       풀빌라옵션
                     </Link>
                     <span className="text-black">|</span>
-                    <Link href="/room/a" className="text-xl text-black hover:text-gray-700 cursor-pointer font-bold">
+                    <Link href="/room/a" className="text-xl text-black hover:text-gray-700 cursor-pointer">
                       A동
                     </Link>
                     <span className="text-black">|</span>
-                    <Link href="/room/b" className="text-xl text-black hover:text-gray-700 cursor-pointer">
+                    <Link href="/room/b" className="text-xl text-black hover:text-gray-700 cursor-pointer font-bold">
                       B동
                     </Link>
                     <span className="text-black">|</span>  
@@ -77,10 +77,10 @@ export default function LocationPage() {
           <div className="container mx-auto px-8">
             <div className="max-w-5xl mx-auto relative">
               {/* 메인 이미지 - 크기 축소 */}
-              <div className="relative h-[450px] overflow-hidden">
+              <div className="relative h-[350px] overflow-hidden">
                 <Image
                   src="/images/room/aroom.jpg"
-                  alt={`A동 이미지 ${currentImage + 1}`}
+                  alt={`B동 이미지 ${currentImage + 1}`}
                   fill
                   quality={100}
                   className="object-cover"
@@ -127,7 +127,7 @@ export default function LocationPage() {
           </div>
         </div>
 
-        {/* A동 정보 섹션 */}
+        {/* B동 정보 섹션 */}
         <div className="py-20 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="max-w-6xl mx-auto">
@@ -135,7 +135,7 @@ export default function LocationPage() {
               <div className="mb-12">
                 <p className="text-xl text-black mb-2">CUBE45</p>
                 <p className="text-xl text-black mb-4">URBAN POOL STAY</p>
-                <h1 className="text-6xl font-light mb-4">A-Zone</h1>
+                <h1 className="text-6xl font-light mb-4">B-Zone</h1>
                 {/* 중간이 끊긴 밑줄 */}
                 <div className="flex items-center">
                   <div className="flex-1 border-t border-gray-400"></div>
@@ -144,28 +144,28 @@ export default function LocationPage() {
                 </div>
               </div>
 
-              {/* A Zone Overview와 Information을 좌우로 배치 */}
+              {/* B Zone Overview와 Information을 좌우로 배치 */}
               <div className="grid grid-cols-2 gap-16 mb-16">
-                {/* 왼쪽 전체 영역 - A Zone Overview */}
+                {/* 왼쪽 전체 영역 - B Zone Overview */}
                 <div className="grid grid-cols-2 gap-8">
                   {/* 왼쪽 - 제목 */}
                   <div>
-                    <h3 className="text-lg font-medium">A Zone</h3>
+                    <h3 className="text-lg font-medium">B Zone</h3>
 					<h3 className="text-lg font-medium">Overview</h3>  
                   </div>
                   {/* 오른쪽 - 내용 */}
                   <div className="space-y-3">
                     <div>
                       <span className="text-gray-600">객실크기</span><br />
-                      <span>• 45평 ~ 68평</span>
+                      <span>• 64평 ~ 72평</span>
                     </div>
                     <div>
                       <span className="text-gray-600">기준인원</span><br />
-                      <span>• 4명 ~ 10명</span>
+                      <span>• 8명</span>
                     </div>
                     <div>
                       <span className="text-gray-600">최대인원</span><br />
-                      <span>• 8명 ~ 10명</span>
+                      <span>• 12명</span>
                     </div>
                   </div>
                 </div>
@@ -188,7 +188,7 @@ export default function LocationPage() {
                     </div>
                     <div>
                       <span className="text-gray-600">수영장</span><br />
-                      <span>• 실내 혹은 야외 수영장</span>
+                      <span>• 실내, 야외 수영장, 혹은 없음</span>
                     </div>
                   </div>
                 </div>
@@ -213,112 +213,95 @@ export default function LocationPage() {
                   </thead>
                   <tbody>
                     <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A3호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">45평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">4명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A4호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">68평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A5호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">60평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">야외</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A6호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">60평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">야외</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A7호</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">B9호</td>
                       <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
                       <td className="border border-gray-300 px-4 py-3 text-center text-sm">64평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">12명</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">4개</td>
                       <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">야외</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">B10호</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">72평</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">12명</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">4개</td>
                       <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
                       <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
                       <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">B11호</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">72평</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">12명</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
+                    </tr>
+                    <tr>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">B12호</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">70평</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">12명</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">4개</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
+                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">없음</td>
                       <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
-              {/* 객실 선택 버튼들 - 올림픽 로고 스타일 */}
-              <div className="flex flex-col items-center gap-8">
-                {/* 위쪽 3개 버튼 */}
-                <div className="flex justify-center gap-12">
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    A3호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    A4호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    A5호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                </div>
-                
-                {/* 아래쪽 2개 버튼 */}
-                <div className="flex justify-center gap-12">
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    A6호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    A7호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
+              {/* 객실 선택 버튼들 - B12호를 B9호 아래 배치 */}
+              <div className="flex justify-center">
+                <div className="inline-flex flex-col items-start gap-8">
+                  {/* 위쪽 3개 버튼 */}
+                  <div className="flex gap-12">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      B9호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      B10호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      B11호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </div>
+                  
+                  {/* 아래쪽 1개 버튼 - B9호 아래 정렬 */}
+                  <div>
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      B12호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>

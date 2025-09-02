@@ -1,6 +1,7 @@
 'use client'
 import { useState } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Navigation() {
   const [hoveredMenu, setHoveredMenu] = useState(null)
@@ -8,7 +9,7 @@ export default function Navigation() {
   const menuItems = {
     'CUBE 45': ['CUBE 45', '배치도', '관광정보'],
     '독채객실': ['풀빌라옵션','A동','B동', 'C동', 'D동'],
-    '부대시설': ['POOL', 'BBQ', 'CAFE', 'RESTAURANT'],
+    '부대시설': [],
     '이용안내': ['이용안내', '예약안내'],
     '스페셜 오퍼': [],
     '실시간예약': []
@@ -27,12 +28,6 @@ export default function Navigation() {
       'C동': '/room/c',
       'D동': '/room/d'
     },
-    '부대시설': {
-      'POOL': '/pool',
-      'BBQ': '/bbq',
-      'CAFE': '/cafe',
-      'RESTAURANT': '/restaurant'
-    },
 	'이용안내': {
 	  '이용안내': '/use',
 	  '예약안내': '/reservation',	
@@ -42,12 +37,18 @@ export default function Navigation() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
       {/* 상단 로고 영역 */}
-      <div style={{ backgroundColor: '#f5e6d3', padding: '20px 0' }}>
+      <div style={{ backgroundColor: '#f5e6d3' }}>
         <div className="text-center">
           <Link href="/">
-            <div className="cursor-pointer">
-              <h1 className="text-2xl font-serif text-gray-800">THE SHILLA</h1>
-              <p className="text-sm text-gray-600">SEOUL</p>
+            <div className="cursor-pointer flex justify-center items-center">
+              <Image 
+                src="/images/main/logo.jpg"
+                alt="THE SHILLA SEOUL"
+                width={200}
+                height={80}
+                priority
+                className="object-contain"
+              />
             </div>
           </Link>
         </div>
@@ -68,6 +69,12 @@ export default function Navigation() {
                   {menu === '실시간예약' ? (
                     <Link href="/reservation">
                       <span className="cursor-pointer text-white px-6 flex items-center text-lg font-medium h-14" style={{ backgroundColor: '#3E2B2C' }}>
+                        {menu}
+                      </span>
+                    </Link>
+                  ) : menu === '부대시설' ? (
+                    <Link href="/facilities">
+                      <span className="cursor-pointer hover:text-gray-200 flex items-center text-lg font-medium h-14">
                         {menu}
                       </span>
                     </Link>
