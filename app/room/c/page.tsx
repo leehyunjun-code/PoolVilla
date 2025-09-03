@@ -133,8 +133,8 @@ export default function LocationPage() {
             <div className="max-w-6xl mx-auto">
               {/* 헤더 */}
               <div className="mb-12">
-                <p className="text-sm text-gray-600 mb-2">CUBE45</p>
-                <p className="text-sm text-gray-600 mb-4">URBAN POOL STAY</p>
+                <p className="text-2xl text-black mb-2">CUBE45</p>
+                <p className="text-2xl text-black mb-4">URBAN POOL STAY</p>
                 <h1 className="text-6xl font-light mb-4">C-Zone</h1>
                 {/* 중간이 끊긴 밑줄 */}
                 <div className="flex items-center">
