@@ -73,7 +73,7 @@ export default function LocationPage() {
         </div>
 
         {/* 이미지 슬라이더 섹션 */}
-        <div className="py-20">
+        <div className="py-20 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="max-w-5xl mx-auto relative">
               {/* 메인 이미지 - 크기 축소 */}
@@ -269,38 +269,46 @@ export default function LocationPage() {
                 <div className="inline-flex flex-col items-start gap-8">
                   {/* 위쪽 3개 버튼 */}
                   <div className="flex gap-12">
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      B9호<br />
-                      <span className="text-sm">풀빌라 독채</span>
-                    </button>
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      B10호<br />
-                      <span className="text-sm">풀빌라 독채</span>
-                    </button>
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      B11호<br />
-                      <span className="text-sm">풀빌라 독채</span>
-                    </button>
+                    <a href="/room/b/b9" className="block">
+                      <button 
+                        className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                        style={{ backgroundColor: '#f5e6d3' }}
+                      >
+                        B9호<br />
+                        <span className="text-sm">풀빌라 독채</span>
+                      </button>
+                    </a>
+                    <a href="/room/b/b10" className="block">
+                      <button 
+                        className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                        style={{ backgroundColor: '#f5e6d3' }}
+                      >
+                        B10호<br />
+                        <span className="text-sm">풀빌라 독채</span>
+                      </button>
+                    </a>
+                    <a href="/room/b/b11" className="block">
+                      <button 
+                        className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                        style={{ backgroundColor: '#f5e6d3' }}
+                      >
+                        B11호<br />
+                        <span className="text-sm">풀빌라 독채</span>
+                      </button>
+                    </a>
                   </div>
                   
                   {/* 아래쪽 1개 버튼 - B9호 아래 정렬 */}
                   <div>
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      B12호<br />
-                      <span className="text-sm">풀빌라 독채</span>
-                    </button>
+                    <a href="/room/b/b12" className="block">
+                      <button 
+                        className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                        style={{ backgroundColor: '#f5e6d3' }}
+                      >
+                        B12호<br />
+                        <span className="text-sm">풀빌라 독채</span>
+                      </button>
+                    </a>
                   </div>
                 </div>
               </div>

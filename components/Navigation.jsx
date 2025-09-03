@@ -29,8 +29,8 @@ export default function Navigation() {
       'D동': '/room/d'
     },
 	'이용안내': {
-	  '이용안내': '/use',
-	  '예약안내': '/reservation',	
+	  '이용안내': '/guide/use',
+	  '예약안내': '/guide/reservation',	
 	}  
   }
   

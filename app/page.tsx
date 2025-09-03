@@ -6,6 +6,7 @@ import 'swiper/css/navigation'
 import { useState, useEffect, useRef } from 'react'
 import Footer from '@/components/Footer'
 import Navigation from '@/components/Navigation'
+import OffersSection from '@/components/OffersSection'
 
 export default function Home() {
   const [checkIn, setCheckIn] = useState('')
@@ -319,7 +320,6 @@ export default function Home() {
             </div>
           </div>
 
-			
           {/* 세로줄 */}
           <div className="border-l border-gray-300 my-4"></div>
 
@@ -408,73 +408,8 @@ export default function Home() {
           `}</style>
         </div>
 
-        {/* OFFERS 섹션 */}
-        <div className="container mx-auto px-4 py-16">
-          <h2 className="text-3xl font-bold text-center mb-12">OFFERS</h2>
-          <div className="relative">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              <div>
-                <div className="mb-2">
-                  <p className="text-gray-500 text-sm mb-1">01</p>
-                  <p className="text-xs text-gray-600 mb-2">CUBE 45 Private Pool Villa</p>
-                  <h3 className="text-xl font-semibold mb-1">Group Guest Information</h3>
-                  <h3 className="text-xl font-semibold">단체고객 예약 안내</h3>
-                </div>
-                <div className="h-64 overflow-hidden">
-                  <img 
-                    src="/images/main/offers.jpg"
-                    alt="단체고객안내"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <div className="mb-2">
-                  <p className="text-gray-500 text-sm mb-1">01</p>
-                  <p className="text-xs text-gray-600 mb-2">CUBE 45 Private Pool Villa</p>
-                  <h3 className="text-xl font-semibold mb-1">Group Guest Information</h3>
-                  <h3 className="text-xl font-semibold">단체고객 예약 안내</h3>
-                </div>
-                <div className="h-64 overflow-hidden">
-                  <img 
-                    src="/images/main/offers.jpg"
-                    alt="단체고객안내"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-        
-              <div>
-                <div className="mb-2">
-                  <p className="text-gray-500 text-sm mb-1">01</p>
-                  <p className="text-xs text-gray-600 mb-2">CUBE 45 Private Pool Villa</p>
-                  <h3 className="text-xl font-semibold mb-1">Group Guest Information</h3>
-                  <h3 className="text-xl font-semibold">단체고객 예약 안내</h3>
-                </div>
-                <div className="h-64 overflow-hidden">
-                  <img 
-                    src="/images/main/offers.jpg"
-                    alt="단체고객안내"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-              </div>
-            </div>
-            
-            {/* 좌우 화살표 */}
-            <button className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-md hover:shadow-lg">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
-            <button className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-md hover:shadow-lg">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
-          </div>
-        </div>
+        {/* OFFERS 섹션 - 컴포넌트로 대체 */}
+        <OffersSection />
 
         {/* INDOOR POOL 섹션 */}
         <div className="pt-16">
@@ -502,7 +437,7 @@ export default function Home() {
         </div>
       </main>
       
-      {/* 예약문의/현장문의 섹션 - main 태그 밖 */}
+      {/* 예약문의/현장문의 섹션 */}
       <div className="flex">
         {/* 예약문의 */}
         <div className="w-1/2 relative h-96 bg-cover bg-center" style={{ backgroundImage: 'url(/images/main/left.jpg)' }}>

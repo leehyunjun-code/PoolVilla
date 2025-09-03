@@ -26,7 +26,7 @@ export default function LocationPage() {
       <Navigation />
       
       {/* 메인 콘텐츠 */}
-      <div className="pt-28">
+      <div className="pt-28 bg-gray-50">
         {/* CUBE 45 헤더 섹션 */}
         <div className="relative">
           <div className="h-[500px] relative overflow-hidden">
@@ -400,127 +400,157 @@ export default function LocationPage() {
               <div className="flex flex-col items-center gap-8">
                 {/* 첫 번째 줄 - 3개 버튼 */}
                 <div className="flex justify-center gap-12">
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D1호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D2호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D3호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
+                  <a href="/room/d/d1" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D1호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d2" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D2호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d3" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D3호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
                 </div>
                 
                 {/* 두 번째 줄 - 3개 버튼 */}
                 <div className="flex justify-center gap-12">
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D4호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D5호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D6호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
+                  <a href="/room/d/d4" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D4호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d5" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D5호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d6" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D6호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
                 </div>
-
+              
                 {/* 세 번째 줄 - 3개 버튼 */}
                 <div className="flex justify-center gap-12">
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D7호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D8호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D9호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
+                  <a href="/room/d/d7" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D7호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d8" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D8호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d9" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D9호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
                 </div>
-
+              
                 {/* 네 번째 줄 - 3개 버튼 */}
                 <div className="flex justify-center gap-12">
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D10호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D11호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D12호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
+                  <a href="/room/d/d10" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D10호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d11" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D11호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d12" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D12호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
                 </div>
-
+              
                 {/* 다섯 번째 줄 - 3개 버튼 */}
                 <div className="flex justify-center gap-12">
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D13호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D14호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
-                  <button 
-                    className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                    style={{ backgroundColor: '#f5e6d3' }}
-                  >
-                    D15호<br />
-                    <span className="text-sm">풀빌라 독채</span>
-                  </button>
+                  <a href="/room/d/d13" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D13호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d14" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D14호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
+                  <a href="/room/d/d15" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      D15호<br />
+                      <span className="text-sm">풀빌라 독채</span>
+                    </button>
+                  </a>
                 </div>
               </div>
             </div>

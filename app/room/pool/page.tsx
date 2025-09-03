@@ -11,7 +11,7 @@ export default function LocationPage() {
       <Navigation />
 
       {/* 메인 콘텐츠 */}
-      <div className="pt-28">
+      <div className="pt-28 bg-gray-50">
         {/* CUBE 45 헤더 섹션 */}
         <div className="relative">
           <div className="h-[500px] relative overflow-hidden">
@@ -92,7 +92,7 @@ export default function LocationPage() {
       </div>
 		  
       {/* 풀빌라 이미지 */}
-     <div className="py-16 flex justify-center">
+     <div className="py-16 flex justify-center bg-gray-50">
        <div className="w-1/3">
          <Image 
            src="/images/room/pool.jpg"
