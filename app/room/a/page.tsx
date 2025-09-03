@@ -75,7 +75,7 @@ export default function LocationPage() {
         {/* 이미지 슬라이더 섹션 */}
         <div className="py-20 bg-gray-50">
           <div className="container mx-auto px-8">
-            <div className="max-w-5xl mx-auto relative">
+            <div className="max-w-6xl mx-auto relative">
               {/* 메인 이미지 - 크기 축소 */}
               <div className="relative h-[450px] overflow-hidden">
                 <Image
@@ -276,9 +276,9 @@ export default function LocationPage() {
                 </table>
               </div>
 
-              {/* 객실 선택 버튼들 - 올림픽 로고 스타일 */}
-              <div className="flex flex-col items-center gap-8">
-                {/* 위쪽 3개 버튼 */}
+              {/* 객실 선택 버튼들 - 수정된 부분 */}
+              <div className="flex flex-col gap-8">
+                {/* 첫 번째 줄 - A3, A4, A5, A6 */}
                 <div className="flex justify-center gap-12">
                   <a href="/room/a/a3" className="block">
                     <button 
@@ -307,10 +307,6 @@ export default function LocationPage() {
                       <span className="text-sm">풀빌라 독채</span>
                     </button>
                   </a>
-                </div>
-                
-                {/* 아래쪽 2개 버튼 */}
-                <div className="flex justify-center gap-12">
                   <a href="/room/a/a6" className="block">
                     <button 
                       className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
@@ -320,7 +316,11 @@ export default function LocationPage() {
                       <span className="text-sm">풀빌라 독채</span>
                     </button>
                   </a>
-                  <a href="/room/a/a7" className="block">
+                </div>
+                
+                {/* 두 번째 줄 - A7만, 왼쪽 정렬 후 margin으로 위치 조정 */}
+                <div className="flex justify-start w-full">
+                  <a href="/room/a/a7" className="block" style={{ marginLeft: 'calc(50% - 468px)' }}>
                     <button 
                       className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
                       style={{ backgroundColor: '#f5e6d3' }}

@@ -43,12 +43,12 @@ export default function LocationPage() {
           </div>
         </div>
         
-        {/* A-Zone 텍스트 */}
+        {/* B-Zone 텍스트 */}
         <div className="flex items-center py-20 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="text-black max-w-2xl ml-64">
-              <h1 className="text-7xl mb-4">A-Zone</h1>	
-              <p className="text-3xl">#독채풀빌라 #실내or야외수영장 #애견동반불가</p>
+              <h1 className="text-7xl mb-4">B-Zone</h1>	
+              <p className="text-3xl">#독채풀빌라 #실내수영장 #애견동반</p>
             </div>
           </div>
         </div>
@@ -57,7 +57,7 @@ export default function LocationPage() {
         <div className="flex items-center bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="text-black max-w-2xl ml-64">
-              <h1 className="text-7xl">A3호</h1>	
+              <h1 className="text-7xl">B12호</h1>	
             </div>
           </div>
         </div> 
@@ -183,18 +183,6 @@ export default function LocationPage() {
               <div className="flex flex-col items-center gap-8">
                 {/* 첫째줄 - A동 바로가기 (가운데) */}
                 <div className="flex justify-center">
-                  <a href="/room/a" className="block">
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      A동 바로가기
-                    </button>
-                  </a>
-                </div>
-                
-                {/* 둘째줄 - B,C,D동 바로가기 (3개 그리드) */}
-                <div className="grid grid-cols-3 gap-12">
                   <a href="/room/b" className="block">
                     <button 
                       className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
@@ -203,6 +191,19 @@ export default function LocationPage() {
                       B동 바로가기
                     </button>
                   </a>
+                </div>
+                
+                {/* 둘째줄 - B,C,D동 바로가기 (3개 그리드) */}
+                <div className="grid grid-cols-3 gap-12">
+                  
+				  <a href="/room/a" className="block">
+                    <button 
+                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      style={{ backgroundColor: '#f5e6d3' }}
+                    >
+                      A동 바로가기
+                    </button>
+                  </a>	
                   <a href="/room/c" className="block">
                     <button 
                       className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"

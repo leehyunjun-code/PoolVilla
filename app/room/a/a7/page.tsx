@@ -57,7 +57,7 @@ export default function LocationPage() {
         <div className="flex items-center bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="text-black max-w-2xl ml-64">
-              <h1 className="text-7xl">A7</h1>	
+              <h1 className="text-7xl">A7호</h1>	
             </div>
           </div>
         </div> 
