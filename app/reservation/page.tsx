@@ -303,7 +303,7 @@ export default function LocationPage() {
   const allTermsChecked = Object.values(termsChecked).every(checked => checked)
   
   // 개별 약관 체크/해제
-  const handleTermChange = (termKey: string) => {
+  const handleTermChange = (termKey: keyof typeof termsChecked) => {
     setTermsChecked(prev => ({
       ...prev,
       [termKey]: !prev[termKey]
