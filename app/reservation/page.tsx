@@ -199,7 +199,7 @@ export default function LocationPage() {
     const totalPaidGuests = adultCount + studentCount + childCount + paidInfants
     
     // 기준인원 초과 여부 확인
-    const baseCapacity = selectedRoom.minGuests
+    const baseCapacity = (selectedRoom as any).minGuests
     const excessGuests = Math.max(0, totalPaidGuests - baseCapacity)
     
     if (excessGuests === 0) return 0
