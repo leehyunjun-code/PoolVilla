@@ -44,7 +44,31 @@ export default function LocationPage() {
   const today = new Date()
   const currentDate = today.getDate()
   
+  // 이름 검증 - 한글, 영문만 허용 (숫자, 특수문자, 띄어쓰기 제한)
+  const validateName = (name: string): string => {
+    return name.replace(/[^가-힣a-zA-Z]/g, '');
+  };
+	
+  // 이메일 검증 - 띄어쓰기 제거
+  const validateEmail = (email: string): string => {
+    return email.replace(/\s/g, '');
+  };	
+	
+  // 전화번호 검증 - 숫자만 허용
+  const validatePhone = (phone: string): string => {
+    return phone.replace(/[^0-9]/g, '');
+  };	
+	 
+  // 각 달의 실제 일수 계산
+  const getDaysInMonth = (year: number, month: number) => {
+    return new Date(year, month, 0).getDate();
+  };
   
+  // 각 달의 첫 번째 날 요일 계산 (0=일요일, 1=월요일...)
+  const getFirstDayOfMonth = (year: number, month: number) => {
+    return new Date(year, month - 1, 1).getDay();
+  }; 	
+   
   const [firstDate, setFirstDate] = useState<number | null>(() => {
     const today = new Date().getDate()
     return today
@@ -106,8 +130,12 @@ export default function LocationPage() {
   }
 
   const handleDateClick = (date: number) => {
+    // 현재 날짜와 선택한 날짜를 정확히 비교
+    const today = new Date()
+    const selectedDate = new Date(currentYear, currentMonth - 1, date)
+    
     // 오늘 이전 날짜는 선택 불가
-    if (date < currentDate) {
+    if (selectedDate < today.setHours(0, 0, 0, 0)) {
       return
     }
     
@@ -120,7 +148,7 @@ export default function LocationPage() {
       setSecondDate(null)
     }
   }
-
+  
   const handlePreviousMonth = () => {
     if (currentMonth === 1) {
       setCurrentMonth(12)
@@ -638,23 +666,35 @@ export default function LocationPage() {
                         
                         {/* 날짜 */}
                         <div className="grid grid-cols-7 gap-1 text-center text-xs">
-                          <div className="p-1"></div>
-                          {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31].map(date => (
-                            <div 
-                              key={date} 
-                              className={`p-1 ${
-                                date < currentDate 
-                                  ? 'text-gray-300 cursor-not-allowed' 
-                                  : 'cursor-pointer hover:bg-gray-200'
-                              } ${
-                                isDateSelected(date) ? 'bg-blue-500 text-white rounded-full' : 
-                                isDateInRange(date) ? 'bg-blue-200' : ''
-                              }`} 
-                              onClick={() => handleDateClick(date)}
-                            >
-                              {date}
-                            </div>
+                          {/* 첫 주의 빈 칸들 */}
+                          {Array.from({length: getFirstDayOfMonth(currentYear, currentMonth)}).map((_, index) => (
+                            <div key={`empty-${index}`} className="p-1"></div>
                           ))}
+                          
+                          {/* 실제 날짜들 */}
+                          {Array.from({length: getDaysInMonth(currentYear, currentMonth)}).map((_, index) => {
+                            const date = index + 1;
+                            return (
+                              <div 
+                                key={date} 
+                                className={`p-1 ${
+                                  (() => {
+                                    const today = new Date()
+                                    const selectedDate = new Date(currentYear, currentMonth - 1, date)
+                                    return selectedDate < today.setHours(0, 0, 0, 0)
+                                  })()
+                                    ? 'text-gray-300 cursor-not-allowed' 
+                                    : 'cursor-pointer hover:bg-gray-200'
+                                } ${
+                                  isDateSelected(date) ? 'bg-blue-500 text-white rounded-full' : 
+                                  isDateInRange(date) ? 'bg-blue-200' : ''
+                                }`} 
+                                onClick={() => handleDateClick(date)}
+                              >
+                                {date}
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
 
@@ -971,7 +1011,10 @@ export default function LocationPage() {
                               className="w-full p-2 border border-gray-300 text-sm" 
                               placeholder="구매자 이름"
                               value={bookerInfo.name}
-                              onChange={(e) => setBookerInfo(prev => ({...prev, name: e.target.value}))}
+                              onChange={(e) => {
+                                const validatedName = validateName(e.target.value);
+                                setBookerInfo(prev => ({...prev, name: validatedName}));
+                              }}
                             />
                           </div>
                           <div>
@@ -980,6 +1023,11 @@ export default function LocationPage() {
                               className="w-full p-2 border border-gray-300 text-sm" 
                               placeholder="구매자 이메일"
                               value={bookerInfo.email}
+                              onKeyDown={(e) => {
+                                if (e.key === ' ') {
+                                  e.preventDefault();
+                                }
+                              }}
                               onChange={(e) => setBookerInfo(prev => ({...prev, email: e.target.value}))}
                             />
                           </div>
@@ -989,7 +1037,10 @@ export default function LocationPage() {
                               className="w-full p-2 border border-gray-300 text-sm" 
                               placeholder="구매자 전화번호"
                               value={bookerInfo.phone}
-                              onChange={(e) => setBookerInfo(prev => ({...prev, phone: e.target.value}))}
+                              onChange={(e) => {
+                                const validatedPhone = validatePhone(e.target.value);
+                                setBookerInfo(prev => ({...prev, phone: validatedPhone}));
+                              }}
                             />
                           </div>
                         </div>
@@ -1005,7 +1056,10 @@ export default function LocationPage() {
                                   className="w-full p-2 border border-gray-300 text-sm" 
                                   placeholder="투숙자 이름"
                                   value={guestInfo.name}
-                                  onChange={(e) => setGuestInfo(prev => ({...prev, name: e.target.value}))}
+                                  onChange={(e) => {
+                                    const validatedName = validateName(e.target.value);
+                                    setGuestInfo(prev => ({...prev, name: validatedName}));
+                                  }}
                                 />
                               </div>
                               <div>
@@ -1014,6 +1068,11 @@ export default function LocationPage() {
                                   className="w-full p-2 border border-gray-300 text-sm" 
                                   placeholder="투숙자 이메일"
                                   value={guestInfo.email}
+                                  onKeyDown={(e) => {
+                                    if (e.key === ' ') {
+                                      e.preventDefault();
+                                    }
+                                  }}
                                   onChange={(e) => setGuestInfo(prev => ({...prev, email: e.target.value}))}
                                 />
                               </div>
@@ -1023,7 +1082,10 @@ export default function LocationPage() {
                                   className="w-full p-2 border border-gray-300 text-sm" 
                                   placeholder="투숙자 전화번호"
                                   value={guestInfo.phone}
-                                  onChange={(e) => setGuestInfo(prev => ({...prev, phone: e.target.value}))}
+                                  onChange={(e) => {
+                                    const validatedPhone = validatePhone(e.target.value);
+                                    setGuestInfo(prev => ({...prev, phone: validatedPhone}));
+                                  }}
                                 />
                               </div>
                             </div>
