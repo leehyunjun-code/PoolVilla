@@ -17,7 +17,7 @@ export default function LocationPage() {
   const [showRoomResults, setShowRoomResults] = useState(false)
   const [selectedBuilding, setSelectedBuilding] = useState('전체')
   const [visibleRooms, setVisibleRooms] = useState(3)
-  const [selectedRoom, setSelectedRoom] = useState<object | null>(null)
+  const [selectedRoom, setSelectedRoom] = useState<Record<string, any> | null>(null)
   const [searchAdults, setSearchAdults] = useState(2)
   const [searchChildren, setSearchChildren] = useState(0)
   const [isSearching, setIsSearching] = useState(false)
