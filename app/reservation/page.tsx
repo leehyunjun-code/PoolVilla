@@ -135,7 +135,9 @@ export default function LocationPage() {
     const selectedDate = new Date(currentYear, currentMonth - 1, date)
     
     // 오늘 이전 날짜는 선택 불가
-    if (selectedDate < today.setHours(0, 0, 0, 0)) {
+    const todayWithoutTime = new Date()
+    todayWithoutTime.setHours(0, 0, 0, 0)
+    if (selectedDate < todayWithoutTime) {
       return
     }
     
