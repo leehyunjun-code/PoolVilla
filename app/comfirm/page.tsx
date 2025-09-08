@@ -232,7 +232,7 @@ export default function ConfirmPage() {
                             <h5 className="font-semibold text-gray-700 mb-2 text-sm">추가옵션</h5>
                             <div className="flex flex-wrap gap-2">
                               {reservation.selected_options.map((option, idx) => {
-                                const optionNames = {
+                                const optionNames: { [key: string]: string } = {
                                   'bbq4': 'BBQ 숯&그릴 4인용',
                                   'bbq4plus': 'BBQ 숯&그릴 4인이상',
                                   'hotwater1': '미온수(11월~5월)',
