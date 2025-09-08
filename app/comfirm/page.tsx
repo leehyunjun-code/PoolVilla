@@ -28,6 +28,7 @@ interface Reservation {
   additional_fee: number
   options_fee: number
   total_amount: number
+  status: string
 }
 
 export default function ConfirmPage() {
