@@ -21,7 +21,7 @@ export default function ConfirmPage() {
     const result = await getReservationByNameAndPhone(bookerName, bookerPhone)
     
     if (result.success) {
-      setReservations(result.data)
+      setReservations(result.data || [])
       setShowResults(true)
       if (result.data.length === 0) {
         alert('예약 정보를 찾을 수 없습니다.')
