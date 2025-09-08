@@ -4,6 +4,32 @@ import Footer from '@/components/Footer'
 import { useState } from 'react'
 import { getReservationByNameAndPhone, cancelReservationByInfo } from '@/api/confirm'
 
+interface Reservation {
+  id: string | number
+  reservation_number: string
+  room_name: string
+  check_in_date: string
+  check_out_date: string
+  nights: number
+  booker_name: string
+  booker_phone: string
+  booker_email: string
+  is_different_guest?: boolean
+  guest_name?: string
+  guest_phone?: string
+  guest_email?: string
+  adult_count: number
+  student_count: number
+  child_count: number
+  infant_count: number
+  selected_options?: string[]
+  customer_request?: string
+  room_price: number
+  additional_fee: number
+  options_fee: number
+  total_amount: number
+}
+
 export default function ConfirmPage() {
   const [bookerName, setBookerName] = useState('')
   const [bookerPhone, setBookerPhone] = useState('')
