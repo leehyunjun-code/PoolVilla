@@ -63,7 +63,7 @@ export default function LocationPage() {
     return `S${year}${month}${day}${randomNum}`
   }
 
-  const handleDateClick = (date) => {
+  const handleDateClick = (date: number) => {
     if (!firstDate) {
       setFirstDate(date)
     } else if (!secondDate) {
