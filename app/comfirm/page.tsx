@@ -149,18 +149,36 @@ export default function ConfirmPage() {
                 <div className="mt-8 border-t pt-8">
                   <h3 className="text-xl font-bold mb-6 text-center text-gray-800">예약 정보</h3>
                   {reservations.map((reservation, index) => (
-                    <div key={reservation.id} className="mb-6 bg-white rounded-lg shadow-md border overflow-hidden">
+                    <div key={reservation.id} className="mb-6 bg-white rounded-lg shadow-md border overflow-hidden relative">
+                      {/* 취소됨 대각선 스탬프 */}
+                      {reservation.status === 'cancelled' && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                          <div className="transform rotate-12 bg-red-600 text-white px-24 py-6 text-3xl font-bold shadow-2xl border-4 border-red-700 opacity-90">
+                            취소됨
+                          </div>
+                        </div>
+                      )}
+                      
                       {/* 예약번호 헤더 */}
-                      <div className={`${reservation.status === 'cancelled' ? 'bg-red-600' : 'bg-blue-600'} text-white p-4`}>
-                        <h4 className="font-bold text-center text-lg">
+                      <div className={`${
+                        reservation.status === 'cancelled' 
+                          ? 'bg-gradient-to-r from-gray-400 to-gray-600' 
+                          : 'bg-blue-600'
+                      } text-white p-4`}>
+                        <h4 className={`font-bold text-center text-lg ${
+                          reservation.status === 'cancelled' ? 'opacity-50' : ''
+                        }`}>
                           예약번호: {reservation.reservation_number}
-                          {reservation.status === 'cancelled' && <span className="ml-2 text-sm">(취소됨)</span>}
                         </h4>
-                        <p className="text-center text-blue-100 text-sm mt-1">
+                        <p className={`text-center text-sm mt-1 ${
+                          reservation.status === 'cancelled' 
+                            ? 'text-gray-200 opacity-50' 
+                            : 'text-blue-100'
+                        }`}>
                           {reservation.room_name}
                         </p>
                       </div>
-                      
+                        
                       {/* 예약 상세 정보 */}
                       <div className="p-6">
                         {/* 날짜 정보 */}
