@@ -3,6 +3,9 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Image from 'next/image'
 import { useState } from 'react'
+import { saveReservation } from '@/api/reservation'
+import { getBookedRooms } from '@/api/reservation'
+
 
 export default function LocationPage() {
   const [activeStep, setActiveStep] = useState(1)
@@ -24,6 +27,11 @@ export default function LocationPage() {
   const [childCount, setChildCount] = useState<number>(0)
   const [infantCount, setInfantCount] = useState<number>(0)
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
+  const [customerRequest, setCustomerRequest] = useState('')
+  const [filteredRooms, setFilteredRooms] = useState([])
+  const today = new Date()
+  const currentDate = today.getDate()
+  
   
   const [firstDate, setFirstDate] = useState<number | null>(() => {
     const today = new Date().getDate()
@@ -86,12 +94,16 @@ export default function LocationPage() {
   }
 
   const handleDateClick = (date: number) => {
+    // 오늘 이전 날짜는 선택 불가
+    if (date < currentDate) {
+      return
+    }
+    
     if (!firstDate) {
       setFirstDate(date)
     } else if (!secondDate) {
       setSecondDate(date)
     } else {
-      // 두 날짜가 모두 있으면 리셋하고 새로 시작
       setFirstDate(date)
       setSecondDate(null)
     }
@@ -191,7 +203,7 @@ export default function LocationPage() {
     { id: 'D15', name: 'D15호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 }
   ]
 
-  const getFilteredRooms = () => {
+  const getFilteredRooms = async () => {
     let rooms = allRooms
     
     // 동별 필터링
@@ -202,9 +214,21 @@ export default function LocationPage() {
       if (selectedBuilding === 'D동') rooms = rooms.filter(room => room.id.startsWith('D'))
     }
     
-    // 인원수 필터링 (검색용 state 사용)
+    // 인원수 필터링
     const totalGuests = searchAdults + searchChildren
     rooms = rooms.filter(room => room.maxGuests >= totalGuests)
+    
+    // 날짜별 예약 중복 필터링
+    if (checkInDate && checkOutDate) {
+      const checkIn = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkInDate.toString().padStart(2, '0')}`
+      const checkOut = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkOutDate.toString().padStart(2, '0')}`
+      
+      const bookedRoomsResult = await getBookedRooms(checkIn, checkOut)
+      if (bookedRoomsResult.success) {
+        const bookedRoomIds = bookedRoomsResult.data
+        rooms = rooms.filter(room => !bookedRoomIds.includes(room.id))
+      }
+    }
     
     return rooms
   }
@@ -297,11 +321,30 @@ export default function LocationPage() {
   
   // 옵션 선택/해제 함수
   const handleOptionChange = (optionKey: string) => {
-    setSelectedOptions(prev => 
-      prev.includes(optionKey)
-        ? prev.filter(key => key !== optionKey)
-        : [...prev, optionKey]
-    )
+    setSelectedOptions(prev => {
+      let newOptions = [...prev]
+      
+      // 미온수 그룹 처리
+      if (optionKey === 'hotwater1' || optionKey === 'hotwater2') {
+        newOptions = newOptions.filter(key => key !== 'hotwater1' && key !== 'hotwater2')
+        newOptions.push(optionKey)
+      }
+      // BBQ 그룹 처리  
+      else if (optionKey === 'bbq4' || optionKey === 'bbq4plus') {
+        newOptions = newOptions.filter(key => key !== 'bbq4' && key !== 'bbq4plus')
+        newOptions.push(optionKey)
+      }
+      // 벽난로는 단독 옵션
+      else if (optionKey === 'fireplace') {
+        if (newOptions.includes(optionKey)) {
+          newOptions = newOptions.filter(key => key !== optionKey)
+        } else {
+          newOptions.push(optionKey)
+        }
+      }
+      
+      return newOptions
+    })
   }
   
   // 추가옵션 총 가격 계산
@@ -417,6 +460,35 @@ export default function LocationPage() {
       return "투숙자 정보를 모두 입력해주세요."
     }
     return ""
+  }
+  
+  // 예약 데이터 준비 함수
+  const prepareReservationData = (reservationNum) => {
+    return {
+      reservationNumber: reservationNum,
+      roomId: selectedRoom?.id || '',
+      roomName: selectedRoom?.name || '',
+      checkInDate: checkInDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkInDate.toString().padStart(2, '0')}` : '',
+      checkOutDate: checkOutDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkOutDate.toString().padStart(2, '0')}` : '',
+      nights: calculateNights(),
+      bookerName: bookerInfo.name,
+      bookerEmail: bookerInfo.email,
+      bookerPhone: bookerInfo.phone,
+      isDifferentGuest: isDifferentGuest,
+      guestName: isDifferentGuest ? guestInfo.name : null,
+      guestEmail: isDifferentGuest ? guestInfo.email : null,
+      guestPhone: isDifferentGuest ? guestInfo.phone : null,
+      adultCount: adultCount,
+      studentCount: studentCount,
+      childCount: childCount,
+      infantCount: infantCount,
+      roomPrice: selectedRoom?.price || 0,
+      additionalFee: calculateAdditionalFee(),
+      optionsFee: calculateOptionsFee(),
+      totalAmount: (selectedRoom?.price || 0) + calculateAdditionalFee() + calculateOptionsFee(),
+      selectedOptions: selectedOptions,
+      customerRequest: customerRequest
+    }
   }
       
   return (
@@ -555,62 +627,14 @@ export default function LocationPage() {
                         {/* 날짜 */}
                         <div className="grid grid-cols-7 gap-1 text-center text-xs">
                           <div className="p-1"></div>
-                          {[1,2,3,4,5,6].map(date => (
+                          {[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26,27,28,29,30,31].map(date => (
                             <div 
                               key={date} 
-                              className={`p-1 cursor-pointer hover:bg-gray-200 ${
-                                isDateSelected(date) ? 'bg-blue-500 text-white rounded-full' : 
-                                isDateInRange(date) ? 'bg-blue-200' : ''
-                              }`} 
-                              onClick={() => handleDateClick(date)}
-                            >
-                              {date.toString().padStart(2, '0')}
-                            </div>
-                          ))}
-                          
-                          {[7,8,9,10,11,12,13].map(date => (
-                            <div 
-                              key={date} 
-                              className={`p-1 cursor-pointer hover:bg-gray-200 ${
-                                isDateSelected(date) ? 'bg-blue-500 text-white rounded-full' : 
-                                isDateInRange(date) ? 'bg-blue-200' : ''
-                              }`} 
-                              onClick={() => handleDateClick(date)}
-                            >
-                              {date}
-                            </div>
-                          ))}
-                          
-                          {[14,15,16,17,18,19,20].map(date => (
-                            <div 
-                              key={date} 
-                              className={`p-1 cursor-pointer hover:bg-gray-200 ${
-                                isDateSelected(date) ? 'bg-blue-500 text-white rounded-full' : 
-                                isDateInRange(date) ? 'bg-blue-200' : ''
-                              }`} 
-                              onClick={() => handleDateClick(date)}
-                            >
-                              {date}
-                            </div>
-                          ))}
-                          
-                          {[21,22,23,24,25,26,27].map(date => (
-                            <div 
-                              key={date} 
-                              className={`p-1 cursor-pointer hover:bg-gray-200 ${
-                                isDateSelected(date) ? 'bg-blue-500 text-white rounded-full' : 
-                                isDateInRange(date) ? 'bg-blue-200' : ''
-                              }`} 
-                              onClick={() => handleDateClick(date)}
-                            >
-                              {date}
-                            </div>
-                          ))}
-                          
-                          {[28,29,30].map(date => (
-                            <div 
-                              key={date} 
-                              className={`p-1 cursor-pointer hover:bg-gray-200 ${
+                              className={`p-1 ${
+                                date < currentDate 
+                                  ? 'text-gray-300 cursor-not-allowed' 
+                                  : 'cursor-pointer hover:bg-gray-200'
+                              } ${
                                 isDateSelected(date) ? 'bg-blue-500 text-white rounded-full' : 
                                 isDateInRange(date) ? 'bg-blue-200' : ''
                               }`} 
@@ -684,17 +708,31 @@ export default function LocationPage() {
                         className="w-full py-3 text-white font-medium text-sm"
                         style={{backgroundColor: '#134C59'}}
                         disabled={isSearching}
-                        onClick={() => {
+                        onClick={async () => {
+                          if (!checkInDate || !checkOutDate) {
+                            alert('체크인과 체크아웃 날짜를 선택해주세요.')
+                            return
+                          }
+                          
                           setIsSearching(true)
-                          setShowRoomResults(false) // 기존 결과 숨기기
-                          setTimeout(() => {
-                            setShowRoomResults(true) // 새 결과 보여주기
-                            setSelectedBuilding('전체')
-                            setVisibleRooms(3)
-                            setSearchAdults(adults)
-                            setSearchChildren(children)
+                          setShowRoomResults(false)
+                          setSearchAdults(adults)
+                          setSearchChildren(children)
+                          setSelectedBuilding('전체')
+                          setVisibleRooms(3)
+                          
+                          try {
+                            const rooms = await getFilteredRooms()
+                            setFilteredRooms(rooms)
+                            setTimeout(() => {
+                              setShowRoomResults(true)
+                              setIsSearching(false)
+                            }, 500)
+                          } catch (error) {
+                            console.error('객실 검색 실패:', error)
+                            alert('객실 검색 중 오류가 발생했습니다.')
                             setIsSearching(false)
-                          }, 500)
+                          }
                         }}
                       >
                         {isSearching ? '검색중...' : '객실검색'}
@@ -710,9 +748,15 @@ export default function LocationPage() {
                             {['전체', 'A동', 'B동', 'C동', 'D동'].map(building => (
                               <button
                                 key={building}
-                                onClick={() => {
+                                onClick={async () => {
                                   setSelectedBuilding(building)
                                   setVisibleRooms(3)
+                                  
+                                  // 동 선택 후 다시 필터링
+                                  if (filteredRooms.length > 0) {
+                                    const rooms = await getFilteredRooms()
+                                    setFilteredRooms(rooms)
+                                  }
                                 }}
                                 className={`px-6 py-2 text-sm font-medium transition-colors duration-200 ${
                                   selectedBuilding === building
@@ -727,15 +771,20 @@ export default function LocationPage() {
                         </div>
                         
                         <div className="max-h-[700px] overflow-y-auto">
-                          {getFilteredRooms().length === 0 ? (
+                          {filteredRooms.length === 0 ? (
                             <div className="text-center py-12">
                               <p className="text-gray-500 mb-4">검색된 객실이 없습니다</p>
                               <button 
                                 className="px-6 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium text-sm transition-colors duration-200"
-                                onClick={() => {
+                                onClick={async () => {
                                   setAdults(2)
                                   setChildren(0)
                                   setSelectedBuilding('전체')
+                                  setSearchAdults(2)
+                                  setSearchChildren(0)
+                                  
+                                  const rooms = await getFilteredRooms()
+                                  setFilteredRooms(rooms)
                                 }}
                               >
                                 검색 조건 초기화
@@ -743,7 +792,7 @@ export default function LocationPage() {
                             </div>
                           ) : (
                             <>
-                              {getFilteredRooms().slice(0, visibleRooms).map((room) => (
+                              {filteredRooms.slice(0, visibleRooms).map((room) => (
                                 <div key={room.id} className="bg-white p-6 shadow-sm mb-4">
                                   <div className="flex">
                                     <div className="w-48 h-32 mr-6">
@@ -778,13 +827,13 @@ export default function LocationPage() {
                               ))}
                               
                               {/* 더보기 버튼 */}
-                              {getFilteredRooms().length > visibleRooms && (
+                              {filteredRooms.length > visibleRooms && (
                                 <div className="flex justify-center mt-4">
                                   <button
                                     onClick={() => setVisibleRooms(visibleRooms + 3)}
                                     className="px-6 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium text-sm transition-colors duration-200"
                                   >
-                                    더보기 ({getFilteredRooms().length - visibleRooms}개 더)
+                                    더보기 ({filteredRooms.length - visibleRooms}개 더)
                                   </button>
                                 </div>
                               )}
@@ -1097,6 +1146,8 @@ export default function LocationPage() {
                           <textarea 
                             className="w-full p-3 border border-gray-300 text-sm h-24 resize-none" 
                             placeholder="요청사항을 입력해주세요"
+                            value={customerRequest}
+                            onChange={(e) => setCustomerRequest(e.target.value)}
                           ></textarea>
                         </div>
                         
@@ -1202,10 +1253,18 @@ export default function LocationPage() {
                             }`}
                             style={getFirstErrorMessage() ? {} : {backgroundColor: '#134C59'}}
                             disabled={!!getFirstErrorMessage()}
-                            onClick={() => {
+                            onClick={async () => {
                               if (!getFirstErrorMessage()) {
-                                setReservationNumber(generateReservationNumber())
-                                setActiveStep(3)
+                                const newReservationNumber = generateReservationNumber()
+                                const reservationData = prepareReservationData(newReservationNumber)
+                                const result = await saveReservation(reservationData)
+                                
+                                if (result.success) {
+                                  setReservationNumber(newReservationNumber)
+                                  setActiveStep(3)
+                                } else {
+                                  alert('예약 처리 중 오류가 발생했습니다.')
+                                }
                               }
                             }}
                           >
@@ -1242,7 +1301,7 @@ export default function LocationPage() {
                           <div className="p-3 text-left pl-8">{selectedRoom?.name || '--'}</div>
                         </div>
                         <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-8 font-medium text-left flex items-center">추가옵션</div>
+                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left flex items-center">추가옵션</div>
                           <div className="p-3 flex items-center text-left pl-8">
                             {selectedOptions.length > 0 ? 
                               selectedOptions.map(option => {
@@ -1300,6 +1359,12 @@ export default function LocationPage() {
                             </div>
                           </>
                         )}
+						  
+						{/* 고객요청사항 - 새로 추가 */}
+						<div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
+						  <div className="bg-gray-100 p-3 pl-6 font-medium text-left">고객요청사항</div>
+						  <div className="p-3 text-left pl-8">{customerRequest || '없음'}</div>
+						</div>  
                         
                         <div className="grid" style={{gridTemplateColumns: '30% 70%'}}>
                           <div className="bg-gray-100 p-3 pl-6 font-medium text-left">결제금액</div>

@@ -71,7 +71,7 @@ export default function Navigation() {
                       </span>
                     </Link>
                   ) : menu === '예약확인' ? (
-                    <Link href="/confirm">
+                    <Link href="/comfirm">
                       <span className="cursor-pointer hover:text-gray-200 flex items-center text-lg font-medium h-14">
                         {menu}
                       </span>
