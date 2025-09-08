@@ -42,7 +42,7 @@ export default function ConfirmPage() {
       setIsLoading(true)
       const result = await cancelReservationByInfo(bookerName, bookerPhone)
       
-      if (result.success && result.data.length > 0) {
+      if (result.success && (result.data || []).length > 0) {
         alert('예약이 성공적으로 취소되었습니다.')
         setReservations([])
         setShowResults(false)
