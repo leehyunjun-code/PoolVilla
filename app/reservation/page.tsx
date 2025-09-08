@@ -7,6 +7,18 @@ import { saveReservation } from '@/api/reservation'
 import { getBookedRooms } from '@/api/reservation'
 
 
+interface Room {
+  id: string
+  name: string
+  rooms: number
+  bathrooms: number
+  minGuests: number
+  maxGuests: number
+  size: number
+  petFriendly: boolean
+  price: number
+}
+
 export default function LocationPage() {
   const [activeStep, setActiveStep] = useState(1)
   const [currentYear, setCurrentYear] = useState(2025)
@@ -28,7 +40,7 @@ export default function LocationPage() {
   const [infantCount, setInfantCount] = useState<number>(0)
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [customerRequest, setCustomerRequest] = useState('')
-  const [filteredRooms, setFilteredRooms] = useState<any[]>([])
+  const [filteredRooms, setFilteredRooms] = useState<Room[]>([])
   const today = new Date()
   const currentDate = today.getDate()
   
