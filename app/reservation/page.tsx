@@ -6,8 +6,6 @@ import { useState } from 'react'
 
 export default function LocationPage() {
   const [activeStep, setActiveStep] = useState(1)
-  const [firstDate, setFirstDate] = useState<number | null>(null)
-  const [secondDate, setSecondDate] = useState<number | null>(null)
   const [currentYear, setCurrentYear] = useState(2025)
   const [currentMonth, setCurrentMonth] = useState(9)
   const [nights, setNights] = useState(1)
@@ -27,6 +25,16 @@ export default function LocationPage() {
   const [infantCount, setInfantCount] = useState<number>(0)
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   
+  const [firstDate, setFirstDate] = useState<number | null>(() => {
+    const today = new Date().getDate()
+    return today
+  })
+  const [secondDate, setSecondDate] = useState<number | null>(() => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    return tomorrow.getDate()
+  })
+    
   const [selectedRoom, setSelectedRoom] = useState<{
     id: string;
     name: string;
@@ -59,18 +67,22 @@ export default function LocationPage() {
   })
   
   const [reservationNumber, setReservationNumber] = useState('')
+  const [usedNumbers, setUsedNumbers] = useState<Set<string>>(new Set())
   
-  // 예약번호 생성 함수 (수정된 버전)
+  // 예약번호 생성 함수 (중복 방지 버전)
   const generateReservationNumber = () => {
-    const now = new Date()
-    const year = now.getFullYear().toString().slice(-2) // 25
-    const month = (now.getMonth() + 1).toString().padStart(2, '0') // 09
-    const day = now.getDate().toString().padStart(2, '0') // 07
+    let newNumber
+    do {
+      const now = new Date()
+      const year = now.getFullYear().toString().slice(-2)
+      const month = (now.getMonth() + 1).toString().padStart(2, '0')
+      const day = now.getDate().toString().padStart(2, '0')
+      const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
+      newNumber = `S${year}${month}${day}${randomNum}`
+    } while (usedNumbers.has(newNumber))
     
-    // 4자리 랜덤 숫자 생성 (0000~9999)
-    const randomNum = Math.floor(Math.random() * 10000).toString().padStart(4, '0')
-    
-    return `S${year}${month}${day}${randomNum}`
+    setUsedNumbers(prev => new Set(prev).add(newNumber))
+    return newNumber
   }
 
   const handleDateClick = (date: number) => {
@@ -441,33 +453,43 @@ export default function LocationPage() {
                 <div className="flex bg-gray-200 overflow-hidden">
                   {/* 01 객실선택 */}
                   <button
-                    onClick={() => setActiveStep(1)}
+                    onClick={(e) => {
+                      if (activeStep === 3) {
+                        e.preventDefault();
+                        return;
+                      }
+                      setActiveStep(1);
+                    }}
                     className={`w-80 py-3 text-sm font-medium transition-colors duration-200 ${
                       activeStep === 1
                         ? 'bg-black text-white'
-                        : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                        : activeStep === 3
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed pointer-events-none'
+                          : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
                     }`}
+                    disabled={activeStep === 3}
                   >
                     01 객실선택
                   </button>
                   
-                  {/* 02 정보입력 - 객실 선택 완료 시에만 활성화 */}
                   <button
                     onClick={() => {
-                      if (selectedRoom) {
+                      if (activeStep !== 3 && selectedRoom) {
                         setActiveStep(2)
-                      } else {
+                      } else if (activeStep !== 3) {
                         alert('먼저 객실을 선택해주세요.')
                       }
                     }}
                     className={`w-80 py-3 text-sm font-medium transition-colors duration-200 ${
                       activeStep === 2
                         ? 'bg-black text-white'
-                        : selectedRoom 
-                          ? 'bg-gray-200 text-gray-600 hover:bg-gray-300'
-                          : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                        : activeStep === 3
+                          ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                          : selectedRoom 
+                            ? 'bg-gray-200 text-gray-600 hover:bg-gray-300'
+                            : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     }`}
-                    disabled={!selectedRoom}
+                    disabled={!selectedRoom || activeStep === 3}
                   >
                     02 정보입력
                   </button>
