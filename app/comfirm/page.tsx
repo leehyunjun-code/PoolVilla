@@ -23,7 +23,7 @@ export default function ConfirmPage() {
     if (result.success) {
       setReservations(result.data || [])
       setShowResults(true)
-      if (result.data.length === 0) {
+      if ((result.data || []).length === 0) {
         alert('예약 정보를 찾을 수 없습니다.')
       }
     } else {
