@@ -226,7 +226,7 @@ export default function LocationPage() {
       const bookedRoomsResult = await getBookedRooms(checkIn, checkOut)
       if (bookedRoomsResult.success) {
         const bookedRoomIds = bookedRoomsResult.data
-        rooms = rooms.filter(room => !bookedRoomIds.includes(room.id))
+        rooms = rooms.filter(room => !bookedRoomIds?.includes(room.id))
       }
     }
     
