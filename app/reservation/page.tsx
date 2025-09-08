@@ -1231,7 +1231,7 @@ export default function LocationPage() {
                                   'hotwater2': '미온수(6/1~10/31)',
                                   'fireplace': '벽난로(20pcs)'
                                 }
-                                return optionNames[option]
+                                return optionNames[option as keyof typeof optionNames]
                               }).join(', ') : '없음'
                             }
                           </div>
