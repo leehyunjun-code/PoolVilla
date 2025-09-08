@@ -7,8 +7,12 @@ export default function Footer() {
       <div style={{ backgroundColor: '#8B7355' }} className="text-white py-8">
         <div className="max-w-5xl mx-auto px-6">
           <div className="flex justify-between items-center gap-12">
-            {/* 왼쪽 로고 */}
-            <h2 className="text-4xl font-bold">CUBE45 logo</h2>
+            {/* 왼쪽 BRANDFORUM 이미지 */}
+            <img 
+              src="/images/main/cube45.jpg" 
+              alt="BRANDFORUM" 
+              className="h-12 w-auto"
+            />
             
             {/* 오른쪽 영역 */}
             <div>

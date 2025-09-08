@@ -10,10 +10,12 @@ export default function Navigation() {
     'CUBE 45': ['CUBE 45', '배치도', '관광정보'],
     '독채객실': ['풀빌라옵션','A동','B동', 'C동', 'D동'],
     '부대시설': [],
-    '이용안내': ['이용안내', '예약안내'],
+    '이용안내': [],
     '스페셜 오퍼': [],
-    '실시간예약': []
+    '실시간예약': [],
+    '예약확인': []
   }
+  
   // 서브메뉴 링크 매핑
   const subMenuLinks = {
     'CUBE 45': {
@@ -27,11 +29,7 @@ export default function Navigation() {
       'B동': '/room/b',
       'C동': '/room/c',
       'D동': '/room/d'
-    },
-	'이용안내': {
-	  '이용안내': '/guide/use',
-	  '예약안내': '/guide/reservation',	
-	}  
+    }
   }
   
   return (
@@ -72,8 +70,26 @@ export default function Navigation() {
                         {menu}
                       </span>
                     </Link>
+                  ) : menu === '예약확인' ? (
+                    <Link href="/confirm">
+                      <span className="cursor-pointer hover:text-gray-200 flex items-center text-lg font-medium h-14">
+                        {menu}
+                      </span>
+                    </Link>
                   ) : menu === '부대시설' ? (
                     <Link href="/facilities">
+                      <span className="cursor-pointer hover:text-gray-200 flex items-center text-lg font-medium h-14">
+                        {menu}
+                      </span>
+                    </Link>
+                  ) : menu === '스페셜 오퍼' ? (
+                    <Link href="/special">
+                      <span className="cursor-pointer hover:text-gray-200 flex items-center text-lg font-medium h-14">
+                        {menu}
+                      </span>
+                    </Link>
+                  ) : menu === '이용안내' ? (
+                    <Link href="/guide">
                       <span className="cursor-pointer hover:text-gray-200 flex items-center text-lg font-medium h-14">
                         {menu}
                       </span>
