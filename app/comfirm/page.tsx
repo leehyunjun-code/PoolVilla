@@ -33,7 +33,7 @@ interface Reservation {
 export default function ConfirmPage() {
   const [bookerName, setBookerName] = useState('')
   const [bookerPhone, setBookerPhone] = useState('')
-  const [reservations, setReservations] = useState<any[]>([])
+  const [reservations, setReservations] = useState<Reservation[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showResults, setShowResults] = useState(false)
 
