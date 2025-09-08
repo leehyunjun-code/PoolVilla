@@ -28,7 +28,7 @@ export default function LocationPage() {
   const [infantCount, setInfantCount] = useState<number>(0)
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [customerRequest, setCustomerRequest] = useState('')
-  const [filteredRooms, setFilteredRooms] = useState([])
+  const [filteredRooms, setFilteredRooms] = useState<any[]>([])
   const today = new Date()
   const currentDate = today.getDate()
   
