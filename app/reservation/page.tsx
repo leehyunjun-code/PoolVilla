@@ -682,8 +682,9 @@ export default function LocationPage() {
                                 className={`p-1 ${
                                   (() => {
                                     const today = new Date()
+                                    today.setHours(0, 0, 0, 0)
                                     const selectedDate = new Date(currentYear, currentMonth - 1, date)
-                                    return selectedDate < today.setHours(0, 0, 0, 0)
+                                    return selectedDate < today
                                   })()
                                     ? 'text-gray-300 cursor-not-allowed' 
                                     : 'cursor-pointer hover:bg-gray-200'
