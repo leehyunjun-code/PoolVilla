@@ -6,8 +6,8 @@ import { useState } from 'react'
 
 export default function LocationPage() {
   const [activeStep, setActiveStep] = useState(1)
-  const [firstDate, setFirstDate] = useState(null)
-  const [secondDate, setSecondDate] = useState(null)
+  const [firstDate, setFirstDate] = useState<number | null>(null)
+  const [secondDate, setSecondDate] = useState<number | null>(null)
   const [currentYear, setCurrentYear] = useState(2025)
   const [currentMonth, setCurrentMonth] = useState(9)
   const [nights, setNights] = useState(1)
@@ -17,7 +17,7 @@ export default function LocationPage() {
   const [showRoomResults, setShowRoomResults] = useState(false)
   const [selectedBuilding, setSelectedBuilding] = useState('전체')
   const [visibleRooms, setVisibleRooms] = useState(3)
-  const [selectedRoom, setSelectedRoom] = useState(null) 
+  const [selectedRoom, setSelectedRoom] = useState<any>(null)
   const [searchAdults, setSearchAdults] = useState(2)
   const [searchChildren, setSearchChildren] = useState(0)
   const [isSearching, setIsSearching] = useState(false)
@@ -116,12 +116,12 @@ export default function LocationPage() {
     return 1
   }
 
-  const isDateInRange = (date) => {
+  const isDateInRange = (date: number) => {
     if (!checkInDate || !checkOutDate) return false
     return date > checkInDate && date < checkOutDate
   }
-
-  const isDateSelected = (date) => {
+  
+  const isDateSelected = (date: number) => {
     return date === checkInDate || date === checkOutDate
   }
 
