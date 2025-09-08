@@ -463,7 +463,7 @@ export default function LocationPage() {
   }
   
   // 예약 데이터 준비 함수
-  const prepareReservationData = (reservationNum) => {
+  const prepareReservationData = (reservationNum: string) => {
     return {
       reservationNumber: reservationNum,
       roomId: selectedRoom?.id || '',
