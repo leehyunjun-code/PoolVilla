@@ -3,6 +3,8 @@ import { supabase } from '@/lib/supabase'
 // 예약 데이터 저장
 export const saveReservation = async (reservationData) => {
   try {
+    console.log('저장할 데이터:', reservationData)
+    
     const { data, error } = await supabase
       .from('cube45_reservations')
       .insert([{
@@ -32,7 +34,13 @@ export const saveReservation = async (reservationData) => {
       }])
       .select()
 
-    if (error) throw error
+    console.log('Supabase 저장 결과:', { data, error })
+    
+    if (error) {
+      console.error('Supabase 저장 오류 상세:', error)
+      throw error
+    }
+    
     return { success: true, data }
   } catch (error) {
     console.error('예약 저장 실패:', error)
@@ -77,6 +85,8 @@ export const cancelReservation = async (reservationNumber) => {
 // 특정 날짜 범위에 예약된 객실 목록 조회
 export const getBookedRooms = async (checkInDate, checkOutDate) => {
   try {
+    console.log('날짜 확인:', checkInDate, checkOutDate)
+    
     const { data, error } = await supabase
       .from('cube45_reservations')
       .select('room_id')
@@ -84,10 +94,16 @@ export const getBookedRooms = async (checkInDate, checkOutDate) => {
       .lt('check_in_date', checkOutDate)
       .gt('check_out_date', checkInDate)
 
-    if (error) throw error
-    return { success: true, data: data.map(item => item.room_id) }
+    console.log('Supabase 결과:', { data, error })
+    
+    if (error) {
+      console.error('Supabase 오류 상세:', error)
+      throw error
+    }
+    
+    return { success: true, data: data ? data.map(item => item.room_id) : [] }
   } catch (error) {
     console.error('예약된 객실 조회 실패:', error)
-    return { success: false, error }
+    return { success: true, data: [] }
   }
 }

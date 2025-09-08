@@ -109,9 +109,12 @@ export default function ConfirmPage() {
                 <div>
                   <input 
                     type="text"
-                    placeholder="구매자 이름"
+                    placeholder="예약자 이름"
                     value={bookerName}
-                    onChange={(e) => setBookerName(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z]/g, '');
+                      setBookerName(value);
+                    }}
                     className="w-full p-4 border border-gray-300 text-sm"
                   />
                 </div>
@@ -119,9 +122,12 @@ export default function ConfirmPage() {
                 <div>
                   <input 
                     type="text"
-                    placeholder="구매자 전화번호"
+                    placeholder="예약자 전화번호"
                     value={bookerPhone}
-                    onChange={(e) => setBookerPhone(e.target.value)}
+                    onChange={(e) => {
+                      const value = e.target.value.replace(/[^0-9]/g, '');
+                      setBookerPhone(value);
+                    }}
                     className="w-full p-4 border border-gray-300 text-sm"
                   />
                 </div>
@@ -132,22 +138,9 @@ export default function ConfirmPage() {
                 <button 
                   onClick={handleSearch}
                   disabled={isLoading}
-                  className="flex-1 py-3 bg-red-600 text-white font-medium text-sm disabled:bg-gray-400"
-                >
-                  {isLoading ? '검색중...' : '검색하기'}
-                </button>
-                <button 
-                  onClick={handleCancel}
-                  disabled={isLoading}
                   className="flex-1 py-3 bg-teal-700 text-white font-medium text-sm disabled:bg-gray-400"
                 >
-                  {isLoading ? '처리중...' : '취소하기'}
-                </button>
-                <button 
-                  onClick={handleClose}
-                  className="flex-1 py-3 bg-gray-300 text-gray-700 font-medium text-sm"
-                >
-                  닫기
+                  {isLoading ? '검색중...' : '검색하기'}
                 </button>
               </div>
 
@@ -158,8 +151,11 @@ export default function ConfirmPage() {
                   {reservations.map((reservation, index) => (
                     <div key={reservation.id} className="mb-6 bg-white rounded-lg shadow-md border overflow-hidden">
                       {/* 예약번호 헤더 */}
-                      <div className="bg-blue-600 text-white p-4">
-                        <h4 className="font-bold text-center text-lg">예약번호: {reservation.reservation_number}</h4>
+                      <div className={`${reservation.status === 'cancelled' ? 'bg-red-600' : 'bg-blue-600'} text-white p-4`}>
+                        <h4 className="font-bold text-center text-lg">
+                          예약번호: {reservation.reservation_number}
+                          {reservation.status === 'cancelled' && <span className="ml-2 text-sm">(취소됨)</span>}
+                        </h4>
                         <p className="text-center text-blue-100 text-sm mt-1">
                           {reservation.room_name}
                         </p>
@@ -286,6 +282,19 @@ export default function ConfirmPage() {
                             </div>
                           </div>
                         </div>
+                        
+                        {/* 취소 버튼 - 확정된 예약만 표시 */}
+                        {reservation.status === 'confirmed' && (
+                          <div className="mt-4 text-center">
+                            <button 
+                              onClick={() => handleCancel()}
+                              disabled={isLoading}
+                              className="px-8 py-2 bg-red-600 text-white font-medium text-sm rounded disabled:bg-gray-400"
+                            >
+                              {isLoading ? '처리중...' : '예약 취소'}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   ))}

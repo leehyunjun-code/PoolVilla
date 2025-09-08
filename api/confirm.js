@@ -8,7 +8,7 @@ export const getReservationByNameAndPhone = async (bookerName, bookerPhone) => {
       .select('*')
       .eq('booker_name', bookerName)
       .eq('booker_phone', bookerPhone)
-      .eq('status', 'confirmed')
+      .in('status', ['confirmed', 'cancelled'])
 
     if (error) throw error
     return { success: true, data }

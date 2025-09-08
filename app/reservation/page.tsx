@@ -69,15 +69,18 @@ export default function LocationPage() {
     return new Date(year, month - 1, 1).getDay();
   }; 	
    
-  const [firstDate, setFirstDate] = useState<number | null>(() => {
-    const today = new Date().getDate()
+  const [firstDate, setFirstDate] = useState<Date | null>(() => {
+    const today = new Date()
+    today.setHours(0, 0, 0, 0)
     return today
   })
-  const [secondDate, setSecondDate] = useState<number | null>(() => {
+  const [secondDate, setSecondDate] = useState<Date | null>(() => {
     const tomorrow = new Date()
     tomorrow.setDate(tomorrow.getDate() + 1)
-    return tomorrow.getDate()
+    tomorrow.setHours(0, 0, 0, 0)
+    return tomorrow
   })
+
     
   const [selectedRoom, setSelectedRoom] = useState<{
     id: string;
@@ -131,8 +134,8 @@ export default function LocationPage() {
 
   const handleDateClick = (date: number) => {
     // 현재 날짜와 선택한 날짜를 정확히 비교
-    const today = new Date()
     const selectedDate = new Date(currentYear, currentMonth - 1, date)
+    selectedDate.setHours(0, 0, 0, 0)
     
     // 오늘 이전 날짜는 선택 불가
     const todayWithoutTime = new Date()
@@ -142,11 +145,11 @@ export default function LocationPage() {
     }
     
     if (!firstDate) {
-      setFirstDate(date)
+      setFirstDate(selectedDate)
     } else if (!secondDate) {
-      setSecondDate(date)
+      setSecondDate(selectedDate)
     } else {
-      setFirstDate(date)
+      setFirstDate(selectedDate)
       setSecondDate(null)
     }
   }
@@ -158,11 +161,8 @@ export default function LocationPage() {
     } else {
       setCurrentMonth(currentMonth - 1)
     }
-    // 월이 바뀌면 선택된 날짜 리셋
-    setFirstDate(null)
-    setSecondDate(null)
   }
-
+  
   const handleNextMonth = () => {
     if (currentMonth === 12) {
       setCurrentMonth(1)
@@ -170,9 +170,6 @@ export default function LocationPage() {
     } else {
       setCurrentMonth(currentMonth + 1)
     }
-    // 월이 바뀌면 선택된 날짜 리셋
-    setFirstDate(null)
-    setSecondDate(null)
   }
 
   const monthNames = [
@@ -181,24 +178,32 @@ export default function LocationPage() {
   ]
 
   // 체크인/체크아웃 날짜 계산 (더 빠른 날짜가 체크인)
-  const checkInDate = firstDate && secondDate ? Math.min(firstDate, secondDate) : firstDate
-  const checkOutDate = firstDate && secondDate ? Math.max(firstDate, secondDate) : secondDate
+  const checkInDate = firstDate && secondDate 
+    ? (firstDate <= secondDate ? firstDate : secondDate) 
+    : firstDate
+  const checkOutDate = firstDate && secondDate 
+    ? (firstDate <= secondDate ? secondDate : firstDate) 
+    : secondDate
   
   // 숙박일 계산 함수
   const calculateNights = () => {
     if (checkInDate && checkOutDate) {
-      return Math.abs(checkOutDate - checkInDate)
+      const timeDiff = Math.abs(checkOutDate.getTime() - checkInDate.getTime())
+      return Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
     }
     return 1
   }
 
-  const isDateInRange = (date: number) => {
-    if (!checkInDate || !checkOutDate) return false
-    return date > checkInDate && date < checkOutDate
+  const isDateSelected = (date: number) => {
+    const currentDateObj = new Date(currentYear, currentMonth - 1, date)
+    return (checkInDate && currentDateObj.getTime() === checkInDate.getTime()) || 
+           (checkOutDate && currentDateObj.getTime() === checkOutDate.getTime())
   }
   
-  const isDateSelected = (date: number) => {
-    return date === checkInDate || date === checkOutDate
+  const isDateInRange = (date: number) => {
+    if (!checkInDate || !checkOutDate) return false
+    const currentDateObj = new Date(currentYear, currentMonth - 1, date)
+    return currentDateObj > checkInDate && currentDateObj < checkOutDate
   }
 
   // 객실 데이터 정의
@@ -262,9 +267,9 @@ export default function LocationPage() {
     
     // 날짜별 예약 중복 필터링
     if (checkInDate && checkOutDate) {
-      const checkIn = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkInDate.toString().padStart(2, '0')}`
-      const checkOut = `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkOutDate.toString().padStart(2, '0')}`
-      
+      const checkIn = `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}`
+      const checkOut = `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}`
+
       const bookedRoomsResult = await getBookedRooms(checkIn, checkOut)
       if (bookedRoomsResult.success) {
         const bookedRoomIds = bookedRoomsResult.data
@@ -510,8 +515,8 @@ export default function LocationPage() {
       reservationNumber: reservationNum,
       roomId: selectedRoom?.id || '',
       roomName: selectedRoom?.name || '',
-      checkInDate: checkInDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkInDate.toString().padStart(2, '0')}` : '',
-      checkOutDate: checkOutDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkOutDate.toString().padStart(2, '0')}` : '',
+      checkInDate: checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : '',
+      checkOutDate: checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : '',
       nights: calculateNights(),
       bookerName: bookerInfo.name,
       bookerEmail: bookerInfo.email,
@@ -631,7 +636,7 @@ export default function LocationPage() {
                       <div className="mb-4 p-3 bg-gray-50">
                         <h4 className="text-sm font-medium mb-3 text-gray-800">
                           {checkInDate && checkOutDate 
-                            ? `예약일자 ${currentYear}. ${currentMonth.toString().padStart(2, '0')}. ${checkInDate.toString().padStart(2, '0')}~ ${checkOutDate.toString().padStart(2, '0')}`
+                            ? `예약일자 ${checkInDate.getFullYear()}. ${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}. ${checkInDate.getDate().toString().padStart(2, '0')}~ ${checkOutDate.getFullYear()}. ${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}. ${checkOutDate.getDate().toString().padStart(2, '0')}`
                             : '예약일자'
                           }
                         </h4>
@@ -705,7 +710,7 @@ export default function LocationPage() {
                       <div className="mb-3">
                         <div className="w-full p-2 bg-gray-50 text-xs flex justify-between">
                           <span className="text-gray-600">체크인</span>
-                          <span className="text-gray-800">{checkInDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkInDate.toString().padStart(2, '0')}` : '--'}</span>
+                          <span className="text-gray-800">{checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : '--'}</span>
                         </div>
                       </div>
                       
@@ -713,7 +718,7 @@ export default function LocationPage() {
                       <div className="mb-3">
                         <div className="w-full p-2 bg-gray-50 text-xs flex justify-between">
                           <span className="text-gray-600">체크아웃</span>
-                          <span className="text-gray-800">{checkOutDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkOutDate.toString().padStart(2, '0')}` : '--'}</span>
+                          <span className="text-gray-800">{checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : '--'}</span>
                         </div>
                       </div>
                       
@@ -1400,11 +1405,11 @@ export default function LocationPage() {
                         </div>
                         <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
                           <div className="bg-gray-100 p-3 pl-6 font-medium text-left">체크인</div>
-                          <div className="p-3 text-left pl-8">{checkInDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkInDate.toString().padStart(2, '0')}` : '--'}</div>
+                          <div className="p-3 text-left pl-8">{checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : '--'}</div>
                         </div>
                         <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
                           <div className="bg-gray-100 p-3 pl-6 font-medium text-left">체크아웃</div>
-                          <div className="p-3 text-left pl-8">{checkOutDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkOutDate.toString().padStart(2, '0')}` : '--'}</div>
+                          <div className="p-3 text-left pl-8">{checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : '--'}</div>
                         </div>
                         <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
                           <div className="bg-gray-100 p-3 pl-6 font-medium text-left">구매자</div>
