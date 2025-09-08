@@ -17,7 +17,6 @@ export default function LocationPage() {
   const [showRoomResults, setShowRoomResults] = useState(false)
   const [selectedBuilding, setSelectedBuilding] = useState('전체')
   const [visibleRooms, setVisibleRooms] = useState(3)
-  const [selectedRoom, setSelectedRoom] = useState<Record<string, unknown> | null>(null)
   const [searchAdults, setSearchAdults] = useState(2)
   const [searchChildren, setSearchChildren] = useState(0)
   const [isSearching, setIsSearching] = useState(false)
@@ -27,8 +26,19 @@ export default function LocationPage() {
   const [childCount, setChildCount] = useState<number>(0)
   const [infantCount, setInfantCount] = useState<number>(0)
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
-
   
+  const [selectedRoom, setSelectedRoom] = useState<{
+    id: string;
+    name: string;
+    rooms: number;
+    bathrooms: number;
+    minGuests: number;
+    maxGuests: number;
+    size: number;
+    petFriendly: boolean;
+    price: number;
+  } | null>(null)
+
   const [termsChecked, setTermsChecked] = useState({
     required1: false,
     required2: false,
