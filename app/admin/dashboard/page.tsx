@@ -173,25 +173,25 @@ export default function AdminDashboard() {
         const thisMonthStart = `${thisMonth}-01T00:00:00`
         const nextMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 1).toISOString().substring(0, 10)
         const thisMonthEnd = `${nextMonth}T00:00:00`
-
+        
         const { data: monthlyData } = await supabase
           .from('cube45_reservations')
-          .select('total_amount, created_at, room_id')
+          .select('total_amount, created_at, room_id, nights')
           .gte('created_at', thisMonthStart)
           .lt('created_at', thisMonthEnd)
           .neq('status', 'cancelled')
-
+        
         // 지난달 데이터 (created_at 기준)
         const lastMonthStart = `${lastMonth}-01T00:00:00`
         const thisMonthStartForEnd = `${thisMonth}-01T00:00:00`
-
+        
         const { data: lastMonthData } = await supabase
           .from('cube45_reservations')
-          .select('total_amount, created_at, room_id')
+          .select('total_amount, created_at, room_id, nights')
           .gte('created_at', lastMonthStart)
           .lt('created_at', thisMonthStartForEnd)
           .neq('status', 'cancelled')
-
+        
         console.log('이번달 데이터:', monthlyData)
         console.log('지난달 데이터:', lastMonthData)
 
