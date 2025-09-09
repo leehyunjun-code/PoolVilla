@@ -24,9 +24,9 @@ export default function AdminDashboard() {
   const [propertyReport, setPropertyReport] = useState({
     today: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 34, total: 34 },
     monthly: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 0, total: 0 },
-    lastMonth: { adr: 0, occ: 0, rev: 0, bookings: 0 }
+    lastMonth: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 0, total: 0 }  // remaining, total 추가
   })
-
+  
   useEffect(() => {
     setMounted(true)
     const timer = setInterval(() => {
