@@ -9,6 +9,7 @@ export default function AdminReservation() {
   const [reservations, setReservations] = useState([])
   const [loading, setLoading] = useState(true)
   const [checkStatus, setCheckStatus] = useState({}) // 체크인/체크아웃 상태 관리
+  const [lastUpdateTime, setLastUpdateTime] = useState('') // 마지막 업데이트 시간
   
   // 검색 조건 상태들
   const [searchConditions, setSearchConditions] = useState({
@@ -47,14 +48,19 @@ export default function AdminReservation() {
 
       if (error) {
         console.error('Supabase 에러:', error)
-        console.error('에러 메시지:', error.message)
-        console.error('에러 코드:', error.code)
-        console.error('에러 상세:', JSON.stringify(error, null, 2))
         throw error
       }
       
       console.log('조회된 예약 데이터:', data)
       setReservations(data || [])
+      
+      // 기존 체크인/체크아웃 상태 로드
+      const initialCheckStatus = {}
+      data?.forEach(reservation => {
+        initialCheckStatus[`${reservation.id}_checkin`] = reservation.check_in_status || false
+        initialCheckStatus[`${reservation.id}_checkout`] = reservation.check_out_status || false
+      })
+      setCheckStatus(initialCheckStatus)
     } catch (error) {
       console.error('예약 데이터 조회 실패:', error)
       setReservations([])
@@ -74,11 +80,80 @@ export default function AdminReservation() {
     fetchReservations()
   }
 
-  const toggleCheckStatus = (reservationId, type) => {
-    setCheckStatus(prev => ({
-      ...prev,
-      [`${reservationId}_${type}`]: !prev[`${reservationId}_${type}`]
-    }))
+  // 체크인/체크아웃 상태 변경 함수
+  const toggleCheckStatus = async (reservationId, type) => {
+    const currentStatus = checkStatus[`${reservationId}_${type}`]
+    const newStatus = !currentStatus
+    
+    // 상태에 따른 메시지 생성
+    const getConfirmMessage = (type, newStatus) => {
+      if (type === 'checkin') {
+        return newStatus ? '체크인을 입장 상태로 바꾸겠습니까?' : '체크인을 미입장 상태로 바꾸겠습니까?'
+      } else {
+        return newStatus ? '체크아웃을 퇴실 상태로 바꾸겠습니까?' : '체크아웃을 미퇴실 상태로 바꾸겠습니까?'
+      }
+    }
+    
+    const getSuccessMessage = (type, newStatus) => {
+      if (type === 'checkin') {
+        return newStatus ? '체크인이 입장 상태로 변경되었습니다.' : '체크인이 미입장 상태로 변경되었습니다.'
+      } else {
+        return newStatus ? '체크아웃이 퇴실 상태로 변경되었습니다.' : '체크아웃이 미퇴실 상태로 변경되었습니다.'
+      }
+    }
+
+    // 확인 메시지 표시
+    const confirmMessage = getConfirmMessage(type, newStatus)
+    if (!confirm(confirmMessage)) {
+      return
+    }
+
+    try {
+      // 현재 시간 생성
+      const now = new Date()
+      const timeString = now.toLocaleString('ko-KR', {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+      })
+
+      // Supabase 업데이트
+      const updateData = {}
+      if (type === 'checkin') {
+        updateData.check_in_status = newStatus
+        updateData.check_in_time = newStatus ? now.toISOString() : null
+      } else {
+        updateData.check_out_status = newStatus
+        updateData.check_out_time = newStatus ? now.toISOString() : null
+      }
+
+      const { error } = await supabase
+        .from('cube45_reservations')
+        .update(updateData)
+        .eq('id', reservationId)
+
+      if (error) throw error
+
+      // 로컬 상태 업데이트
+      setCheckStatus(prev => ({
+        ...prev,
+        [`${reservationId}_${type}`]: newStatus
+      }))
+
+      // 마지막 업데이트 시간 표시
+      setLastUpdateTime(timeString)
+
+      // 성공 메시지 표시
+      const successMessage = getSuccessMessage(type, newStatus)
+      alert(successMessage)
+
+    } catch (error) {
+      console.error('체크 상태 업데이트 실패:', error)
+      alert('상태 변경에 실패했습니다. 다시 시도해주세요.')
+    }
   }
 
   const getStatusDisplay = (status) => {
@@ -114,6 +189,18 @@ export default function AdminReservation() {
     const minutes = date.getMinutes().toString().padStart(2, '0')
     const seconds = date.getSeconds().toString().padStart(2, '0')
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
+  }
+
+  const formatTimeSimple = (dateString) => {
+    if (!dateString) return ''
+    const date = new Date(dateString)
+    const year = date.getFullYear()
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    const seconds = date.getSeconds().toString().padStart(2, '0')
+    return `${year}.${month}.${day}. ${hours}:${minutes}:${seconds}`
   }
 
   const formatDateOnly = (dateString) => {
@@ -299,8 +386,14 @@ export default function AdminReservation() {
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">객실</th>
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">인원</th>
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">금액</th>
-                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">체크인</th>
-                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">체크아웃</th>
+                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">
+                    체크인
+                    <div className="text-xs text-gray-500 mt-1">(클릭하여 변경)</div>
+                  </th>
+                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">
+                    체크아웃
+                    <div className="text-xs text-gray-500 mt-1">(클릭하여 변경)</div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -336,7 +429,7 @@ export default function AdminReservation() {
                       email: reservation.booker_email || '-'
                     }
 
-                    // 체크인/체크아웃 상태 (토글 가능)
+                    // 체크인/체크아웃 상태 (DB에서 가져온 값 또는 기본값)
                     const checkInStatus = checkStatus[`${reservation.id}_checkin`] ? 'O' : 'X'
                     const checkOutStatus = checkStatus[`${reservation.id}_checkout`] ? 'O' : 'X'
                     
@@ -372,7 +465,12 @@ export default function AdminReservation() {
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">
                           <button 
                             onClick={() => toggleCheckStatus(reservation.id, 'checkin')}
-                            className="font-bold hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"
+                            className={`font-bold px-3 py-2 rounded cursor-pointer transition-colors ${
+                              checkInStatus === 'O' 
+                                ? 'text-green-600 bg-green-100 hover:bg-green-200' 
+                                : 'text-red-600 bg-red-100 hover:bg-red-200'
+                            }`}
+                            title="클릭하여 체크인 상태 변경"
                           >
                             {checkInStatus}
                           </button>
@@ -380,7 +478,12 @@ export default function AdminReservation() {
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">
                           <button 
                             onClick={() => toggleCheckStatus(reservation.id, 'checkout')}
-                            className="font-bold hover:bg-gray-100 px-2 py-1 rounded cursor-pointer"
+                            className={`font-bold px-3 py-2 rounded cursor-pointer transition-colors ${
+                              checkOutStatus === 'O' 
+                                ? 'text-green-600 bg-green-100 hover:bg-green-200' 
+                                : 'text-red-600 bg-red-100 hover:bg-red-200'
+                            }`}
+                            title="클릭하여 체크아웃 상태 변경"
                           >
                             {checkOutStatus}
                           </button>
@@ -393,31 +496,60 @@ export default function AdminReservation() {
             </table>
           </div>
 
+          {/* 마지막 업데이트 시간 표시 */}
+          {lastUpdateTime && (
+            <div className="mt-4 text-center">
+              <div className="inline-flex items-center px-4 py-2 bg-blue-50 rounded-lg">
+                <svg className="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
+                </svg>
+                <span className="text-sm text-blue-700">마지막 업데이트: {lastUpdateTime}</span>
+              </div>
+            </div>
+          )}
+
           {/* 하단 정보 */}
           <div className="mt-6 bg-white p-6 rounded-lg shadow-sm">
             <h3 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
               <svg className="w-5 h-5 mr-2 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
               </svg>
-              예약상태 안내
+              예약상태 및 체크 안내
             </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
-              <ul className="space-y-2">
-                <li className="flex items-center">
-                  <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs mr-2">예약접수</span>
-                  신규 예약을 호텔에 요청한 상태입니다.
-                </li>
-                <li className="flex items-center">
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs mr-2">예약완료</span>
-                  접수된 예약건이 최종적으로 완료된 상태입니다.
-                </li>
-              </ul>
-              <ul className="space-y-2">
-                <li className="flex items-center">
-                  <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs mr-2">취소완료</span>
-                  취소 신청한 예약 건이 취소가 완료된 상태입니다.
-                </li>
-              </ul>
+              <div>
+                <h4 className="font-semibold mb-2 text-gray-700">예약 상태</h4>
+                <ul className="space-y-2">
+                  <li className="flex items-center">
+                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs mr-2">예약접수</span>
+                    신규 예약을 호텔에 요청한 상태입니다.
+                  </li>
+                  <li className="flex items-center">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs mr-2">예약완료</span>
+                    접수된 예약건이 최종적으로 완료된 상태입니다.
+                  </li>
+                  <li className="flex items-center">
+                    <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs mr-2">취소완료</span>
+                    취소 신청한 예약 건이 취소가 완료된 상태입니다.
+                  </li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-2 text-gray-700">체크인/아웃 관리</h4>
+                <ul className="space-y-2">
+                  <li className="flex items-center">
+                    <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs mr-2 font-bold">O</span>
+                    입장/퇴실 완료 상태
+                  </li>
+                  <li className="flex items-center">
+                    <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs mr-2 font-bold">X</span>
+                    미입장/미퇴실 상태
+                  </li>
+                  <li className="text-xs text-gray-600">
+                    * 버튼을 클릭하여 상태를 변경할 수 있습니다.
+                  </li>
+                </ul>
+              </div>
             </div>
           </div>
         </div>

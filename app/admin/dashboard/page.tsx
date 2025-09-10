@@ -354,11 +354,11 @@ export default function AdminDashboard() {
   }
 
   // 가격 저장 핸들러
-  const handleSavePrice = async (zoneData) => {
+  const handleSavePrice = async (zoneData: ZoneData) => {
     const zone = zoneData.zone.replace('동', '') // 'A동' -> 'A'
     const change = priceChanges[zone]
     
-    if (!change.amount || isNaN(change.amount)) {
+    if (!change.amount || isNaN(Number(change.amount))) {
       alert('변경할 금액을 입력해주세요.')
       return
     }
