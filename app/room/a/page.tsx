@@ -6,15 +6,21 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
+// 1. 인터페이스를 컴포넌트 외부로 이동
+interface Room {
+  id: string
+  name: string
+  [key: string]: any
+}
+
 export default function AZonePage() {
   // 이미지 슬라이더를 위한 상태 관리
   const [currentImage, setCurrentImage] = useState(0)
   const totalImages = 5
-
   // Supabase에서 A동 데이터 가져오기
-  const [aRooms, setARooms] = useState<any[]>([])
-  const [aSummary, setASummary] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const [aRooms, setARooms] = useState<Room[]>([])
+  const [aSummary, setASummary] = useState<any>(null)
+  const [loading, setLoading] = useState<boolean>(true) // 3. boolean 타입 추가
 
   // 이전 이미지로 이동
   const handlePrevImage = () => {
