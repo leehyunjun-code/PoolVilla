@@ -142,7 +142,7 @@ export default function AdminReservation() {
       const now = new Date()
 
       // Supabase 업데이트
-      const updateData = {}
+      const updateData: Record<string, boolean | string | null> = {}
       if (type === 'checkin') {
         updateData.check_in_status = newStatus
         updateData.check_in_time = newStatus ? now.toISOString() : null
@@ -460,14 +460,14 @@ export default function AdminReservation() {
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">{statusInfo.text}</td>
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">{formatDateTime(reservation.created_at)}</td>
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs font-medium text-blue-600">{reservation.reservation_number}</td>
-                        <td className="border border-gray-300 px-2 py-3 text-left text-xs">
+                        <td className="border border-gray-300 px-2 py-3 text-center text-xs">
                           <div className="space-y-1">
                             <div>{reservation.booker_name || '-'}</div>
                             <div>{reservation.booker_phone || '-'}</div>
                             <div>{reservation.booker_email || '-'}</div>
                           </div>
                         </td>
-                        <td className="border border-gray-300 px-2 py-3 text-left text-xs">
+                        <td className="border border-gray-300 px-2 py-3 text-center text-xs">
                           <div className="space-y-1">
                             <div>{guestInfo.name}</div>
                             <div>{guestInfo.phone}</div>
