@@ -20,6 +20,21 @@ interface Room {
   price: number
 }
 
+interface DbRoom {
+  id: string
+  name: string
+  zone: string
+  type: string
+  pool: string
+  rooms: string | number
+  bathrooms: string | number  
+  standard_capacity: string | number
+  max_capacity: string | number
+  area: string | number
+  pet_friendly: string
+  current_price: number
+}
+
 export default function LocationPage() {
   const [activeStep, setActiveStep] = useState(1)
   const [currentYear, setCurrentYear] = useState(2025)
@@ -44,7 +59,7 @@ export default function LocationPage() {
   const [filteredRooms, setFilteredRooms] = useState<Room[]>([])
   
   // Supabase 연동을 위한 상태 추가
-  const [roomsData, setRoomsData] = useState<any[]>([])
+  const [roomsData, setRoomsData] = useState<DbRoom[]>([])
   const [roomsLoading, setRoomsLoading] = useState(true)
   
   const today = new Date()
@@ -148,7 +163,7 @@ export default function LocationPage() {
   }, [])
   
   // 객실명 동적 생성 함수
-  const generateRoomDisplayName = (room: any): string => {
+  const generateRoomDisplayName = (room: DbRoom): string => {
     let poolText = ""
     if (room.pool === "실내") {
       poolText = "실내수영장"
@@ -162,7 +177,7 @@ export default function LocationPage() {
   }
   
   // DB 데이터를 화면 표시용으로 변환하는 함수
-  const mapRoomData = (dbRoom: any): Room => {
+  const mapRoomData = (dbRoom: DbRoom): Room => {
     return {
       id: dbRoom.id,
       name: generateRoomDisplayName(dbRoom),
