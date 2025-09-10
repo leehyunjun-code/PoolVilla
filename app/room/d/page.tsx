@@ -8,9 +8,24 @@ import { supabase } from '@/lib/supabase'
 
 // 인터페이스를 컴포넌트 외부로 이동
 interface Room {
- id: string
- name: string
- [key: string]: any
+  id: string
+  name: string
+  zone: string
+  type: string
+  pool: string
+  rooms: string | number
+  bathrooms: string | number
+  standard_capacity: string | number
+  max_capacity: string | number
+  area: string | number
+  pet_friendly: string
+  current_price: number
+}
+
+interface Summary {
+  totalRooms: number
+  availableRooms: number
+  occupiedRooms: number
 }
 
 export default function DZonePage() {
@@ -19,7 +34,7 @@ export default function DZonePage() {
   const totalImages = 5
   // Supabase에서 D동 데이터 가져오기
   const [dRooms, setDRooms] = useState<Room[]>([])
-  const [dSummary, setDSummary] = useState<any>(null)
+  const [dSummary, setDSummary] = useState<Summary | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
 
   // 이전 이미지로 이동

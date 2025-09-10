@@ -10,7 +10,22 @@ import { supabase } from '@/lib/supabase'
 interface Room {
   id: string
   name: string
-  [key: string]: any
+  zone: string
+  type: string
+  pool: string
+  rooms: string | number
+  bathrooms: string | number
+  standard_capacity: string | number
+  max_capacity: string | number
+  area: string | number
+  pet_friendly: string
+  current_price: number
+}
+
+interface Summary {
+  totalRooms: number
+  availableRooms: number
+  occupiedRooms: number
 }
 
 export default function AZonePage() {
@@ -19,7 +34,7 @@ export default function AZonePage() {
   const totalImages = 5
   // Supabase에서 A동 데이터 가져오기
   const [aRooms, setARooms] = useState<Room[]>([])
-  const [aSummary, setASummary] = useState<any>(null)
+  const [aSummary, setASummary] = useState<Summary | null>(null)
   const [loading, setLoading] = useState<boolean>(true) // 3. boolean 타입 추가
 
   // 이전 이미지로 이동
