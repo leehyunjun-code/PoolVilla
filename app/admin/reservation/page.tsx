@@ -29,6 +29,7 @@ interface Reservation {
   check_out_status?: boolean
   check_in_time?: string
   check_out_time?: string
+  cancelled_at?: string
 }
 
 export default function AdminReservation() {
@@ -174,11 +175,52 @@ export default function AdminReservation() {
       alert('상태 변경에 실패했습니다. 다시 시도해주세요.')
     }
   }
+  
+  // 예약 상태 변경 함수 (예약완료 <-> 취소)
+  const toggleReservationStatus = async (reservationId: string, currentStatus: string) => {
+    const newStatus = currentStatus === 'confirmed' ? 'cancelled' : 'confirmed'
+    
+    const confirmMessage = newStatus === 'cancelled' 
+      ? '예약을 취소 상태로 변경하시겠습니까?' 
+      : '취소를 예약완료 상태로 복구하시겠습니까?'
+    
+    if (!confirm(confirmMessage)) {
+      return
+    }
+
+    try {
+      const now = new Date()
+      
+      const updateData: Record<string, string | null> = {
+        status: newStatus,
+        cancelled_at: newStatus === 'cancelled' ? now.toISOString() : null,
+        cancelled_by: newStatus === 'cancelled' ? '관리자' : null  // 추가
+      }
+
+      const { error } = await supabase
+        .from('cube45_reservations')
+        .update(updateData)
+        .eq('id', reservationId)
+
+      if (error) throw error
+
+      await fetchReservations()
+
+      const successMessage = newStatus === 'cancelled' 
+        ? '예약이 취소 상태로 변경되었습니다.' 
+        : '예약이 예약완료 상태로 복구되었습니다.'
+      alert(successMessage)
+
+    } catch (error) {
+      console.error('예약 상태 업데이트 실패:', error)
+      alert('상태 변경에 실패했습니다. 다시 시도해주세요.')
+    }
+  }
 
   const getStatusDisplay = (status: string) => {
     const statusMap: Record<string, { text: string; class: string }> = {
       'confirmed': { text: '예약완료', class: 'text-blue-600 bg-blue-100' },
-      'cancelled': { text: '취소완료', class: 'text-red-600 bg-red-100' },
+      'cancelled': { text: '취소', class: 'text-red-600 bg-red-100' },
       'pending': { text: '예약접수', class: 'text-yellow-600 bg-yellow-100' }
     }
     return statusMap[status] || { text: '알수없음', class: 'text-gray-600 bg-gray-100' }
@@ -392,22 +434,25 @@ export default function AdminReservation() {
               <thead>
                 <tr className="bg-gray-100">
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">No</th>
-                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">예약상태</th>
+                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium w-26">
+                    예약상태
+                    <div className="text-[10px] text-gray-500 mt-1">(클릭하여 변경)</div>
+                  </th>
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">예약일자</th>
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">예약번호</th>
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">예약자 정보</th>
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">투숙자 정보</th>
-                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">입실일, 퇴실일, 박수</th>
+                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium break-keep">입실일, 퇴실일, 박수</th>
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">객실</th>
-                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">인원</th>
-                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">금액</th>
+                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium w-16">인원</th>
+                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium w-22">금액</th>
                   <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">
                     체크인
-                    <div className="text-xs text-gray-500 mt-1">(클릭하여 변경)</div>
+                    <div className="text-[10px] text-gray-500 mt-1">(클릭하여 변경)</div>
                   </th>
-                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">
+                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium w-26">
                     체크아웃
-                    <div className="text-xs text-gray-500 mt-1">(클릭하여 변경)</div>
+                    <div className="text-[10px] text-gray-500 mt-1">(클릭하여 변경)</div>
                   </th>
                 </tr>
               </thead>
@@ -451,9 +496,30 @@ export default function AdminReservation() {
                     return (
                       <tr key={reservation.id}>
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">{reservations.length - index}</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-xs">{statusInfo.text}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-xs">
+                          <div className="flex flex-col items-center">
+                            <button 
+                              onClick={() => toggleReservationStatus(reservation.id, reservation.status)}
+                              className={`font-bold px-3 py-2 rounded cursor-pointer transition-colors mb-1 ${
+                                reservation.status === 'confirmed' 
+                                  ? 'text-blue-600 bg-blue-100 hover:bg-blue-200' 
+                                  : reservation.status === 'cancelled'
+                                  ? 'text-red-600 bg-red-100 hover:bg-red-200'
+                                  : 'text-yellow-600 bg-yellow-100 hover:bg-yellow-200'
+                              }`}
+                              title="클릭하여 예약 상태 변경"
+                            >
+                              {statusInfo.text}
+                            </button>
+                            {reservation.cancelled_at && (
+                              <div className="text-xs text-gray-500">
+                                {formatTimeSimple(reservation.cancelled_at)}
+                              </div>
+                            )}
+                          </div>
+                        </td>
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">{formatDateTime(reservation.created_at)}</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-xs font-medium text-blue-600">{reservation.reservation_number}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-xs font-medium">{reservation.reservation_number}</td>
                         <td className="border border-gray-300 px-2 py-3 text-center text-xs">
                           <div className="space-y-1">
                             <div>{reservation.booker_name || '-'}</div>
@@ -538,16 +604,18 @@ export default function AdminReservation() {
                 <h4 className="font-semibold mb-2 text-gray-700">예약 상태</h4>
                 <ul className="space-y-2">
                   <li className="flex items-center">
-                    <span className="px-2 py-1 bg-yellow-100 text-yellow-800 rounded text-xs mr-2">예약접수</span>
-                    신규 예약을 호텔에 요청한 상태입니다.
-                  </li>
-                  <li className="flex items-center">
                     <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs mr-2">예약완료</span>
                     접수된 예약건이 최종적으로 완료된 상태입니다.
                   </li>
                   <li className="flex items-center">
-                    <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs mr-2">취소완료</span>
-                    취소 신청한 예약 건이 취소가 완료된 상태입니다.
+                    <span className="px-2 py-1 bg-red-100 text-red-800 rounded text-xs mr-2">취소</span>
+                    예약이 취소된 상태입니다.
+                  </li>
+                  <li className="text-xs text-gray-600">
+                    * 버튼을 클릭하여 예약완료 ↔ 취소 상태를 변경할 수 있습니다.
+                  </li>
+                  <li className="text-xs text-gray-600">
+                    * 취소 시 하단에 취소 시간이 표시됩니다.
                   </li>
                 </ul>
               </div>

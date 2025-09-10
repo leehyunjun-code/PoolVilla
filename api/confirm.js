@@ -23,12 +23,15 @@ export const cancelReservationByInfo = async (bookerName, bookerPhone) => {
   try {
     const { data, error } = await supabase
       .from('cube45_reservations')
-      .update({ status: 'cancelled' })
+      .update({ 
+        status: 'cancelled',
+        cancelled_at: new Date().toISOString(),
+        cancelled_by: '사용자'
+      })
       .eq('booker_name', bookerName)
       .eq('booker_phone', bookerPhone)
       .eq('status', 'confirmed')
       .select()
-
     if (error) throw error
     return { success: true, data }
   } catch (error) {

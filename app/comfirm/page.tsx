@@ -108,29 +108,38 @@ export default function ConfirmPage() {
               {/* 입력 폼 */}
               <div className="space-y-6 mb-8">
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    예약자 이름 <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="text"
-                    placeholder="예약자 이름"
+                    placeholder="예: 홍길동"
                     value={bookerName}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z]/g, '');
                       setBookerName(value);
                     }}
-                    className="w-full p-4 border border-gray-300 text-sm"
+                    className="w-full p-4 border border-gray-300 text-sm focus:border-teal-500 focus:outline-none"
                   />
+                  <p className="text-xs text-gray-500 mt-1">예약 시 입력한 이름을 정확히 입력해주세요</p>
                 </div>
                 
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    예약자 전화번호 <span className="text-red-500">*</span>
+                  </label>
                   <input 
                     type="text"
-                    placeholder="예약자 전화번호"
+                    placeholder="예: 01012345678"
                     value={bookerPhone}
                     onChange={(e) => {
                       const value = e.target.value.replace(/[^0-9]/g, '');
                       setBookerPhone(value);
                     }}
-                    className="w-full p-4 border border-gray-300 text-sm"
+                    maxLength={11}
+                    className="w-full p-4 border border-gray-300 text-sm focus:border-teal-500 focus:outline-none"
                   />
+                  <p className="text-xs text-gray-500 mt-1">하이픈(-) 없이 숫자만 입력해주세요</p>
                 </div>
               </div>
               
