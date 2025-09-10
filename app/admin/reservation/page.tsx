@@ -6,10 +6,9 @@ import { supabase } from '@/lib/supabase'
 export default function AdminReservation() {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [mounted, setMounted] = useState(false)
-  const [reservations, setReservations] = useState([])
+  const [reservations, setReservations] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [checkStatus, setCheckStatus] = useState({}) // 체크인/체크아웃 상태 관리
-  const [lastUpdateTime, setLastUpdateTime] = useState('') // 마지막 업데이트 시간
   
   // 검색 조건 상태들
   const [searchConditions, setSearchConditions] = useState({
@@ -111,14 +110,6 @@ export default function AdminReservation() {
     try {
       // 현재 시간 생성
       const now = new Date()
-      const timeString = now.toLocaleString('ko-KR', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit'
-      })
 
       // Supabase 업데이트
       const updateData = {}
@@ -143,8 +134,8 @@ export default function AdminReservation() {
         [`${reservationId}_${type}`]: newStatus
       }))
 
-      // 마지막 업데이트 시간 표시
-      setLastUpdateTime(timeString)
+      // 예약 데이터 다시 조회하여 시간 정보 업데이트
+      await fetchReservations()
 
       // 성공 메시지 표시
       const successMessage = getSuccessMessage(type, newStatus)
@@ -463,30 +454,44 @@ export default function AdminReservation() {
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">{totalGuests}명</td>
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">{reservation.total_amount?.toLocaleString() || 0}원</td>
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">
-                          <button 
-                            onClick={() => toggleCheckStatus(reservation.id, 'checkin')}
-                            className={`font-bold px-3 py-2 rounded cursor-pointer transition-colors ${
-                              checkInStatus === 'O' 
-                                ? 'text-green-600 bg-green-100 hover:bg-green-200' 
-                                : 'text-red-600 bg-red-100 hover:bg-red-200'
-                            }`}
-                            title="클릭하여 체크인 상태 변경"
-                          >
-                            {checkInStatus}
-                          </button>
+                          <div className="flex flex-col items-center">
+                            <button 
+                              onClick={() => toggleCheckStatus(reservation.id, 'checkin')}
+                              className={`font-bold px-3 py-2 rounded cursor-pointer transition-colors mb-1 ${
+                                checkInStatus === 'O' 
+                                  ? 'text-green-600 bg-green-100 hover:bg-green-200' 
+                                  : 'text-red-600 bg-red-100 hover:bg-red-200'
+                              }`}
+                              title="클릭하여 체크인 상태 변경"
+                            >
+                              {checkInStatus}
+                            </button>
+                            {reservation.check_in_time && (
+                              <div className="text-xs text-gray-500">
+                                {formatTimeSimple(reservation.check_in_time)}
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td className="border border-gray-300 px-4 py-3 text-center text-xs">
-                          <button 
-                            onClick={() => toggleCheckStatus(reservation.id, 'checkout')}
-                            className={`font-bold px-3 py-2 rounded cursor-pointer transition-colors ${
-                              checkOutStatus === 'O' 
-                                ? 'text-green-600 bg-green-100 hover:bg-green-200' 
-                                : 'text-red-600 bg-red-100 hover:bg-red-200'
-                            }`}
-                            title="클릭하여 체크아웃 상태 변경"
-                          >
-                            {checkOutStatus}
-                          </button>
+                          <div className="flex flex-col items-center">
+                            <button 
+                              onClick={() => toggleCheckStatus(reservation.id, 'checkout')}
+                              className={`font-bold px-3 py-2 rounded cursor-pointer transition-colors mb-1 ${
+                                checkOutStatus === 'O' 
+                                  ? 'text-green-600 bg-green-100 hover:bg-green-200' 
+                                  : 'text-red-600 bg-red-100 hover:bg-red-200'
+                              }`}
+                              title="클릭하여 체크아웃 상태 변경"
+                            >
+                              {checkOutStatus}
+                            </button>
+                            {reservation.check_out_time && (
+                              <div className="text-xs text-gray-500">
+                                {formatTimeSimple(reservation.check_out_time)}
+                              </div>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     )
@@ -495,18 +500,6 @@ export default function AdminReservation() {
               </tbody>
             </table>
           </div>
-
-          {/* 마지막 업데이트 시간 표시 */}
-          {lastUpdateTime && (
-            <div className="mt-4 text-center">
-              <div className="inline-flex items-center px-4 py-2 bg-blue-50 rounded-lg">
-                <svg className="w-4 h-4 mr-2 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clipRule="evenodd" />
-                </svg>
-                <span className="text-sm text-blue-700">마지막 업데이트: {lastUpdateTime}</span>
-              </div>
-            </div>
-          )}
 
           {/* 하단 정보 */}
           <div className="mt-6 bg-white p-6 rounded-lg shadow-sm">
@@ -547,6 +540,9 @@ export default function AdminReservation() {
                   </li>
                   <li className="text-xs text-gray-600">
                     * 버튼을 클릭하여 상태를 변경할 수 있습니다.
+                  </li>
+                  <li className="text-xs text-gray-600">
+                    * 상태 변경 시 하단에 시간이 표시됩니다.
                   </li>
                 </ul>
               </div>
