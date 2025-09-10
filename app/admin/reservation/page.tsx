@@ -115,7 +115,7 @@ export default function AdminReservation() {
     const newStatus = !currentStatus
     
     // 상태에 따른 메시지 생성
-    const getConfirmMessage = (type, newStatus) => {
+    const getConfirmMessage = (type: string, newStatus: boolean) => {
       if (type === 'checkin') {
         return newStatus ? '체크인을 입장 상태로 바꾸겠습니까?' : '체크인을 미입장 상태로 바꾸겠습니까?'
       } else {
@@ -123,7 +123,7 @@ export default function AdminReservation() {
       }
     }
     
-    const getSuccessMessage = (type, newStatus) => {
+    const getSuccessMessage = (type: string, newStatus: boolean) => {
       if (type === 'checkin') {
         return newStatus ? '체크인이 입장 상태로 변경되었습니다.' : '체크인이 미입장 상태로 변경되었습니다.'
       } else {
