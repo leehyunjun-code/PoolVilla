@@ -343,7 +343,7 @@ export default function AdminDashboard() {
   }, [])
 
   // 가격 변경 핸들러
-  const handlePriceChange = (zone, field, value) => {
+  const handlePriceChange = (zone: string, field: string, value: string) => {
     setPriceChanges(prev => ({
       ...prev,
       [zone]: {
