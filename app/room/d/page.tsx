@@ -22,10 +22,13 @@ interface Room {
   current_price: number
 }
 
+// 24-30번 줄 - Summary 인터페이스 (수정 후)
 interface Summary {
-  totalRooms: number
-  availableRooms: number
-  occupiedRooms: number
+  zone: string
+  areaRange: string | number
+  standardCapacityRange: string | number
+  maxCapacityRange: string | number
+  roomCount: number
 }
 
 export default function DZonePage() {

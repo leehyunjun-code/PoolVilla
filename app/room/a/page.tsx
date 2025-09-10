@@ -23,9 +23,11 @@ interface Room {
 }
 
 interface Summary {
-  totalRooms: number
-  availableRooms: number
-  occupiedRooms: number
+  zone: string
+  areaRange: string | number
+  standardCapacityRange: string | number
+  maxCapacityRange: string | number
+  roomCount: number
 }
 
 export default function AZonePage() {
