@@ -27,9 +27,21 @@ export default function AdminDashboard() {
     lastMonth: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 0, total: 0 }
   })
   
-  // 숙소투데이 데이터 상태 추가
-  const [zoneData, setZoneData] = useState([])
-  const [priceChanges, setPriceChanges] = useState({})
+  // 먼저 ZoneData 타입 정의 추가 (상단에)
+  interface ZoneData {
+    zone: string
+    availableRooms: number
+    currentPrice: number
+  }
+
+  // 상태 초기화 시 타입 명시
+  const [zoneData, setZoneData] = useState<ZoneData[]>([])
+  interface PriceChange {
+    operator: string
+    amount: string
+  }
+
+  const [priceChanges, setPriceChanges] = useState<Record<string, PriceChange>>({})
   const [totalRooms, setTotalRooms] = useState(0) // 전체 객실 수 상태 추가
   
   // 전체 객실 수 조회
