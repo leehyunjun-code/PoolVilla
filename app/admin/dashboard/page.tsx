@@ -472,7 +472,7 @@ export default function AdminDashboard() {
         <div className="max-w-7xl mx-auto">
           {/* 헤더 */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800">매출관리실</h1>
+            <h1 className="text-2xl font-bold text-gray-800">대시보드</h1>
           </div>
 
           {/* 상단 3개 요약 카드 */}

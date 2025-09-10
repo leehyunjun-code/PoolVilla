@@ -12,7 +12,7 @@ export default function DZonePage() {
   const totalImages = 5
 
   // Supabase에서 D동 데이터 가져오기
-  const [dRooms, setDRooms] = useState([])
+  const [dRooms, setDRooms] = useState<any[]>([])
   const [dSummary, setDSummary] = useState(null)
   const [loading, setLoading] = useState(true)
 

@@ -277,12 +277,8 @@ export default function AdminReservation() {
         <div className="max-w-7xl mx-auto">
           {/* 헤더 */}
           <div className="mb-6">
-            <h1 className="text-2xl font-bold text-gray-800 flex items-center">
-              <svg className="w-6 h-6 mr-3 text-green-600" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"></path>
-                <path fillRule="evenodd" d="M4 5a2 2 0 012-2v1a2 2 0 002 2h8a2 2 0 002-2V3a2 2 0 012 2v6h-3a1 1 0 00-1 1v4a1 1 0 001 1h3v1a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm0 5V9a1 1 0 011-1h1a1 1 0 011 1v1a1 1 0 01-1 1H5a1 1 0 01-1-1z" clipRule="evenodd"></path>
-              </svg>
-              통합 예약 목록
+            <h1 className="text-2xl font-bold text-gray-800">
+              예약관리
             </h1>
           </div>
 

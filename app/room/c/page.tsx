@@ -12,7 +12,7 @@ export default function CZonePage() {
   const totalImages = 5
 
   // Supabase에서 C동 데이터 가져오기
-  const [cRooms, setCRooms] = useState([])
+  const [cRooms, setCRooms] = useState<any[]>([])
   const [cSummary, setCSummary] = useState(null)
   const [loading, setLoading] = useState(true)
 

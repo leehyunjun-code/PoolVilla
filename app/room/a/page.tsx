@@ -12,7 +12,7 @@ export default function AZonePage() {
   const totalImages = 5
 
   // Supabase에서 A동 데이터 가져오기
-  const [aRooms, setARooms] = useState([])
+  const [aRooms, setARooms] = useState<any[]>([])
   const [aSummary, setASummary] = useState(null)
   const [loading, setLoading] = useState(true)
 

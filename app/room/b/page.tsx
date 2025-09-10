@@ -12,7 +12,7 @@ export default function BZonePage() {
   const totalImages = 5
 
   // Supabase에서 B동 데이터 가져오기
-  const [bRooms, setBRooms] = useState([])
+  const [bRooms, setBRooms] = useState<any[]>([])
   const [bSummary, setBSummary] = useState(null)
   const [loading, setLoading] = useState(true)
 
