@@ -1,7 +1,5 @@
 'use client'
 
-'use client'
-
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 
@@ -178,7 +176,7 @@ export default function AdminReservation() {
   }
 
   const getStatusDisplay = (status: string) => {
-    const statusMap = {
+    const statusMap: Record<string, { text: string; class: string }> = {
       'confirmed': { text: '예약완료', class: 'text-blue-600 bg-blue-100' },
       'cancelled': { text: '취소완료', class: 'text-red-600 bg-red-100' },
       'pending': { text: '예약접수', class: 'text-yellow-600 bg-yellow-100' }
@@ -200,7 +198,7 @@ export default function AdminReservation() {
     return `${hours}:${minutes}`
   }
 
-  const formatDateTime = (dateString) => {
+  const formatDateTime = (dateString: string | null | undefined) => {
     if (!dateString) return '-'
     const date = new Date(dateString)
     const year = date.getFullYear()
@@ -212,7 +210,7 @@ export default function AdminReservation() {
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
   }
 
-  const formatTimeSimple = (dateString) => {
+  const formatTimeSimple = (dateString: string | null | undefined) => {
     if (!dateString) return ''
     const date = new Date(dateString)
     const year = date.getFullYear()
@@ -224,7 +222,7 @@ export default function AdminReservation() {
     return `${year}.${month}.${day}. ${hours}:${minutes}:${seconds}`
   }
 
-  const formatDateOnly = (dateString) => {
+  const formatDateOnly = (dateString: string | null | undefined) => {
     if (!dateString) return '-'
     return dateString
   }
@@ -420,7 +418,7 @@ export default function AdminReservation() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="12" className="border border-gray-300 px-4 py-8 text-center text-gray-500">
+                    <td colSpan={12} className="border border-gray-300 px-4 py-8 text-center text-gray-500">
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                         <span className="ml-2 text-xs">로딩 중...</span>
@@ -429,7 +427,7 @@ export default function AdminReservation() {
                   </tr>
                 ) : reservations.length === 0 ? (
                   <tr>
-                    <td colSpan="12" className="border border-gray-300 px-4 py-8 text-center text-gray-500 text-xs">
+                    <td colSpan={12} className="border border-gray-300 px-4 py-8 text-center text-gray-500 text-xs">
                       조회된 예약이 없습니다.
                     </td>
                   </tr>
