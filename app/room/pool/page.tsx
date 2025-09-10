@@ -6,10 +6,27 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
+// Room 인터페이스 추가
+interface Room {
+  id: string
+  name: string
+  zone: string
+  type: string
+  pool: string
+  rooms: string | number
+  bathrooms: string | number
+  standard_capacity: string | number
+  max_capacity: string | number
+  area: string | number
+  pet_friendly: string
+  current_price: number
+  fireplace: string
+}
+
 export default function PoolVillaPage() {
-  // 전체 객실 데이터 상태
-  const [allRooms, setAllRooms] = useState([])
-  const [loading, setLoading] = useState(true)
+  // 전체 객실 데이터 상태 - 타입 지정
+  const [allRooms, setAllRooms] = useState<Room[]>([])
+  const [loading, setLoading] = useState<boolean>(true)
 
   // 전체 객실 데이터 조회
   useEffect(() => {
