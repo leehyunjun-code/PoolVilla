@@ -177,7 +177,7 @@ export default function AdminReservation() {
     }
   }
 
-  const getStatusDisplay = (status) => {
+  const getStatusDisplay = (status: string) => {
     const statusMap = {
       'confirmed': { text: '예약완료', class: 'text-blue-600 bg-blue-100' },
       'cancelled': { text: '취소완료', class: 'text-red-600 bg-red-100' },
@@ -255,11 +255,11 @@ export default function AdminReservation() {
               </a>
             </li>
             <li>
-              <a href="/admin/reports" className="flex items-center p-3 text-gray-600 hover:bg-gray-50 rounded">
+              <a href="/admin/cancell" className="flex items-center p-3 text-gray-600 hover:bg-gray-50 rounded">
                 <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
                 </svg>
-                리포트관리
+                취소관리
               </a>
             </li>
           </ul>
