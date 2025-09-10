@@ -328,7 +328,7 @@ export default function AdminDashboard() {
         setZoneData(zoneStats)
 
         // 가격 변경 상태 초기화
-        const initialChanges = {}
+        const initialChanges: Record<string, PriceChange> = {}
         zones.forEach(zone => {
           initialChanges[zone] = { operator: '+', amount: '' }
         })
