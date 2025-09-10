@@ -84,7 +84,7 @@ export default function AdminReservation() {
       setReservations(data || [])
       
       // 기존 체크인/체크아웃 상태 로드
-      const initialCheckStatus = {}
+      const initialCheckStatus: Record<string, boolean> = {}
       data?.forEach(reservation => {
         initialCheckStatus[`${reservation.id}_checkin`] = reservation.check_in_status || false
         initialCheckStatus[`${reservation.id}_checkout`] = reservation.check_out_status || false
