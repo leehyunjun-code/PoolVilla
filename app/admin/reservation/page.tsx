@@ -1,7 +1,37 @@
 'use client'
 
+'use client'
+
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+
+interface Reservation {
+  id: string
+  reservation_number: string
+  room_id: string
+  room_name: string
+  check_in_date: string
+  check_out_date: string
+  nights: number
+  booker_name: string
+  booker_email: string
+  booker_phone: string
+  guest_name?: string
+  guest_email?: string
+  guest_phone?: string
+  is_different_guest: boolean
+  adult_count: number
+  student_count: number
+  child_count: number
+  infant_count: number
+  total_amount: number
+  status: string
+  created_at: string
+  check_in_status?: boolean
+  check_out_status?: boolean
+  check_in_time?: string
+  check_out_time?: string
+}
 
 export default function AdminReservation() {
   const [currentTime, setCurrentTime] = useState(new Date())
