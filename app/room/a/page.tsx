@@ -1,14 +1,20 @@
 'use client'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
+import { supabase } from '@/lib/supabase'
 
-export default function LocationPage() {
+export default function AZonePage() {
   // 이미지 슬라이더를 위한 상태 관리
   const [currentImage, setCurrentImage] = useState(0)
   const totalImages = 5
+
+  // Supabase에서 A동 데이터 가져오기
+  const [aRooms, setARooms] = useState([])
+  const [aSummary, setASummary] = useState(null)
+  const [loading, setLoading] = useState(true)
 
   // 이전 이미지로 이동
   const handlePrevImage = () => {
@@ -18,6 +24,64 @@ export default function LocationPage() {
   // 다음 이미지로 이동
   const handleNextImage = () => {
     setCurrentImage((prev) => (prev === totalImages - 1 ? 0 : prev + 1))
+  }
+
+  // A동 데이터 조회
+  useEffect(() => {
+    const fetchAZoneData = async () => {
+      try {
+        const { data: rooms, error } = await supabase
+          .from('cube45_rooms')
+          .select('*')
+          .eq('zone', 'A')
+
+        if (error) throw error
+
+        // 숫자 기준으로 정렬 (A3, A4, A5, A6, A7 순서)
+        const sortedRooms = rooms?.sort((a, b) => {
+          const numA = parseInt(a.id.replace('A', ''))
+          const numB = parseInt(b.id.replace('A', ''))
+          return numA - numB
+        }) || []
+
+        setARooms(sortedRooms)
+
+        // 요약 정보 계산
+        if (rooms && rooms.length > 0) {
+          const areas = [...new Set(rooms.map(room => room.area))].sort()
+          
+          // 숫자 기준으로 정렬
+          const standardCapacities = [...new Set(rooms.map(room => room.standard_capacity))]
+            .sort((a, b) => parseInt(a) - parseInt(b))
+          const maxCapacities = [...new Set(rooms.map(room => room.max_capacity))]
+            .sort((a, b) => parseInt(a) - parseInt(b))
+
+          setASummary({
+            zone: 'A',
+            areaRange: areas.length === 1 ? areas[0] : `${areas[0]} ~ ${areas[areas.length - 1]}`,
+            standardCapacityRange: standardCapacities.length === 1 ? standardCapacities[0] : `${standardCapacities[0]} ~ ${standardCapacities[standardCapacities.length - 1]}`,
+            maxCapacityRange: maxCapacities.length === 1 ? maxCapacities[0] : `${maxCapacities[0]} ~ ${maxCapacities[maxCapacities.length - 1]}`,
+            roomCount: rooms.length
+          })
+        }
+      } catch (error) {
+        console.error('A동 데이터 조회 실패:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAZoneData()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg text-gray-600">데이터를 불러오는 중...</div>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -157,15 +221,15 @@ export default function LocationPage() {
                   <div className="space-y-3">
                     <div>
                       <span className="text-gray-600">객실크기</span><br />
-                      <span>• 45평 ~ 68평</span>
+                      <span>• {aSummary?.areaRange || '로딩중...'}</span>
                     </div>
                     <div>
                       <span className="text-gray-600">기준인원</span><br />
-                      <span>• 4명 ~ 10명</span>
+                      <span>• {aSummary?.standardCapacityRange || '로딩중...'}</span>
                     </div>
                     <div>
                       <span className="text-gray-600">최대인원</span><br />
-                      <span>• 8명 ~ 10명</span>
+                      <span>• {aSummary?.maxCapacityRange || '로딩중...'}</span>
                     </div>
                   </div>
                 </div>
@@ -184,7 +248,7 @@ export default function LocationPage() {
                     </div>
                     <div>
                       <span className="text-gray-600">애견동반</span><br />
-                      <span>• 불가능</span>
+                      <span>• {aRooms[0]?.pet_friendly === '불가' ? '불가능' : '가능'}</span>
                     </div>
                     <div>
                       <span className="text-gray-600">수영장</span><br />
@@ -212,124 +276,57 @@ export default function LocationPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A3호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">45평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">4명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A4호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">68평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A5호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">60평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">야외</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A6호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">60평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">야외</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A7호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">64평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
+                    {aRooms.map((room) => (
+                      <tr key={room.id}>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.name}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.type}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.area}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.standard_capacity}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.max_capacity}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.rooms}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.bathrooms}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.fireplace}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.pool}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.pet_friendly}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </table>
               </div>
 
-              {/* 객실 선택 버튼들 - 수정된 부분 */}
+              {/* 객실 선택 버튼들 - 원본 배치 유지 */}
               <div className="flex flex-col gap-8">
                 {/* 첫 번째 줄 - A3, A4, A5, A6 */}
                 <div className="flex justify-center gap-12">
-                  <a href="/room/a/a3" className="block">
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      A3호<br />
-                      <span className="text-sm">풀빌라 독채</span>
-                    </button>
-                  </a>
-                  <a href="/room/a/a4" className="block">
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      A4호<br />
-                      <span className="text-sm">풀빌라 독채</span>
-                    </button>
-                  </a>
-                  <a href="/room/a/a5" className="block">
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      A5호<br />
-                      <span className="text-sm">풀빌라 독채</span>
-                    </button>
-                  </a>
-                  <a href="/room/a/a6" className="block">
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      A6호<br />
-                      <span className="text-sm">풀빌라 독채</span>
-                    </button>
-                  </a>
+                  {aRooms.slice(0, 4).map((room) => (
+                    <a key={room.id} href={`/room/a/${room.id.toLowerCase()}`} className="block">
+                      <button 
+                        className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                        style={{ backgroundColor: '#f5e6d3' }}
+                      >
+                        {room.name}<br />
+                        <span className="text-sm">풀빌라 독채</span>
+                      </button>
+                    </a>
+                  ))}
                 </div>
                 
-                {/* 두 번째 줄 - A7만, 왼쪽 정렬 후 margin으로 위치 조정 */}
-                <div className="flex justify-start w-full">
-                  <a href="/room/a/a7" className="block" style={{ marginLeft: 'calc(50% - 468px)' }}>
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      A7호<br />
-                      <span className="text-sm">풀빌라 독채</span>
-                    </button>
-                  </a>
-                </div>
+                {/* 두 번째 줄 - A7만 (있을 경우) */}
+                {aRooms.length > 4 && (
+                  <div className="flex justify-start w-full">
+                    {aRooms.slice(4).map((room) => (
+                      <a key={room.id} href={`/room/a/${room.id.toLowerCase()}`} className="block" style={{ marginLeft: 'calc(50% - 468px)' }}>
+                        <button 
+                          className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                          style={{ backgroundColor: '#f5e6d3' }}
+                        >
+                          {room.name}<br />
+                          <span className="text-sm">풀빌라 독채</span>
+                        </button>
+                      </a>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

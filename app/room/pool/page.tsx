@@ -1,10 +1,59 @@
 'use client'
+import { useState, useEffect } from 'react'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
+import { supabase } from '@/lib/supabase'
 
 export default function PoolVillaPage() {
+  // 전체 객실 데이터 상태
+  const [allRooms, setAllRooms] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  // 전체 객실 데이터 조회
+  useEffect(() => {
+    const fetchAllRooms = async () => {
+      try {
+        const { data: rooms, error } = await supabase
+          .from('cube45_rooms')
+          .select('*')
+
+        if (error) throw error
+
+        // 동별, 숫자별로 정렬 (A3~A7, B9~B12, C13~C25, D1~D15 순서)
+        const sortedRooms = rooms?.sort((a, b) => {
+          // 먼저 동별로 정렬
+          if (a.zone !== b.zone) {
+            return a.zone.localeCompare(b.zone)
+          }
+          // 같은 동 내에서 숫자로 정렬
+          const numA = parseInt(a.id.replace(/[A-Z]/g, ''))
+          const numB = parseInt(b.id.replace(/[A-Z]/g, ''))
+          return numA - numB
+        }) || []
+
+        setAllRooms(sortedRooms)
+      } catch (error) {
+        console.error('전체 객실 데이터 조회 실패:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchAllRooms()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-center">
+          <div className="text-lg text-gray-600">데이터를 불러오는 중...</div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* 네비게이션 */}
@@ -111,175 +160,18 @@ export default function PoolVillaPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {/* A동 */}
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A3호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">45평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">4명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A4호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">68평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A5호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">60평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">야외</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A6호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">60평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">야외</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">A7호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">64평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">6명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">10명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-
-                    {/* B동 */}
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">B9호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">64평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">12명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">4개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">야외</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">B10호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">72평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">12명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">4개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">B11호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">72평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">12명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">3개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-                    <tr>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">B12호</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">70평</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">12명</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">4개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">O</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">없음</td>
-                      <td className="border border-gray-300 px-4 py-3 text-center text-sm">불가</td>
-                    </tr>
-
-                    {/* C동 */}
-                    {[13, 14, 15, 16, 17].map((num) => (
-                      <tr key={`c${num}`}>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">C{num}호</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">35평</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">4명</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">X</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">가능</td>
-                      </tr>
-                    ))}
-                    {[18, 19, 20, 21].map((num) => (
-                      <tr key={`c${num}`}>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">C{num}호</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">35평</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">2명</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">X</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">가능</td>
-                      </tr>
-                    ))}
-                    {[22, 23, 24, 25].map((num) => (
-                      <tr key={`c${num}`}>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">C{num}호</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">35평</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">4명</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">8명</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">X</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">가능</td>
-                      </tr>
-                    ))}
-
-                    {/* D동 */}
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15].map((num) => (
-                      <tr key={`d${num}`}>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">D{num}호</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">독채</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">23평</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">2명</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">4명</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">1개</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">2개</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">X</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">실내</td>
-                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">가능</td>
+                    {allRooms.map((room) => (
+                      <tr key={room.id}>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.name}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.type}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.area}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.standard_capacity}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.max_capacity}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.rooms}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.bathrooms}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.fireplace}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.pool}</td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-sm">{room.pet_friendly}</td>
                       </tr>
                     ))}
                   </tbody>

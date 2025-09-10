@@ -2,9 +2,10 @@
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Image from 'next/image'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { saveReservation } from '@/api/reservation'
 import { getBookedRooms } from '@/api/reservation'
+import { supabase } from '@/lib/supabase'
 
 
 interface Room {
@@ -41,6 +42,11 @@ export default function LocationPage() {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [customerRequest, setCustomerRequest] = useState('')
   const [filteredRooms, setFilteredRooms] = useState<Room[]>([])
+  
+  // Supabase 연동을 위한 상태 추가
+  const [roomsData, setRoomsData] = useState<any[]>([])
+  const [roomsLoading, setRoomsLoading] = useState(true)
+  
   const today = new Date()
   const currentDate = today.getDate()
   
@@ -115,6 +121,60 @@ export default function LocationPage() {
   
   const [reservationNumber, setReservationNumber] = useState('')
   const [usedNumbers, setUsedNumbers] = useState<Set<string>>(new Set())
+  
+  // Supabase에서 객실 데이터 조회
+  useEffect(() => {
+    const fetchRoomsData = async () => {
+      try {
+        setRoomsLoading(true)
+        const { data: rooms, error } = await supabase
+          .from('cube45_rooms')
+          .select('*')
+          .order('zone')
+          .order('id')
+
+        if (error) throw error
+
+        setRoomsData(rooms || [])
+      } catch (error) {
+        console.error('객실 데이터 조회 실패:', error)
+        alert('객실 정보를 불러오는데 실패했습니다.')
+      } finally {
+        setRoomsLoading(false)
+      }
+    }
+
+    fetchRoomsData()
+  }, [])
+  
+  // 객실명 동적 생성 함수
+  const generateRoomDisplayName = (room: any): string => {
+    let poolText = ""
+    if (room.pool === "실내") {
+      poolText = "실내수영장"
+    } else if (room.pool === "야외") {
+      poolText = "야외수영장"  
+    } else if (room.pool === "없음") {
+      poolText = "" // 수영장 표시 안함
+    }
+    
+    return `${room.name} 풀빌라 ${room.type} ${poolText}`.trim()
+  }
+  
+  // DB 데이터를 화면 표시용으로 변환하는 함수
+  const mapRoomData = (dbRoom: any): Room => {
+    return {
+      id: dbRoom.id,
+      name: generateRoomDisplayName(dbRoom),
+      rooms: parseInt(dbRoom.rooms) || 0,
+      bathrooms: parseInt(dbRoom.bathrooms) || 0,
+      minGuests: parseInt(dbRoom.standard_capacity) || 0,
+      maxGuests: parseInt(dbRoom.max_capacity) || 0,
+      size: parseInt(dbRoom.area) || 0,
+      petFriendly: dbRoom.pet_friendly === '가능',
+      price: dbRoom.current_price || 0
+    }
+  }
   
   // 예약번호 생성 함수 (중복 방지 버전)
   const generateReservationNumber = () => {
@@ -206,59 +266,16 @@ export default function LocationPage() {
     return currentDateObj > checkInDate && currentDateObj < checkOutDate
   }
 
-  // 객실 데이터 정의
-  const allRooms = [
-    { id: 'A3', name: 'A3호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 45, petFriendly: false, price: 200000 },
-    { id: 'A4', name: 'A4호 풀빌라 독채 실내수영장', rooms: 3, bathrooms: 2, minGuests: 6, maxGuests: 10, size: 68, petFriendly: false, price: 200000 },
-    { id: 'A5', name: 'A5호 풀빌라 독채 야외수영장', rooms: 3, bathrooms: 2, minGuests: 6, maxGuests: 10, size: 60, petFriendly: false, price: 200000 },
-    { id: 'A6', name: 'A6호 풀빌라 독채 야외수영장', rooms: 3, bathrooms: 2, minGuests: 6, maxGuests: 10, size: 60, petFriendly: false, price: 200000 },
-    { id: 'A7', name: 'A7호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 6, maxGuests: 10, size: 64, petFriendly: false, price: 200000 },
-    { id: 'B9', name: 'B9호 풀빌라 독채 야외수영장', rooms: 4, bathrooms: 2, minGuests: 8, maxGuests: 12, size: 64, petFriendly: false, price: 200000 },
-    { id: 'B10', name: 'B10호 풀빌라 독채 실내수영장', rooms: 4, bathrooms: 2, minGuests: 8, maxGuests: 12, size: 72, petFriendly: false, price: 200000 },
-    { id: 'B11', name: 'B11호 풀빌라 독채 실내수영장', rooms: 3, bathrooms: 2, minGuests: 8, maxGuests: 12, size: 72, petFriendly: false, price: 200000 },
-    { id: 'B12', name: 'B12호 풀빌라 독채', rooms: 4, bathrooms: 2, minGuests: 8, maxGuests: 12, size: 70, petFriendly: false, price: 200000 },
-    // C동 (C13~C25)
-    { id: 'C13', name: 'C13호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C14', name: 'C14호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C15', name: 'C15호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C16', name: 'C16호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C17', name: 'C17호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C18', name: 'C18호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 2, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C19', name: 'C19호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 2, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C20', name: 'C20호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 2, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C21', name: 'C21호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 2, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C22', name: 'C22호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C23', name: 'C23호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C24', name: 'C24호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
-    { id: 'C25', name: 'C25호 풀빌라 독채 실내수영장', rooms: 2, bathrooms: 2, minGuests: 4, maxGuests: 8, size: 35, petFriendly: true, price: 200000 },
+  const getFilteredRooms = async (selectedBuildingParam = selectedBuilding) => {
+    // DB 데이터를 화면용으로 변환
+    let rooms = roomsData.map(mapRoomData)
     
-    // D동 (D1~D15)
-    { id: 'D1', name: 'D1호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D2', name: 'D2호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D3', name: 'D3호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D4', name: 'D4호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D5', name: 'D5호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D6', name: 'D6호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D7', name: 'D7호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D8', name: 'D8호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D9', name: 'D9호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D10', name: 'D10호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D11', name: 'D11호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D12', name: 'D12호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D13', name: 'D13호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D14', name: 'D14호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 },
-    { id: 'D15', name: 'D15호 풀빌라 독채 실내수영장', rooms: 1, bathrooms: 2, minGuests: 2, maxGuests: 4, size: 23, petFriendly: true, price: 200000 }
-  ]
-
-  const getFilteredRooms = async () => {
-    let rooms = allRooms
-    
-    // 동별 필터링
-    if (selectedBuilding !== '전체') {
-      if (selectedBuilding === 'A동') rooms = rooms.filter(room => room.id.startsWith('A'))
-      if (selectedBuilding === 'B동') rooms = rooms.filter(room => room.id.startsWith('B'))
-      if (selectedBuilding === 'C동') rooms = rooms.filter(room => room.id.startsWith('C'))
-      if (selectedBuilding === 'D동') rooms = rooms.filter(room => room.id.startsWith('D'))
+    // 동별 필터링 - 파라미터로 받은 값 사용
+    if (selectedBuildingParam !== '전체') {
+      if (selectedBuildingParam === 'A동') rooms = rooms.filter(room => room.id.startsWith('A'))
+      if (selectedBuildingParam === 'B동') rooms = rooms.filter(room => room.id.startsWith('B'))
+      if (selectedBuildingParam === 'C동') rooms = rooms.filter(room => room.id.startsWith('C'))
+      if (selectedBuildingParam === 'D동') rooms = rooms.filter(room => room.id.startsWith('D'))
     }
     
     // 인원수 필터링
@@ -269,13 +286,27 @@ export default function LocationPage() {
     if (checkInDate && checkOutDate) {
       const checkIn = `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}`
       const checkOut = `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}`
-
       const bookedRoomsResult = await getBookedRooms(checkIn, checkOut)
       if (bookedRoomsResult.success) {
         const bookedRoomIds = bookedRoomsResult.data
         rooms = rooms.filter(room => !bookedRoomIds?.includes(room.id))
       }
     }
+    
+    // A,B,C,D 동별 우선 정렬 → 각 동 내에서 숫자 순서로 정렬
+    rooms = rooms.sort((a, b) => {
+      // 1단계: 동별 정렬 (A → B → C → D)
+      const aBldg = a.id.charAt(0)
+      const bBldg = b.id.charAt(0)
+      if (aBldg !== bBldg) {
+        return aBldg.localeCompare(bBldg)
+      }
+      
+      // 2단계: 같은 동 내에서 숫자 순서로 정렬
+      const aNum = parseInt(a.id.replace(/[^0-9]/g, ''))
+      const bNum = parseInt(b.id.replace(/[^0-9]/g, ''))
+      return aNum - bNum
+    })
     
     return rooms
   }
@@ -537,6 +568,21 @@ export default function LocationPage() {
       customerRequest: customerRequest
     }
   }
+
+  // 로딩 중일 때 표시할 컴포넌트
+  if (roomsLoading) {
+    return (
+      <div className="min-h-screen bg-white">
+        <Navigation />
+        <div className="pt-28 flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="text-lg text-gray-600">객실 정보를 불러오는 중...</div>
+          </div>
+        </div>
+        <Footer />
+      </div>
+    )
+  }
       
   return (
     <div className="min-h-screen bg-white">
@@ -767,7 +813,7 @@ export default function LocationPage() {
                       <button 
                         className="w-full py-3 text-white font-medium text-sm"
                         style={{backgroundColor: '#134C59'}}
-                        disabled={isSearching}
+                        disabled={isSearching || roomsLoading}
                         onClick={async () => {
                           if (!checkInDate || !checkOutDate) {
                             alert('체크인과 체크아웃 날짜를 선택해주세요.')
@@ -812,12 +858,13 @@ export default function LocationPage() {
                                   setSelectedBuilding(building)
                                   setVisibleRooms(3)
                                   
-                                  // 동 선택 후 다시 필터링
+                                  // 해결: 선택된 building을 직접 전달
                                   if (filteredRooms.length > 0) {
-                                    const rooms = await getFilteredRooms()
+                                    const rooms = await getFilteredRooms(building)
                                     setFilteredRooms(rooms)
                                   }
                                 }}
+
                                 className={`px-6 py-2 text-sm font-medium transition-colors duration-200 ${
                                   selectedBuilding === building
                                     ? 'bg-black text-white'

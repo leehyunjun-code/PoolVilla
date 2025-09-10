@@ -22,11 +22,33 @@ export default function AdminDashboard() {
     occupancyRate: 0
   })
   const [propertyReport, setPropertyReport] = useState({
-    today: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 34, total: 34 },
+    today: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 0, total: 0 },
     monthly: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 0, total: 0 },
-    lastMonth: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 0, total: 0 }  // remaining, total 추가
+    lastMonth: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 0, total: 0 }
   })
   
+  // 숙소투데이 데이터 상태 추가
+  const [zoneData, setZoneData] = useState([])
+  const [priceChanges, setPriceChanges] = useState({})
+  const [totalRooms, setTotalRooms] = useState(0) // 전체 객실 수 상태 추가
+  
+  // 전체 객실 수 조회
+  useEffect(() => {
+    const fetchTotalRooms = async () => {
+      try {
+        const { count } = await supabase
+          .from('cube45_rooms')
+          .select('*', { count: 'exact', head: true })
+        
+        setTotalRooms(count || 0)
+      } catch (error) {
+        console.error('전체 객실 수 조회 실패:', error)
+      }
+    }
+
+    fetchTotalRooms()
+  }, [])
+
   useEffect(() => {
     setMounted(true)
     const timer = setInterval(() => {
@@ -67,7 +89,7 @@ export default function AdminDashboard() {
     fetchDashboardData()
   }, [])
 	
-  // 날씨 데이터 조회 (WeatherAPI 사용) ← 여기에 추가
+  // 날씨 데이터 조회 (WeatherAPI 사용)
   useEffect(() => {
     const fetchWeather = async () => {
       try {
@@ -94,6 +116,9 @@ export default function AdminDashboard() {
 	
   // 일일 매출현황 데이터 조회
   useEffect(() => {
+    // totalRooms가 로드되지 않았으면 실행하지 않음
+    if (totalRooms === 0) return
+
     const fetchDailySales = async () => {
       const today = new Date().toISOString().split('T')[0]
       
@@ -130,7 +155,7 @@ export default function AdminDashboard() {
           .neq('status', 'cancelled')
 
         const occupiedRoomCount = new Set(occupiedRooms?.map(item => item.room_id)).size
-        const occupancyRate = Math.round((occupiedRoomCount / 34) * 100)
+        const occupancyRate = totalRooms > 0 ? Math.round((occupiedRoomCount / totalRooms) * 100) : 0
 
         setDailySales({
           currentGuests,
@@ -144,10 +169,13 @@ export default function AdminDashboard() {
     }
 
     fetchDailySales()
-  }, [])
+  }, [totalRooms])
 
   // 숙소리포트 데이터 조회
   useEffect(() => {
+    // totalRooms가 로드되지 않았으면 실행하지 않음
+    if (totalRooms === 0) return
+    
     const fetchPropertyReport = async () => {
       const today = new Date().toISOString().split('T')[0]
       const thisMonth = today.substring(0, 7) // YYYY-MM
@@ -199,8 +227,8 @@ export default function AdminDashboard() {
         const todayBookings = todayData?.length || 0
         const todayRev = todayData?.reduce((sum, item) => sum + item.total_amount, 0) || 0
         const todayAdr = todayBookings > 0 ? Math.round(todayRev / todayBookings) : 0
-        const todayOcc = Math.round((new Set(occupiedToday?.map(item => item.room_id)).size / 34) * 100)
-        const todayRemaining = 34 - todayBookings
+        const todayOcc = totalRooms > 0 ? Math.round((new Set(occupiedToday?.map(item => item.room_id)).size / totalRooms) * 100) : 0
+        const todayRemaining = totalRooms - todayBookings
 
         // 이번달 계산
         const monthlyBookings = monthlyData?.length || 0
@@ -209,29 +237,28 @@ export default function AdminDashboard() {
         
         // 월간 점유율 계산 (판매된 총 객실박수 기준)
         const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()
-        const totalRoomNights = 34 * daysInMonth
+        const totalRoomNights = totalRooms * daysInMonth
         const soldRoomNights = monthlyData?.reduce((sum, item) => sum + (item.nights || 1), 0) || 0
-        const monthlyOccRaw = (soldRoomNights / totalRoomNights) * 100
+        const monthlyOccRaw = totalRoomNights > 0 ? (soldRoomNights / totalRoomNights) * 100 : 0
         const monthlyOcc = monthlyOccRaw < 1 ? 
           Math.round(monthlyOccRaw * 10) / 10 : 
           Math.round(monthlyOccRaw)
-
 
         // 지난달 계산
         const lastMonthBookings = lastMonthData?.length || 0
         const lastMonthRev = lastMonthData?.reduce((sum, item) => sum + item.total_amount, 0) || 0
         const lastMonthAdr = lastMonthBookings > 0 ? Math.round(lastMonthRev / lastMonthBookings) : 0
         const lastMonthDays = new Date(new Date().getFullYear(), new Date().getMonth(), 0).getDate()
-        const lastMonthTotalRooms = 34 * lastMonthDays
+        const lastMonthTotalRooms = totalRooms * lastMonthDays
         const lastMonthSoldRoomNights = lastMonthData?.reduce((sum, item) => sum + (item.nights || 1), 0) || 0
         const lastMonthRemaining = lastMonthTotalRooms - lastMonthSoldRoomNights
-        const lastMonthOccRaw = (lastMonthSoldRoomNights / lastMonthTotalRooms) * 100
+        const lastMonthOccRaw = lastMonthTotalRooms > 0 ? (lastMonthSoldRoomNights / lastMonthTotalRooms) * 100 : 0
         const lastMonthOcc = lastMonthOccRaw < 1 ? 
           Math.round(lastMonthOccRaw * 10) / 10 : 
           Math.round(lastMonthOccRaw)
         
         setPropertyReport({
-          today: { adr: todayAdr, occ: todayOcc, rev: todayRev, bookings: todayBookings, remaining: todayRemaining, total: 34 },
+          today: { adr: todayAdr, occ: todayOcc, rev: todayRev, bookings: todayBookings, remaining: todayRemaining, total: totalRooms },
           monthly: { adr: monthlyAdr, occ: monthlyOcc, rev: monthlyRev, bookings: monthlyBookings, remaining: totalRoomNights - soldRoomNights, total: totalRoomNights },
           lastMonth: { adr: lastMonthAdr, occ: lastMonthOcc, rev: lastMonthRev, bookings: lastMonthBookings, remaining: lastMonthRemaining, total: lastMonthTotalRooms }
         })
@@ -246,7 +273,128 @@ export default function AdminDashboard() {
     }
 
     fetchPropertyReport()
-  }, [])	
+  }, [totalRooms])	
+
+  // 숙소투데이 데이터 조회
+  useEffect(() => {
+    const fetchZoneData = async () => {
+      const today = new Date().toISOString().split('T')[0]
+      
+      try {
+        // 동별 객실 정보 및 현재가 조회
+        const { data: roomsData } = await supabase
+          .from('cube45_rooms')
+          .select('id, zone, current_price')
+          .order('zone')
+
+        // 현재 예약된 객실들 조회 (오늘 기준)
+        const { data: reservedRooms } = await supabase
+          .from('cube45_reservations')
+          .select('room_id')
+          .lte('check_in_date', today)
+          .gt('check_out_date', today)
+          .neq('status', 'cancelled')
+
+        const reservedRoomIds = new Set(reservedRooms?.map(r => r.room_id) || [])
+
+        // 동별 데이터 집계
+        const zones = ['A', 'B', 'C', 'D']
+        const zoneStats = zones.map(zone => {
+          const zoneRooms = roomsData?.filter(room => room.zone === zone) || []
+          const totalRooms = zoneRooms.length
+          const reservedCount = zoneRooms.filter(room => reservedRoomIds.has(room.id)).length
+          const availableRooms = totalRooms - reservedCount
+          const currentPrice = zoneRooms[0]?.current_price || 0
+
+          return {
+            zone: `${zone}동`,
+            availableRooms,
+            currentPrice
+          }
+        })
+
+        setZoneData(zoneStats)
+
+        // 가격 변경 상태 초기화
+        const initialChanges = {}
+        zones.forEach(zone => {
+          initialChanges[zone] = { operator: '+', amount: '' }
+        })
+        setPriceChanges(initialChanges)
+
+      } catch (error) {
+        console.error('숙소투데이 데이터 조회 실패:', error)
+      }
+    }
+
+    fetchZoneData()
+  }, [])
+
+  // 가격 변경 핸들러
+  const handlePriceChange = (zone, field, value) => {
+    setPriceChanges(prev => ({
+      ...prev,
+      [zone]: {
+        ...prev[zone],
+        [field]: value
+      }
+    }))
+  }
+
+  // 가격 저장 핸들러
+  const handleSavePrice = async (zoneData) => {
+    const zone = zoneData.zone.replace('동', '') // 'A동' -> 'A'
+    const change = priceChanges[zone]
+    
+    if (!change.amount || isNaN(change.amount)) {
+      alert('변경할 금액을 입력해주세요.')
+      return
+    }
+
+    try {
+      // 기존 가격에 연산 적용
+      let newPrice = zoneData.currentPrice
+      const amount = parseFloat(change.amount)
+
+      switch (change.operator) {
+        case '+':
+          newPrice = zoneData.currentPrice + Math.round(amount)
+          break
+        case '-':
+          newPrice = zoneData.currentPrice - Math.round(amount)
+          break
+        case '*':
+          newPrice = Math.round(zoneData.currentPrice * amount)
+          break
+        case '/':
+          newPrice = Math.round(zoneData.currentPrice / amount)
+          break
+      }
+
+      // 음수 방지
+      if (newPrice < 0) {
+        alert('가격은 0원보다 작을 수 없습니다.')
+        return
+      }
+
+      // 해당 동의 모든 객실 가격 업데이트
+      const { error } = await supabase
+        .from('cube45_rooms')
+        .update({ current_price: newPrice })
+        .eq('zone', zone)
+
+      if (error) throw error
+
+      alert(`${zoneData.zone} 가격이 ${newPrice.toLocaleString()}원으로 변경되었습니다.`)
+      
+      // 데이터 새로고침
+      window.location.reload()
+
+    } catch (error) {
+      console.error('가격 저장 실패:', error)
+      alert('가격 저장에 실패했습니다.')
+    }
+  }
 
   const formatDate = (date: Date) => {
     const month = (date.getMonth() + 1).toString().padStart(2, '0')
@@ -280,7 +428,7 @@ export default function AdminDashboard() {
               </a>
             </li>
             <li>
-              <a href="/admin/reservations" className="flex items-center p-3 text-gray-600 hover:bg-gray-50 rounded">
+              <a href="/admin/reservation" className="flex items-center p-3 text-gray-600 hover:bg-gray-50 rounded">
                 <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
                 </svg>
@@ -500,7 +648,7 @@ export default function AdminDashboard() {
               <div className="bg-white rounded shadow-sm">
                 <div className="p-4 border-b">
                   <h3 className="text-sm font-medium text-gray-700 flex items-center">
-                    숙소투데이(미완성)
+                    숙소투데이
                     <svg className="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                     </svg>
@@ -513,67 +661,54 @@ export default function AdminDashboard() {
                       <tr>
                         <th className="text-left py-3 px-4 font-medium text-gray-600">상품명</th>
                         <th className="text-center py-3 px-4 font-medium text-gray-600">잔여객실수</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-600">입금가</th>
+                        <th className="text-center py-3 px-4 font-medium text-gray-600">현재가</th>
                         <th className="text-center py-3 px-4 font-medium text-gray-600">변경가</th>
                         <th className="text-center py-3 px-4 font-medium text-gray-600"></th>
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="bg-white">
-                        <td className="py-3 px-4 text-gray-700">스탠다드 트윈</td>
-                        <td className="text-center py-3 px-4">15</td>
-                        <td className="text-center py-3 px-4">100,000</td>
-                        <td className="text-center py-3 px-4">
-                          <input type="number" className="w-20 px-2 py-1 border rounded text-center text-sm" defaultValue="0" />
-                        </td>
-                        <td className="text-center py-3 px-4">
-                          <button className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200">저장</button>
-                        </td>
-                      </tr>
-                      <tr className="bg-gray-50">
-                        <td className="py-3 px-4 text-gray-700">[대실]스탠다드 트윈</td>
-                        <td className="text-center py-3 px-4">15</td>
-                        <td className="text-center py-3 px-4">50,000</td>
-                        <td className="text-center py-3 px-4">
-                          <input type="number" className="w-20 px-2 py-1 border rounded text-center text-sm" defaultValue="0" />
-                        </td>
-                        <td className="text-center py-3 px-4">
-                          <button className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200">저장</button>
-                        </td>
-                      </tr>
-                      <tr className="bg-white">
-                        <td className="py-3 px-4 text-gray-700">[B2B여행사/모두투어] 스탠다드 트윈</td>
-                        <td className="text-center py-3 px-4">15</td>
-                        <td className="text-center py-3 px-4">80,000</td>
-                        <td className="text-center py-3 px-4">
-                          <input type="number" className="w-20 px-2 py-1 border rounded text-center text-sm" defaultValue="0" />
-                        </td>
-                        <td className="text-center py-3 px-4">
-                          <button className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200">저장</button>
-                        </td>
-                      </tr>
-                      <tr className="bg-gray-50">
-                        <td className="py-3 px-4 text-gray-700">[B2B여행사/하나투어] 스탠다드 트윈</td>
-                        <td className="text-center py-3 px-4">15</td>
-                        <td className="text-center py-3 px-4">80,000</td>
-                        <td className="text-center py-3 px-4">
-                          <input type="number" className="w-20 px-2 py-1 border rounded text-center text-sm" defaultValue="0" />
-                        </td>
-                        <td className="text-center py-3 px-4">
-                          <button className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200">저장</button>
-                        </td>
-                      </tr>
-                      <tr className="bg-white">
-                        <td className="py-3 px-4 text-gray-700">[조식 2인 PKG] 스탠다드 트윈</td>
-                        <td className="text-center py-3 px-4">15</td>
-                        <td className="text-center py-3 px-4">105,000</td>
-                        <td className="text-center py-3 px-4">
-                          <input type="number" className="w-20 px-2 py-1 border rounded text-center text-sm" defaultValue="0" />
-                        </td>
-                        <td className="text-center py-3 px-4">
-                          <button className="px-3 py-1 bg-gray-100 text-gray-600 rounded text-xs hover:bg-gray-200">저장</button>
-                        </td>
-                      </tr>
+                      {zoneData.map((zone, index) => {
+                        const zoneKey = zone.zone.replace('동', '')
+                        const change = priceChanges[zoneKey] || { operator: '+', amount: '' }
+                        
+                        return (
+                          <tr key={zone.zone} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                            <td className="py-3 px-4 text-gray-700">{zone.zone}</td>
+                            <td className="text-center py-3 px-4">{zone.availableRooms}</td>
+                            <td className="text-center py-3 px-4">{zone.currentPrice.toLocaleString()}</td>
+                            <td className="text-center py-3 px-4">
+                              <div className="flex items-center justify-center gap-1">
+                                <select 
+                                  value={change.operator}
+                                  onChange={(e) => handlePriceChange(zoneKey, 'operator', e.target.value)}
+                                  className="w-12 px-1 py-1 border rounded text-center text-sm"
+                                >
+                                  <option value="+">+</option>
+                                  <option value="-">-</option>
+                                  <option value="*">×</option>
+                                  <option value="/">÷</option>
+                                </select>
+                                <input 
+                                  type="number" 
+                                  value={change.amount}
+                                  onChange={(e) => handlePriceChange(zoneKey, 'amount', e.target.value)}
+                                  className="w-20 px-2 py-1 border rounded text-center text-sm" 
+                                  placeholder="금액"
+                                  step="0.1"
+                                />
+                              </div>
+                            </td>
+                            <td className="text-center py-3 px-4">
+                              <button 
+                                onClick={() => handleSavePrice(zone)}
+                                className="px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                              >
+                                저장
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      })}
                     </tbody>
                   </table>
                 </div>
