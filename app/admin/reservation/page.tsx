@@ -6,9 +6,9 @@ import { supabase } from '@/lib/supabase'
 export default function AdminReservation() {
   const [currentTime, setCurrentTime] = useState(new Date())
   const [mounted, setMounted] = useState(false)
-  const [reservations, setReservations] = useState<any[]>([])
+  const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(true)
-  const [checkStatus, setCheckStatus] = useState({}) // 체크인/체크아웃 상태 관리
+  const [checkStatus, setCheckStatus] = useState<Record<string, boolean>>({}) // 체크인/체크아웃 상태 관리
   
   // 검색 조건 상태들
   const [searchConditions, setSearchConditions] = useState({
@@ -68,7 +68,7 @@ export default function AdminReservation() {
     }
   }
 
-  const handleSearchChange = (field, value) => {
+  const handleSearchChange = (field: string, value: string | number) => {
     setSearchConditions(prev => ({
       ...prev,
       [field]: value
@@ -80,7 +80,7 @@ export default function AdminReservation() {
   }
 
   // 체크인/체크아웃 상태 변경 함수
-  const toggleCheckStatus = async (reservationId, type) => {
+  const toggleCheckStatus = async (reservationId: string, type: string) => {
     const currentStatus = checkStatus[`${reservationId}_${type}`]
     const newStatus = !currentStatus
     
