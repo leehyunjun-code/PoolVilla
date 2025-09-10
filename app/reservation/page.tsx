@@ -181,11 +181,11 @@ export default function LocationPage() {
     return {
       id: dbRoom.id,
       name: generateRoomDisplayName(dbRoom),
-      rooms: parseInt(dbRoom.rooms) || 0,
-      bathrooms: parseInt(dbRoom.bathrooms) || 0,
-      minGuests: parseInt(dbRoom.standard_capacity) || 0,
-      maxGuests: parseInt(dbRoom.max_capacity) || 0,
-      size: parseInt(dbRoom.area) || 0,
+      rooms: parseInt(String(dbRoom.rooms)) || 0,
+      bathrooms: parseInt(String(dbRoom.bathrooms)) || 0,
+      minGuests: parseInt(String(dbRoom.standard_capacity)) || 0,
+      maxGuests: parseInt(String(dbRoom.max_capacity)) || 0,
+      size: parseInt(String(dbRoom.area)) || 0,
       petFriendly: dbRoom.pet_friendly === '가능',
       price: dbRoom.current_price || 0
     }
