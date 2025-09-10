@@ -20,6 +20,7 @@ interface Room {
   area: string | number
   pet_friendly: string
   current_price: number
+  fireplace: string  // 추가된 속성
 }
 
 interface Summary {
