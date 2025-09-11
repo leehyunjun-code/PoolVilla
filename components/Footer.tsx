@@ -27,8 +27,8 @@ export default function Footer() {
               </div>
               {/* 주소 정보 */}
               <div className="text-xs text-gray-200">
-                <p>경기도 가평군 설악면 꽃수터길 13-1</p>
-                <p>사업자번호 : 301-37-28829 | 대표자 : 박만</p>
+                <p>경기도 가평군 설악면 국수터길 13-1</p>
+                <p>사업자번호 : 301-37-28829 | 대표자 : 박언</p>
               </div>
             </div>
           </div>
