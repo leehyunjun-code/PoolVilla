@@ -621,9 +621,6 @@ export default function AdminCancell() {
                     <span className="px-2 py-1 bg-orange-100 text-orange-800 rounded text-xs mr-2">사용자 취소</span>
                     고객이 직접 취소한 예약입니다.
                   </li>
-                  <li className="text-xs text-gray-600">
-                    * 취소 구분이 없는 경우 '알수없음'으로 표시됩니다.
-                  </li>
                 </ul>
               </div>
               <div>
