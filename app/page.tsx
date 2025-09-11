@@ -7,6 +7,8 @@ import { useState, useEffect, useRef } from 'react'
 import Footer from '@/components/Footer'
 import Navigation from '@/components/Navigation'
 import OffersSection from '@/components/OffersSection'
+import Link from 'next/link'
+
 
 export default function Home() {
   const [checkIn, setCheckIn] = useState('')
@@ -14,6 +16,8 @@ export default function Home() {
   const [nights, setNights] = useState(1)
   const [isVisible, setIsVisible] = useState(false)
   const cube45Ref = useRef(null)
+  const [adults, setAdults] = useState(2)
+  const [children, setChildren] = useState(0)
 
   // 슬라이드 데이터 - 루프 개선을 위해 복제
   const originalSlides = [
@@ -170,6 +174,7 @@ export default function Home() {
                 <input 
                   type="date" 
                   value={checkIn}
+                  min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setCheckIn(e.target.value)}
                   className="px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                 />
@@ -182,6 +187,7 @@ export default function Home() {
                 <input 
                   type="date" 
                   value={checkOut}
+                  min={checkIn || new Date().toISOString().split('T')[0]}
                   onChange={(e) => setCheckOut(e.target.value)}
                   className="px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
                 />
@@ -192,30 +198,34 @@ export default function Home() {
                 <label className="block text-sm text-gray-600 mb-1">성인</label>
                 <input 
                   type="number" 
-                  defaultValue="2"
+                  value={adults}
+                  onChange={(e) => setAdults(parseInt(e.target.value) || 0)}
                   min="1"
                   className="px-3 py-2 border rounded-md w-16 text-center"
                 />
               </div>
               <div className="text-center">
-                <label className="block text-sm text-gray-600 mb-1">어린이</label>
+                <label className="block text-sm text-gray-600 mb-1">소인</label>
                 <input 
                   type="number" 
-                  defaultValue="0"
+                  value={children}
+                  onChange={(e) => setChildren(parseInt(e.target.value) || 0)}
                   min="0"
                   className="px-3 py-2 border rounded-md w-16 text-center"
                 />
               </div>
-              <div className="text-center">
-                <label className="block text-sm text-gray-600 mb-1">유아</label>
-                <input 
-                  type="number" 
-                  defaultValue="0"
-                  min="0"
-                  className="px-3 py-2 border rounded-md w-16 text-center"
-                />
-              </div>
-              <button className="bg-gray-800 text-white px-6 py-2.5 rounded-md hover:bg-gray-700 transition-colors">
+              <button 
+                onClick={() => {
+                  const params = new URLSearchParams({
+                    checkIn: checkIn,
+                    checkOut: checkOut,
+                    adults: adults.toString(),
+                    children: children.toString()
+                  })
+                  window.location.href = `/reservation?${params.toString()}`
+                }}
+                className="bg-gray-800 text-white px-6 py-2.5 rounded-md hover:bg-gray-700 transition-colors"
+              >
                 검색
               </button>
             </div>
@@ -421,9 +431,11 @@ export default function Home() {
                 <ul className="text-gray-600 mb-4">
                   <li>• 실내 수영장</li>
                 </ul>
-                <button className="border border-gray-800 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-100 transition-colors">
-                  예약하기
-                </button>
+                <Link href="/reservation">
+                  <button className="border border-gray-800 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-100 transition-colors">
+                    예약하기
+                  </button>
+                </Link>
               </div>
             </div>
             <div className="w-2/3">

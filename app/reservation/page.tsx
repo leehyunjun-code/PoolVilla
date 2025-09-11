@@ -142,6 +142,32 @@ export default function LocationPage() {
   const [reservationNumber, setReservationNumber] = useState('')
   const [usedNumbers, setUsedNumbers] = useState<Set<string>>(new Set())
   
+  // URL 파라미터 받기
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    const checkInParam = params.get('checkIn')
+    const checkOutParam = params.get('checkOut')
+    const adultsParam = params.get('adults')
+    const childrenParam = params.get('children')
+    
+    if (checkInParam && checkOutParam) {
+      const checkInDate = new Date(checkInParam)
+      checkInDate.setHours(0, 0, 0, 0)
+      const checkOutDate = new Date(checkOutParam)
+      checkOutDate.setHours(0, 0, 0, 0)
+      setFirstDate(checkInDate)
+      setSecondDate(checkOutDate)
+    }
+    
+    if (adultsParam) {
+      setAdults(parseInt(adultsParam) || 2)
+    }
+    
+    if (childrenParam) {
+      setChildren(parseInt(childrenParam) || 0)
+    }
+  }, [])
+  
   // Supabase에서 객실 데이터 조회
   useEffect(() => {
     const fetchRoomsData = async () => {
@@ -169,16 +195,36 @@ export default function LocationPage() {
   
   // 객실명 동적 생성 함수
   const generateRoomDisplayName = (room: DbRoom): string => {
-    let poolText = ""
-    if (room.pool === "실내") {
-      poolText = "실내수영장"
-    } else if (room.pool === "야외") {
-      poolText = "야외수영장"  
-    } else if (room.pool === "없음") {
-      poolText = "" // 수영장 표시 안함
+    const roomNumber = room.id // 예: A3, B11, C20, D2
+    const building = room.id.charAt(0) // A, B, C, D
+    
+    let roomType = ""
+    let features = ""
+    
+    if (building === 'A') {
+      roomType = "독채빌라"
+      if (room.pool === "실내") {
+        features = "(실내풀장)"
+      } else if (room.pool === "야외") {
+        features = "(야외풀장)"
+      }
+    } else if (building === 'B') {
+      roomType = "빌라"
+      if (room.pool === "실내") {
+        features = "(실내풀장)"
+      } else if (room.pool === "야외") {
+        features = "(야외풀장)"
+      }
+    } else if (building === 'C' || building === 'D') {
+      roomType = "빌라"
+      if (room.pool === "실내") {
+        features = "(실내풀장/애견동반)"
+      } else if (room.pool === "야외") {
+        features = "(야외풀장/애견동반)"
+      }
     }
     
-    return `${room.name} 풀빌라 ${room.type} ${poolText}`.trim()
+    return `${roomNumber}호 ${roomType}${features}`
   }
   
   // DB 데이터를 화면 표시용으로 변환하는 함수
@@ -1011,15 +1057,41 @@ export default function LocationPage() {
                             <thead>
                               <tr className="bg-gray-50">
                                 <th className="border-r border-gray-300 px-3 py-2 text-center font-medium">취소일기준</th>
-                                <th className="border-r border-gray-300 px-3 py-2 text-center font-medium">취소가능여부</th>
-                                <th className="px-3 py-2 text-center font-medium">수수료율</th>
+                                <th className="px-3 py-2 text-center font-medium">취소수수료</th>
                               </tr>
                             </thead>
                             <tbody>
-                              <tr>
-                                <td className="border-r border-gray-300 px-3 py-2 text-center">2025-09-04 부터</td>
-                                <td className="border-r border-gray-300 px-3 py-2 text-center">취소불가능</td>
-                                <td className="px-3 py-2 text-center">100%</td>
+                              <tr className="border-t border-gray-300">
+                                <td className="border-r border-gray-300 px-3 py-2 text-center text-red-500">기본 취소 수수료</td>
+                                <td className="px-3 py-2 text-center">0%</td>
+                              </tr>
+                              <tr className="border-t border-gray-300">
+                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 6일 전</td>
+                                <td className="px-3 py-2 text-center">0%</td>
+                              </tr>
+                              <tr className="border-t border-gray-300">
+                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 5일 전</td>
+                                <td className="px-3 py-2 text-center">10%</td>
+                              </tr>
+                              <tr className="border-t border-gray-300">
+                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 4일 전</td>
+                                <td className="px-3 py-2 text-center">20%</td>
+                              </tr>
+                              <tr className="border-t border-gray-300">
+                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 3일 전</td>
+                                <td className="px-3 py-2 text-center">30%</td>
+                              </tr>
+                              <tr className="border-t border-gray-300">
+                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 2일 전</td>
+                                <td className="px-3 py-2 text-center">50%</td>
+                              </tr>
+                              <tr className="border-t border-gray-300">
+                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 1일 전</td>
+                                <td className="px-3 py-2 text-center">70%</td>
+                              </tr>
+                              <tr className="border-t border-gray-300">
+                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용일 당일</td>
+                                <td className="px-3 py-2 text-center">100% <span className="text-red-500">(환불불가)</span></td>
                               </tr>
                             </tbody>
                           </table>
