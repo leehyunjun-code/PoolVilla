@@ -31,7 +31,7 @@ interface Reservation {
   check_in_time?: string
   check_out_time?: string
   cancelled_at?: string
-  nterface Reservation {	
+  customer_request?: string	
 }
 
 export default function AdminReservation() {
