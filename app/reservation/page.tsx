@@ -58,6 +58,11 @@ export default function LocationPage() {
   const [customerRequest, setCustomerRequest] = useState('')
   const [filteredRooms, setFilteredRooms] = useState<Room[]>([])
   
+  const [showTermsPopup, setShowTermsPopup] = useState<{
+    isOpen: boolean;
+    type: 'terms1' | 'terms2' | 'terms3' | 'marketing' | null;
+  }>({ isOpen: false, type: null })
+  
   // Supabase 연동을 위한 상태 추가
   const [roomsData, setRoomsData] = useState<DbRoom[]>([])
   const [roomsLoading, setRoomsLoading] = useState(true)
@@ -1336,7 +1341,15 @@ export default function LocationPage() {
                                 checked={termsChecked.required1}
                                 onChange={() => handleTermChange('required1')}
                               />
-                              숙박이용 규정 동의(필수)
+                              <span 
+                                className="underline cursor-pointer hover:text-gray-700"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  setShowTermsPopup({ isOpen: true, type: 'terms1' })
+                                }}
+                              >
+                                숙박이용 규정 동의(필수)
+                              </span>
                             </label>
                             <label className="flex items-center text-sm text-gray-500">
                               <input 
@@ -1345,7 +1358,15 @@ export default function LocationPage() {
                                 checked={termsChecked.required2}
                                 onChange={() => handleTermChange('required2')}
                               />
-                              개인정보 수집 이용 동의(필수)
+                              <span 
+                                className="underline cursor-pointer hover:text-gray-700"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  setShowTermsPopup({ isOpen: true, type: 'terms2' })
+                                }}
+                              >
+                                개인정보 수집 이용 동의(필수)
+                              </span>
                             </label>
                             <label className="flex items-center text-sm text-gray-500">
                               <input 
@@ -1354,7 +1375,15 @@ export default function LocationPage() {
                                 checked={termsChecked.required3}
                                 onChange={() => handleTermChange('required3')}
                               />
-                              개인정보 제3자 제공 동의(필수)
+                              <span 
+                                className="underline cursor-pointer hover:text-gray-700"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  setShowTermsPopup({ isOpen: true, type: 'terms3' })
+                                }}
+                              >
+                                개인정보 제3자 제공 동의(필수)
+                              </span>
                             </label>
                             <label className="flex items-center text-sm text-gray-500">
                               <input 
@@ -1363,7 +1392,15 @@ export default function LocationPage() {
                                 checked={termsChecked.optional1}
                                 onChange={() => handleTermChange('optional1')}
                               />
-                              마케팅 정보 수신 동의(선택)
+                              <span 
+                                className="underline cursor-pointer hover:text-gray-700"
+                                onClick={(e) => {
+                                  e.preventDefault()
+                                  setShowTermsPopup({ isOpen: true, type: 'marketing' })
+                                }}
+                              >
+                                마케팅 정보 수신 동의(선택)
+                              </span>
                             </label>
                           </div>
                         </div>
@@ -1443,6 +1480,112 @@ export default function LocationPage() {
                             {getFirstErrorMessage()}
                           </div>
                         )}
+						{/* 팝업 모달 */}
+                        {showTermsPopup.isOpen && showTermsPopup.type && (
+                          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
+                              <div className="p-6 border-b">
+                                <h2 className="text-xl font-bold">
+                                  {showTermsPopup.type === 'terms1' && '예약 유의사항 및 취소규정 동의'}
+                                  {showTermsPopup.type === 'terms2' && '개인정보 수집 이용 동의'}
+                                  {showTermsPopup.type === 'terms3' && '제 3자에 대한 개인정보 제공'}
+                                  {showTermsPopup.type === 'marketing' && '마케팅 정보 수신 동의'}
+                                </h2>
+                              </div>
+                              <div className="p-6 overflow-y-auto max-h-[60vh] text-sm text-gray-700 text-left">
+                                {showTermsPopup.type === 'terms1' && (
+                                  <div>
+                                    <h5 className="font-bold mb-2">[예약 유의사항 및 취소규정 동의]</h5>
+                                    <p className="mb-2">예약정보 하단에 기재된 취소 규정 및 예약 유의사항을 확인하였고, 이에 동의합니다.</p>
+                                    <p className="mb-2">- 예약 및 결제 완료 후 해당 숙소의 취소규정이 적용됩니다.</p>
+                                    <p className="mb-4">- 예약 유의사항에 동의하지 않을 경우 예약이 불가하며, 예약 취소 및 입실이 거절될 수 있습니다.</p>
+                                    
+                                    <h5 className="font-bold mb-2">[아동,청소년 보호법에 대한 동의]</h5>
+                                    <p className="mb-2">예약자(투숙자) 본인을 포함하여 가족 이외의 미성년자 동반 입실 시 모든 법적 책임은 당사자에게 있습니다.</p>
+                                    <p className="mb-2">또한, 이로 인해 영업정지, 과태료 등 당 사업장의 피해 발생 시 예약자(투숙자)에게 모든 손해배상 의무가 있음을 동의합니다.</p>
+                                  </div>
+                                )}
+                                {showTermsPopup.type === 'terms2' && (
+                                  <div>
+                                    <h5 className="font-bold mb-2">[개인정보 수집 이용 동의]</h5>
+                                    <p className="mb-2">큐브45 (이하 '회사'는) 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을 보호하고 개인정보와 관련한 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같은 처리방침을 두고 있습니다. 회사는 개인정보취급방침을 개정하는 경우 웹사이트 공지사항(또는 개별공지)을 통하여 공지할 것입니다.</p>
+                                    <p className="mb-4">ο 본 방침은 : 2017 년 3 월 01일 부터 시행됩니다.</p>
+                                    
+                                    <h5 className="font-bold mb-2">개인정보 수집항목</h5>
+                                    <p className="mb-2">1. 수집하는 개인정보 항목 및 수집방법</p>
+                                    <p className="mb-2">가. 수집하는 개인정보의 항목</p>
+                                    <p className="mb-2">1) 회사는 원활한 고객상담, 각종 서비스 제공을 위해 상품구매시 아래와 같은 최소한의 개인정보를 수집하고 있습니다.</p>
+                                    <p className="mb-2">ο 구매자 - 이름, 이메일주소, 휴대폰 번호</p>
+                                    <p className="mb-2">2) 서비스 이용과정이나 사업처리 과정에서 아래와 같은 정보들이 자동으로 생성되어 수집될 수 있습니다.</p>
+                                    <p className="mb-2">- IP Address, 쿠키, 방문 일시, 서비스 이용 기록, 불량 이용 기록</p>
+                                    <p className="mb-2">나. 개인정보 수집방법 회사는 다음과 같은 방법으로 개인정보를 수집합니다.</p>
+                                    <p className="mb-2">ο 홈페이지를 통한 구매, 게시판작성</p>
+                                    <p className="mb-4">ο 제휴사로부터의 제공</p>
+                                    
+                                    <h5 className="font-bold mb-2">개인정보의 수집 및 이용목적</h5>
+                                    <p className="mb-2">2. 개인정보의 수집 및 이용목적</p>
+                                    <p className="mb-2">회사는 수집한 개인정보를 아래의 목적을 위해 활용합니다.</p>
+                                    <p className="mb-2">- 이름:서비스 이용에 따른 본인확인, 개인식별, 불량회원의 부정 이용 방지와 비인가사용 방지 등 고객센터의 운영을 위하여 사용됩니다.</p>
+                                    <p className="mb-2">- 이메일, 휴대폰 번호 : 고지사항 전달, 본인 의사확인, 불만처리 등 민원처리, 신상품, 이벤트 등 광고성정보안내 및 개인맞춤서비스를 제공 하기 위한 자료로 사용됩니다.</p>
+                                    <p className="mb-2">- 이용자의 IP주소, 방문 일시 : 불량회원의 부정 이용방지와 비인가 사용방지, 서비스 이용에 대한 통계학적 분석에 사용됩니다.</p>
+                                    <p className="mb-4">-그외의 선택항목 :개인맞춤서비스를 제공하기 위하여 사용됩니다.</p>
+                                    
+                                    <h5 className="font-bold mb-2">개인정보의 보유 및 이용기간</h5>
+                                    <p className="mb-2">3. 개인정보의 보유 및 이용기간</p>
+                                    <p className="mb-2">회사는 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 원칙적으로 지체없이 파기합니다.</p>
+                                    <p className="mb-2">다만, 아래의 정보에 대해서는 아래의 이유로 명시한 기간 동안 보존합니다.</p>
+                                    <p className="mb-2">&lt; 내부 방침에 의한 정보보유 사유&gt;</p>
+                                    <p className="mb-2">ο 회원 ID</p>
+                                    <p className="mb-2">- 보존 이유 : 서비스 이용의 혼선방지</p>
+                                    <p className="mb-2">- 보존 기간 : 사업종료시까지 &lt;관련법령에 의한 정보보유 사유&gt;</p>
+                                    <p className="mb-2">- 계약 또는 청약철회 등에 관한 기록: 5년</p>
+                                    <p className="mb-2">- 대금결제 및 재화 등의 공급에 관한 기록: 5년</p>
+                                    <p className="mb-2">- 소비자의 불만 또는 분쟁처리에 관한 기록: 3년</p>
+                                    <p className="mb-2">- 보유기간을 이용자에게 미리 고지하거나 개별적으로 이용자의 동의를 받은 경우: 고지하거나 개별 동의한 기간</p>
+                                  </div>
+                                )}
+                                {showTermsPopup.type === 'terms3' && (
+                                  <div>
+                                    <h5 className="font-bold mb-2">[제 3자에 대한 개인정보 제공]</h5>
+                                    <p className="mb-2">큐브45는(은) 공정거래위원회 인증 전자상거래 표준약관을 준수하고 있으며, 이용하시려면 아래 개인정보의 수집 및 제공에 동의하셔야 합니다.</p>
+                                    <p className="mb-2">제공받는자 : (주)브래드포럼</p>
+                                    <p className="mb-2">개인정보 이용목적 : 본인확인 및 숙소 확인</p>
+                                    <p className="mb-2">제공하는 개인정보 : 구매자명, 사용자명, 이메일주소, 휴대폰번호</p>
+                                    <p className="mb-2">보유기간 : 계약 또는 청약철회 등에 관한 기록 - 5년</p>
+                                  </div>
+                                )}
+                                {showTermsPopup.type === 'marketing' && (
+                                  <div>
+                                    <h5 className="font-bold mb-2">마케팅 정보 수신 동의</h5>
+                                    <p className="mb-4">큐브45 풀빌라에서 제공하는 이벤트/혜택 등 다양한 정보를 휴대전화(문자), 이메일로 받아보실 수 있습니다.</p>
+                                    
+                                    <h5 className="font-bold mb-2">수신 정보</h5>
+                                    <p className="mb-2">• 할인 쿠폰 및 프로모션 안내</p>
+                                    <p className="mb-2">• 신규 시설 및 서비스 안내</p>
+                                    <p className="mb-2">• 이벤트 및 행사 정보</p>
+                                    <p className="mb-4">• 계절별 특별 패키지 안내</p>
+                                    
+                                    <h5 className="font-bold mb-2">수신 방법</h5>
+                                    <p className="mb-2">• SMS/MMS</p>
+                                    <p className="mb-4">• 이메일</p>
+                                    
+                                    <h5 className="font-bold mb-2">동의 철회</h5>
+                                    <p className="mb-2">마케팅 정보 수신 동의는 언제든지 철회할 수 있습니다.</p>
+                                    <p className="mb-2">고객센터 또는 수신된 메시지의 수신거부 링크를 통해 철회 가능합니다.</p>
+                                  </div>
+                                )}
+                              </div>
+                              <div className="p-6 border-t">
+                                <button
+                                  className="w-full py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
+                                  onClick={() => setShowTermsPopup({ isOpen: false, type: null })}
+                                >
+                                  닫기
+                                </button>
+                              </div>
+                            </div>
+                          </div>
+                        )}  
                       </div>
                     </div>
                   </div>
