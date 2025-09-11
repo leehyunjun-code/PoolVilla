@@ -67,7 +67,7 @@ export default function LocationPage() {
   
   // 이름 검증 - 한글, 영문만 허용 (숫자, 특수문자, 띄어쓰기 제한)
   const validateName = (name: string): string => {
-    return name.replace(/[^가-힣a-zA-Z]/g, '');
+    return name.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z]/g, '');
   };
 	
   // 이메일 검증 - 띄어쓰기 제거
@@ -281,7 +281,7 @@ export default function LocationPage() {
     return currentDateObj > checkInDate && currentDateObj < checkOutDate
   }
 
-  const getFilteredRooms = async (selectedBuildingParam = selectedBuilding) => {
+  const getFilteredRooms = async (selectedBuildingParam = selectedBuilding, adultCount?: number, childCount?: number) => {
     // DB 데이터를 화면용으로 변환
     let rooms = roomsData.map(mapRoomData)
     
@@ -293,8 +293,20 @@ export default function LocationPage() {
       if (selectedBuildingParam === 'D동') rooms = rooms.filter(room => room.id.startsWith('D'))
     }
     
+    // 파라미터로 받은 값이 있으면 사용, 없으면 searchAdults/searchChildren 사용
+    const currentAdults = adultCount !== undefined ? adultCount : searchAdults
+    const currentChildren = childCount !== undefined ? childCount : searchChildren
+    
     // 인원수 필터링
-    const totalGuests = searchAdults + searchChildren
+    // 1. 성인이 최소 1명 이상인지 체크
+    if (currentAdults < 1) {
+      return [] // 성인이 0명이면 빈 배열 반환
+    }
+    
+    // 2. 전체 인원수 계산 (성인 + 소인)
+    const totalGuests = currentAdults + currentChildren
+    
+    // 3. 객실의 최대인원과 비교
     rooms = rooms.filter(room => room.maxGuests >= totalGuests)
     
     // 날짜별 예약 중복 필터링
@@ -837,13 +849,16 @@ export default function LocationPage() {
                           
                           setIsSearching(true)
                           setShowRoomResults(false)
-                          setSearchAdults(adults)
-                          setSearchChildren(children)
                           setSelectedBuilding('전체')
                           setVisibleRooms(3)
                           
+                          // 상태 업데이트 대신 직접 값 전달
+                          setSearchAdults(adults)
+                          setSearchChildren(children)
+                          
                           try {
-                            const rooms = await getFilteredRooms()
+                            // getFilteredRooms에 직접 값 전달
+                            const rooms = await getFilteredRooms('전체', adults, children)
                             setFilteredRooms(rooms)
                             setTimeout(() => {
                               setShowRoomResults(true)
@@ -874,10 +889,8 @@ export default function LocationPage() {
                                   setVisibleRooms(3)
                                   
                                   // 해결: 선택된 building을 직접 전달
-                                  if (filteredRooms.length > 0) {
-                                    const rooms = await getFilteredRooms(building)
-                                    setFilteredRooms(rooms)
-                                  }
+                                  const rooms = await getFilteredRooms(building)
+                                  setFilteredRooms(rooms)
                                 }}
 
                                 className={`px-6 py-2 text-sm font-medium transition-colors duration-200 ${
@@ -1012,8 +1025,8 @@ export default function LocationPage() {
                           <h4 className="text-sm font-medium mb-2 text-gray-800 text-left">예약정보</h4>
                           <div className="text-xs text-gray-600 bg-gray-50 p-3 text-left">
                             <div className="mb-1">객실명 : {selectedRoom?.id || '--'}</div>
-                            <div className="mb-1">체크인 : {checkInDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkInDate.toString().padStart(2, '0')}` : '--'}</div>
-                            <div className="mb-1">체크아웃 : {checkOutDate ? `${currentYear}-${currentMonth.toString().padStart(2, '0')}-${checkOutDate.toString().padStart(2, '0')}` : '--'}</div>
+                            <div className="mb-1">체크인 : {checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : '--'}</div>
+                            <div className="mb-1">체크아웃 : {checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : '--'}</div>
                             <div className="mb-1">침대룸 {selectedRoom?.rooms || 0}개, 화장실 {selectedRoom?.bathrooms || 0}개</div>
                             <div className="mb-1">기준인원 : {selectedRoom?.minGuests || 0}명 최대인원 : {selectedRoom?.maxGuests || 0}명</div>
                             <div className="mb-1">객실크기 : {selectedRoom?.size || 0}평</div>
@@ -1076,22 +1089,26 @@ export default function LocationPage() {
                         {/* 예약자 정보 */}
                         <div className="grid grid-cols-3 gap-4 mb-6">
                           <div>
+                            <label className="block text-xs text-gray-600 mb-1">예약자 이름</label>
                             <input 
                               type="text" 
                               className="w-full p-2 border border-gray-300 text-sm" 
-                              placeholder="구매자 이름"
+                              placeholder="홍길동"
                               value={bookerInfo.name}
                               onChange={(e) => {
+                                console.log('입력값:', e.target.value);
                                 const validatedName = validateName(e.target.value);
+                                console.log('검증 후:', validatedName);
                                 setBookerInfo(prev => ({...prev, name: validatedName}));
                               }}
                             />
                           </div>
                           <div>
+                            <label className="block text-xs text-gray-600 mb-1">예약자 이메일</label>
                             <input 
                               type="email" 
                               className="w-full p-2 border border-gray-300 text-sm" 
-                              placeholder="구매자 이메일"
+                              placeholder="example@email.com"
                               value={bookerInfo.email}
                               onKeyDown={(e) => {
                                 if (e.key === ' ') {
@@ -1102,10 +1119,11 @@ export default function LocationPage() {
                             />
                           </div>
                           <div>
+                            <label className="block text-xs text-gray-600 mb-1">예약자 연락처</label>
                             <input 
                               type="text" 
                               className="w-full p-2 border border-gray-300 text-sm" 
-                              placeholder="구매자 전화번호"
+                              placeholder="010-1234-5678"
                               value={bookerInfo.phone}
                               onChange={(e) => {
                                 const validatedPhone = validatePhone(e.target.value);
@@ -1121,10 +1139,11 @@ export default function LocationPage() {
                             <h3 className="text-sm font-medium text-gray-800 text-left mb-6">투숙자 정보</h3>
                             <div className="grid grid-cols-3 gap-4 mb-6">
                               <div>
+                                <label className="block text-xs text-gray-600 mb-1">투숙자 이름</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2 border border-gray-300 text-sm" 
-                                  placeholder="투숙자 이름"
+                                  placeholder="홍길동"
                                   value={guestInfo.name}
                                   onChange={(e) => {
                                     const validatedName = validateName(e.target.value);
@@ -1133,10 +1152,11 @@ export default function LocationPage() {
                                 />
                               </div>
                               <div>
+                                <label className="block text-xs text-gray-600 mb-1">투숙자 이메일</label>
                                 <input 
                                   type="email" 
                                   className="w-full p-2 border border-gray-300 text-sm" 
-                                  placeholder="투숙자 이메일"
+                                  placeholder="example@email.com"
                                   value={guestInfo.email}
                                   onKeyDown={(e) => {
                                     if (e.key === ' ') {
@@ -1147,10 +1167,11 @@ export default function LocationPage() {
                                 />
                               </div>
                               <div>
+                                <label className="block text-xs text-gray-600 mb-1">투숙자 연락처</label>
                                 <input 
                                   type="text" 
                                   className="w-full p-2 border border-gray-300 text-sm" 
-                                  placeholder="투숙자 전화번호"
+                                  placeholder="010-1234-5678"
                                   value={guestInfo.phone}
                                   onChange={(e) => {
                                     const validatedPhone = validatePhone(e.target.value);
