@@ -146,9 +146,9 @@ export default function PriceDetail() {
 
   const handleZonePriceApply = async (zone: string) => {
     const zoneKey = `zone_${zone}`
-    const weekday = parseInt(priceInputs[zoneKey]?.weekday)
-    const friday = parseInt(priceInputs[zoneKey]?.friday)
-    const saturday = parseInt(priceInputs[zoneKey]?.saturday)
+    const weekday = parseInt(String(priceInputs[zoneKey]?.weekday))
+    const friday = parseInt(String(priceInputs[zoneKey]?.friday))
+    const saturday = parseInt(String(priceInputs[zoneKey]?.saturday))
 
     if (isNaN(weekday) || isNaN(friday) || isNaN(saturday)) {
       alert('올바른 가격을 입력해주세요.')
