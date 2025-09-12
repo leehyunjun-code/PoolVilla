@@ -249,7 +249,7 @@ export default function PriceDetail() {
 
     const dayType = getDayType(selectedDate)
     const inputKey = `calendar_${selectedRoom}_${selectedDate.toISOString().split('T')[0]}`
-    const newPrice = parseInt(priceInputs[inputKey] || getPriceForDate(selectedDate))
+    const newPrice = parseInt(String(priceInputs[inputKey]?.price || getPriceForDate(selectedDate)))
 
     if (isNaN(newPrice)) {
       alert('올바른 가격을 입력해주세요.')
