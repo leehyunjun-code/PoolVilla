@@ -295,11 +295,6 @@ export default function AdminDashboard() {
       const today = new Date().toISOString().split('T')[0]
       const dayOfWeek = new Date().getDay()
       
-      // 오늘 요일에 맞는 가격 필드 선택
-      let priceField = 'price_weekday'
-      if (dayOfWeek === 5) priceField = 'price_friday'
-      if (dayOfWeek === 6) priceField = 'price_saturday'
-      
       try {
         // 동별 객실 정보 및 요일별 가격 조회
         const { data: roomsData } = await supabase
@@ -307,7 +302,11 @@ export default function AdminDashboard() {
           .select(`
             id, 
             zone,
-            cube45_room_prices!inner(${priceField})
+            cube45_room_prices (
+              price_weekday,
+              price_friday,
+              price_saturday
+            )
           `)
           .order('zone')
 
@@ -328,7 +327,15 @@ export default function AdminDashboard() {
           const totalRooms = zoneRooms.length
           const reservedCount = zoneRooms.filter(room => reservedRoomIds.has(room.id)).length
           const availableRooms = totalRooms - reservedCount
-          const currentPrice = zoneRooms[0]?.cube45_room_prices?.[0]?.[priceField] || 0
+          
+          // 오늘 요일에 맞는 가격 선택
+          let currentPrice = 0
+          if (zoneRooms[0]?.cube45_room_prices?.[0]) {
+            const prices = zoneRooms[0].cube45_room_prices[0]
+            currentPrice = dayOfWeek === 5 ? prices.price_friday :
+                          dayOfWeek === 6 ? prices.price_saturday :
+                          prices.price_weekday
+          }
 
           return {
             zone: `${zone}동`,
@@ -421,12 +428,16 @@ export default function AdminDashboard() {
         .select('id')
         .eq('zone', zone)
       
-      const roomIds = zoneRooms?.map(r => r.id) || []
+      const roomIds = zoneRooms?.map(r => r.id) || []   
       
-      // 해당 동의 모든 객실의 오늘 요일 가격 업데이트
+      // 모든 요일 가격을 동일하게 업데이트
       const { error } = await supabase
         .from('cube45_room_prices')
-        .update({ [priceField]: newPrice })
+        .update({
+          price_weekday: newPrice,
+          price_friday: newPrice,
+          price_saturday: newPrice
+        })
         .in('room_id', roomIds)
 
       if (error) throw error

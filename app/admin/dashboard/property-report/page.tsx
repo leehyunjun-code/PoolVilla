@@ -279,6 +279,12 @@ export default function PropertyReportDetail() {
                   <span className="ml-2 font-semibold">{monthlyTotal.totalRev.toLocaleString()}원</span>
                 </div>
                 <div>
+                  <span className="text-gray-600">월 총 BOOK:</span>
+                  <span className="ml-2 font-semibold">
+                    {monthlyTotal.totalBookings}/{totalRooms * daysInMonth - totalOccupiedDays}/{totalRooms * daysInMonth}
+                  </span>
+                </div>
+                <div>
                   <span className="text-gray-600">월 총 예약:</span>
                   <span className="ml-2 font-semibold">{monthlyTotal.totalBookings}건</span>
                 </div>
