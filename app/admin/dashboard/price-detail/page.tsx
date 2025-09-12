@@ -23,12 +23,19 @@ interface ZoneData {
   }
 }
 
+interface PriceInput {
+  weekday: number
+  friday: number
+  saturday: number
+  price?: string
+}
+
 export default function PriceDetail() {
   const [zoneData, setZoneData] = useState<ZoneData[]>([])
   const [expandedZones, setExpandedZones] = useState<Set<string>>(new Set())
   const [loading, setLoading] = useState(true)
   const [activeView, setActiveView] = useState<'table' | 'calendar'>('table')
-  const [priceInputs, setPriceInputs] = useState<Record<string, any>>({})
+  const [priceInputs, setPriceInputs] = useState<Record<string, PriceInput>>({})
   const [selectedMonth, setSelectedMonth] = useState(new Date())
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [selectedRoom, setSelectedRoom] = useState<string>('')
@@ -61,7 +68,7 @@ export default function PriceDetail() {
       if (error) throw error
 
       const groupedData: Record<string, RoomPrice[]> = {}
-      const inputs: Record<string, any> = {}
+      const inputs: Record<string, PriceInput> = {}
       
       data?.forEach(room => {
         const roomPrice: RoomPrice = {
@@ -250,7 +257,11 @@ export default function PriceDetail() {
     }
 
     try {
-      const updateData: any = {}
+      const updateData: Partial<{
+        price_weekday: number
+        price_friday: number
+        price_saturday: number
+      }> = {}
       updateData[`price_${dayType}`] = newPrice
       
       const { error } = await supabase
@@ -341,25 +352,25 @@ export default function PriceDetail() {
                         </td>
                         <td className="text-center px-4 py-3">
                           <input
-                            type="number"
-                            value={priceInputs[`zone_${zone.zone}`]?.weekday || ''}
-                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'weekday', e.target.value)}
+                            type="text"
+                            value={priceInputs[`zone_${zone.zone}`]?.weekday?.toLocaleString() || ''}
+                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'weekday', e.target.value.replace(/,/g, ''))}
                             className="w-28 px-2 py-1 border rounded text-center"
                           />
                         </td>
                         <td className="text-center px-4 py-3">
                           <input
-                            type="number"
-                            value={priceInputs[`zone_${zone.zone}`]?.friday || ''}
-                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'friday', e.target.value)}
+                            type="text"
+                            value={priceInputs[`zone_${zone.zone}`]?.weekday?.toLocaleString() || ''}
+                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'weekday', e.target.value.replace(/,/g, ''))}
                             className="w-28 px-2 py-1 border rounded text-center"
                           />
                         </td>
                         <td className="text-center px-4 py-3">
                           <input
-                            type="number"
-                            value={priceInputs[`zone_${zone.zone}`]?.saturday || ''}
-                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'saturday', e.target.value)}
+                            type="text"
+                            value={priceInputs[`zone_${zone.zone}`]?.weekday?.toLocaleString() || ''}
+                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'weekday', e.target.value.replace(/,/g, ''))}
                             className="w-28 px-2 py-1 border rounded text-center"
                           />
                         </td>
@@ -378,25 +389,25 @@ export default function PriceDetail() {
                           <td className="px-4 py-2 pl-10 text-gray-600">{room.room_name}</td>
                           <td className="text-center px-4 py-2">
                             <input
-                              type="number"
-                              value={priceInputs[room.room_id]?.weekday || ''}
-                              onChange={(e) => handleInputChange(room.room_id, 'weekday', e.target.value)}
+                              type="text"
+                              value={priceInputs[room.room_id]?.weekday?.toLocaleString() || ''}
+                              onChange={(e) => handleInputChange(room.room_id, 'weekday', e.target.value.replace(/,/g, ''))}
                               className="w-28 px-2 py-1 border rounded text-center"
                             />
                           </td>
                           <td className="text-center px-4 py-2">
                             <input
-                              type="number"
-                              value={priceInputs[room.room_id]?.friday || ''}
-                              onChange={(e) => handleInputChange(room.room_id, 'friday', e.target.value)}
+                              type="text"
+                              value={priceInputs[room.room_id]?.friday?.toLocaleString() || ''}
+                              onChange={(e) => handleInputChange(room.room_id, 'friday', e.target.value.replace(/,/g, ''))}
                               className="w-28 px-2 py-1 border rounded text-center"
                             />
                           </td>
                           <td className="text-center px-4 py-2">
                             <input
-                              type="number"
-                              value={priceInputs[room.room_id]?.saturday || ''}
-                              onChange={(e) => handleInputChange(room.room_id, 'saturday', e.target.value)}
+                              type="text"
+                              value={priceInputs[room.room_id]?.saturday?.toLocaleString() || ''}
+                              onChange={(e) => handleInputChange(room.room_id, 'saturday', e.target.value.replace(/,/g, ''))}
                               className="w-28 px-2 py-1 border rounded text-center"
                             />
                           </td>
