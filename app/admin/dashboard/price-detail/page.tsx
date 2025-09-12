@@ -179,9 +179,9 @@ export default function PriceDetail() {
   }
 
   const handleRoomPriceSave = async (roomId: string) => {
-    const weekday = parseInt(priceInputs[roomId]?.weekday)
-    const friday = parseInt(priceInputs[roomId]?.friday)
-    const saturday = parseInt(priceInputs[roomId]?.saturday)
+    const weekday = parseInt(String(priceInputs[roomId]?.weekday))
+    const friday = parseInt(String(priceInputs[roomId]?.friday))
+    const saturday = parseInt(String(priceInputs[roomId]?.saturday))
 
     if (isNaN(weekday) || isNaN(friday) || isNaN(saturday)) {
       alert('올바른 가격을 입력해주세요.')
