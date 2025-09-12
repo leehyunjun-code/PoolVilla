@@ -71,6 +71,32 @@ export default function AdminNavigation() {
                   상세요금관리
                 </a>
               </li>
+              <li>
+                <a 
+                  href="/admin/dashboard/daily-sales" 
+                  className={`flex items-center p-2 text-sm rounded ${
+                    pathname === '/admin/dashboard/daily-sales'
+                      ? 'text-blue-600 bg-blue-50' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="mr-2">•</span>
+                  일일매출현황
+                </a>
+              </li>
+              <li>
+                <a 
+                  href="/admin/dashboard/property-report" 
+                  className={`flex items-center p-2 text-sm rounded ${
+                    pathname === '/admin/dashboard/property-report'
+                      ? 'text-blue-600 bg-blue-50' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="mr-2">•</span>
+                  숙소리포트
+                </a>
+              </li>
             </ul>
           </li>
           <li>

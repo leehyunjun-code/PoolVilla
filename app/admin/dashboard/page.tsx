@@ -20,7 +20,8 @@ export default function AdminDashboard() {
   const [dailySales, setDailySales] = useState({
     currentGuests: 0,
     todayRevenue: 0,
-    occupancyRate: 0
+    occupancyRate: 0,
+    occupiedRooms: 0  // 추가
   })
   const [propertyReport, setPropertyReport] = useState({
     today: { adr: 0, occ: 0, rev: 0, bookings: 0, remaining: 0, total: 0 },
@@ -172,7 +173,8 @@ export default function AdminDashboard() {
         setDailySales({
           currentGuests,
           todayRevenue,
-          occupancyRate
+          occupancyRate,
+          occupiedRooms: occupiedRoomCount  // 추가
         })
 
       } catch (error) {
@@ -291,12 +293,22 @@ export default function AdminDashboard() {
   useEffect(() => {
     const fetchZoneData = async () => {
       const today = new Date().toISOString().split('T')[0]
+      const dayOfWeek = new Date().getDay()
+      
+      // 오늘 요일에 맞는 가격 필드 선택
+      let priceField = 'price_weekday'
+      if (dayOfWeek === 5) priceField = 'price_friday'
+      if (dayOfWeek === 6) priceField = 'price_saturday'
       
       try {
-        // 동별 객실 정보 및 현재가 조회
+        // 동별 객실 정보 및 요일별 가격 조회
         const { data: roomsData } = await supabase
           .from('cube45_rooms')
-          .select('id, zone, current_price')
+          .select(`
+            id, 
+            zone,
+            cube45_room_prices!inner(${priceField})
+          `)
           .order('zone')
 
         // 현재 예약된 객실들 조회 (오늘 기준)
@@ -316,7 +328,7 @@ export default function AdminDashboard() {
           const totalRooms = zoneRooms.length
           const reservedCount = zoneRooms.filter(room => reservedRoomIds.has(room.id)).length
           const availableRooms = totalRooms - reservedCount
-          const currentPrice = zoneRooms[0]?.current_price || 0
+          const currentPrice = zoneRooms[0]?.cube45_room_prices?.[0]?.[priceField] || 0
 
           return {
             zone: `${zone}동`,
@@ -397,11 +409,25 @@ export default function AdminDashboard() {
         return
       }
 
-      // 해당 동의 모든 객실 가격 업데이트
-      const { error } = await supabase
+      // 오늘 요일 확인
+      const dayOfWeek = new Date().getDay()
+      let priceField = 'price_weekday'
+      if (dayOfWeek === 5) priceField = 'price_friday'
+      if (dayOfWeek === 6) priceField = 'price_saturday'
+      
+      // 해당 동의 모든 객실 ID 조회
+      const { data: zoneRooms } = await supabase
         .from('cube45_rooms')
-        .update({ current_price: newPrice })
+        .select('id')
         .eq('zone', zone)
+      
+      const roomIds = zoneRooms?.map(r => r.id) || []
+      
+      // 해당 동의 모든 객실의 오늘 요일 가격 업데이트
+      const { error } = await supabase
+        .from('cube45_room_prices')
+        .update({ [priceField]: newPrice })
+        .in('room_id', roomIds)
 
       if (error) throw error
 
@@ -467,7 +493,12 @@ export default function AdminDashboard() {
                 </div>
                 <div>
                   <p className="text-sm text-gray-600">배정현황</p>
-                  <p className="text-3xl font-bold text-purple-600">{dailySales.occupancyRate}%</p>
+                  <p className="text-3xl font-bold text-purple-600">
+                    {dailySales.occupancyRate}%
+                    <span className="text-lg font-medium ml-1">
+                      ({dailySales.occupiedRooms}/{totalRooms})
+                    </span>
+                  </p>
                 </div>
               </div>
             </div>
@@ -481,9 +512,15 @@ export default function AdminDashboard() {
                 <div className="p-4 border-b">
                   <h3 className="text-sm font-medium text-gray-700 flex items-center">
                     일일 매출현황
-                    <svg className="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
+                    <button
+                      onClick={() => window.open('/admin/dashboard/daily-sales', '_blank')}
+                      className="ml-2 text-gray-400 hover:text-blue-600 transition-colors"
+                      title="상세 매출 현황"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </button>
                   </h3>
                 </div>
                 <div className="p-4">
@@ -538,9 +575,15 @@ export default function AdminDashboard() {
                 <div className="p-4 border-b">
                   <h3 className="text-sm font-medium text-gray-700 flex items-center">
                     숙소리포트
-                    <svg className="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
+                    <button
+                      onClick={() => window.open('/admin/dashboard/property-report', '_blank')}
+                      className="ml-2 text-gray-400 hover:text-blue-600 transition-colors"
+                      title="상세 리포트"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </button>
                   </h3>
                 </div>
                 
@@ -582,7 +625,7 @@ export default function AdminDashboard() {
                         </td>
                         <td className="text-center py-3 px-4">
                           <span className={propertyReport.monthly.occ >= propertyReport.lastMonth.occ ? "text-blue-500" : "text-red-500"}>
-                            {propertyReport.monthly.occ >= propertyReport.lastMonth.occ ? '↑' : '↓'} {Math.abs(propertyReport.monthly.occ - propertyReport.lastMonth.occ)}
+                            {propertyReport.monthly.occ >= propertyReport.lastMonth.occ ? '↑' : '↓'} {Math.abs(propertyReport.monthly.occ - propertyReport.lastMonth.occ)}%
                           </span>
                         </td>
                         <td className="text-center py-3 px-4">
@@ -609,11 +652,11 @@ export default function AdminDashboard() {
                 </div>
               </div>
 
-              {/* 숙소투데이 */}
+              {/* 요금관리 */}
               <div className="bg-white rounded shadow-sm">
                 <div className="p-4 border-b">
                   <h3 className="text-sm font-medium text-gray-700 flex items-center">
-                    숙소투데이
+                    요금관리
                     <button
                       onClick={() => window.open('/admin/dashboard/price-detail', '_blank')}
                       className="ml-2 text-gray-400 hover:text-blue-600 transition-colors"
