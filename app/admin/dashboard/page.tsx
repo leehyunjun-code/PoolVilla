@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
+import AdminNavigation from '@/components/admin/navigation'
 
 
 export default function AdminDashboard() {
   const [currentTime, setCurrentTime] = useState(new Date())
+  const [mounted, setMounted] = useState(false)	
   const [checkInCount, setCheckInCount] = useState(0)
   const [checkOutCount, setCheckOutCount] = useState(0)
-  const [mounted, setMounted] = useState(false)
   const [weather, setWeather] = useState({
     temp: 0,
     description: '',
@@ -60,15 +61,14 @@ export default function AdminDashboard() {
 
     fetchTotalRooms()
   }, [])
-
+	
   useEffect(() => {
     setMounted(true)
     const timer = setInterval(() => {
       setCurrentTime(new Date())
-    }, 60000) // 1분마다 업데이트
-
+    }, 60000)
     return () => clearInterval(timer)
-  }, [])
+  }, [])	
 
   // 체크인/체크아웃 데이터 조회
   useEffect(() => {
@@ -342,6 +342,14 @@ export default function AdminDashboard() {
     fetchZoneData()
   }, [])
 
+  const formatDate = (date: Date) => {
+    const month = (date.getMonth() + 1).toString().padStart(2, '0')
+    const day = date.getDate().toString().padStart(2, '0')
+    const weekdays = ['일', '월', '화', '수', '목', '금', '토']
+    const weekday = weekdays[date.getDay()]
+    return `${month}.${day}(${weekday})`
+  }
+
   // 가격 변경 핸들러
   const handlePriceChange = (zone: string, field: string, value: string) => {
     setPriceChanges(prev => ({
@@ -408,64 +416,9 @@ export default function AdminDashboard() {
     }
   }
 
-  const formatDate = (date: Date) => {
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const day = date.getDate().toString().padStart(2, '0')
-    const weekdays = ['일', '월', '화', '수', '목', '금', '토']
-    const weekday = weekdays[date.getDay()]
-    return `${month}.${day}(${weekday})`
-  }
-
-  const formatTime = (date: Date) => {
-    const hours = date.getHours().toString().padStart(2, '0')
-    const minutes = date.getMinutes().toString().padStart(2, '0')
-    return `${hours}:${minutes}`
-  }
-
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* 사이드 메뉴 */}
-      <aside className="w-48 bg-white shadow-lg">
-        <div className="p-4">
-          <div className="text-lg font-bold text-gray-800 mb-8">관리자</div>
-          
-          {/* 메뉴 목록 */}
-          <ul className="space-y-2">
-            <li>
-              <a href="/admin/dashboard" className="flex items-center p-3 text-blue-600 bg-blue-50 rounded">
-                <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                </svg>
-                대시보드
-              </a>
-            </li>
-            <li>
-              <a href="/admin/reservation" className="flex items-center p-3 text-gray-600 hover:bg-gray-50 rounded">
-                <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                </svg>
-                예약관리
-              </a>
-            </li>
-            <li>
-              <a href="/admin/cancell" className="flex items-center p-3 text-gray-600 hover:bg-gray-50 rounded">
-                <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-                취소관리
-              </a>
-            </li>
-          </ul>
-
-          {/* 시계 */}
-          <div className="mt-auto pt-8">
-            <div className="text-center p-4 bg-blue-50 rounded">
-              <p className="text-sm text-gray-600">{mounted ? formatDate(currentTime) : '--.--(-)' }</p>
-              <p className="text-lg font-bold text-gray-800">{mounted ? formatTime(currentTime) : '--:--'}</p>
-            </div>
-          </div>
-        </div>
-      </aside>
+      <AdminNavigation />
 
       {/* 메인 콘텐츠 */}
       <main className="flex-1 p-6">
@@ -661,9 +614,15 @@ export default function AdminDashboard() {
                 <div className="p-4 border-b">
                   <h3 className="text-sm font-medium text-gray-700 flex items-center">
                     숙소투데이
-                    <svg className="w-4 h-4 ml-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
+                    <button
+                      onClick={() => window.open('/admin/dashboard/price-detail', '_blank')}
+                      className="ml-2 text-gray-400 hover:text-blue-600 transition-colors"
+                      title="상세 요금 변경"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                      </svg>
+                    </button>
                   </h3>
                 </div>
                 

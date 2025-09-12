@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 import * as XLSX from 'xlsx'
+import AdminNavigation from '@/components/admin/navigation'
 
 interface Reservation {
   id: string
@@ -35,8 +36,6 @@ interface Reservation {
 }
 
 export default function AdminReservation() {
-  const [currentTime, setCurrentTime] = useState(new Date())
-  const [mounted, setMounted] = useState(false)
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [loading, setLoading] = useState(true)
   const [checkStatus, setCheckStatus] = useState<Record<string, boolean>>({})
@@ -53,14 +52,6 @@ export default function AdminReservation() {
     sortOrder: 'desc'
   })
 
-  useEffect(() => {
-    setMounted(true)
-    const timer = setInterval(() => {
-      setCurrentTime(new Date())
-    }, 60000) // 1분마다 업데이트
-
-    return () => clearInterval(timer)
-  }, [])
 
   // 예약 데이터 조회
   useEffect(() => {
@@ -261,20 +252,6 @@ export default function AdminReservation() {
     return statusMap[status] || { text: '알수없음', class: 'text-gray-600 bg-gray-100' }
   }
 
-  const formatDate = (date: Date) => {
-    const month = (date.getMonth() + 1).toString().padStart(2, '0')
-    const day = date.getDate().toString().padStart(2, '0')
-    const weekdays = ['일', '월', '화', '수', '목', '금', '토']
-    const weekday = weekdays[date.getDay()]
-    return `${month}.${day}(${weekday})`
-  }
-
-  const formatTime = (date: Date) => {
-    const hours = date.getHours().toString().padStart(2, '0')
-    const minutes = date.getMinutes().toString().padStart(2, '0')
-    return `${hours}:${minutes}`
-  }
-
   const formatDateTime = (dateString: string | null | undefined) => {
     if (!dateString) return '-'
     const date = new Date(dateString)
@@ -408,48 +385,7 @@ export default function AdminReservation() {
 
   return (
     <div className="min-h-screen bg-gray-100 flex">
-      {/* 사이드 메뉴 */}
-      <aside className="w-48 bg-white shadow-lg">
-        <div className="p-4">
-          <div className="text-lg font-bold text-gray-800 mb-8">관리자</div>
-          
-          {/* 메뉴 목록 */}
-          <ul className="space-y-2">
-            <li>
-              <a href="/admin/dashboard" className="flex items-center p-3 text-gray-600 hover:bg-gray-50 rounded">
-                <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-                </svg>
-                대시보드
-              </a>
-            </li>
-            <li>
-              <a href="/admin/reservation" className="flex items-center p-3 text-blue-600 bg-blue-50 rounded">
-                <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clipRule="evenodd" />
-                </svg>
-                예약관리
-              </a>
-            </li>
-            <li>
-              <a href="/admin/cancell" className="flex items-center p-3 text-gray-600 hover:bg-gray-50 rounded">
-                <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-                취소관리
-              </a>
-            </li>
-          </ul>
-
-          {/* 시계 */}
-          <div className="mt-auto pt-8">
-            <div className="text-center p-4 bg-blue-50 rounded">
-              <p className="text-sm text-gray-600">{mounted ? formatDate(currentTime) : '--.--(-)' }</p>
-              <p className="text-lg font-bold text-gray-800">{mounted ? formatTime(currentTime) : '--:--'}</p>
-            </div>
-          </div>
-        </div>
-      </aside>
+      <AdminNavigation />
 
       {/* 메인 콘텐츠 */}
       <main className="flex-1 p-6">
