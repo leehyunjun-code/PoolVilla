@@ -348,8 +348,8 @@ export default function PriceDetail() {
       fetchPriceData()
       
     } catch (error) {
-      console.error('특별 가격 저장 실패 상세:', error)
-      alert(`저장 실패: ${error.message || '알 수 없는 오류'}`)
+      console.error('특별 가격 저장 실패:', error)
+      alert('저장에 실패했습니다.')
     }
   }
 
