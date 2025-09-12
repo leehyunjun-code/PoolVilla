@@ -33,6 +33,9 @@ interface DbRoom {
   area: string | number
   pet_friendly: string
   current_price: number
+  price_weekday?: number
+  price_friday?: number
+  price_saturday?: number
 }
 
 export default function LocationPage() {
@@ -57,6 +60,7 @@ export default function LocationPage() {
   const [selectedOptions, setSelectedOptions] = useState<string[]>([])
   const [customerRequest, setCustomerRequest] = useState('')
   const [filteredRooms, setFilteredRooms] = useState<Room[]>([])
+  const [totalRoomPrice, setTotalRoomPrice] = useState<number>(0)
   
   const [showTermsPopup, setShowTermsPopup] = useState<{
     isOpen: boolean;
@@ -106,7 +110,13 @@ export default function LocationPage() {
     tomorrow.setHours(0, 0, 0, 0)
     return tomorrow
   })
-
+  
+  const checkInDate = firstDate && secondDate 
+    ? (firstDate <= secondDate ? firstDate : secondDate) 
+    : firstDate
+  const checkOutDate = firstDate && secondDate 
+    ? (firstDate <= secondDate ? secondDate : firstDate) 
+    : secondDate
     
   const [selectedRoom, setSelectedRoom] = useState<{
     id: string;
@@ -175,13 +185,27 @@ export default function LocationPage() {
         setRoomsLoading(true)
         const { data: rooms, error } = await supabase
           .from('cube45_rooms')
-          .select('*')
+          .select(`
+            *,
+            cube45_room_prices(
+              price_weekday,
+              price_friday,
+              price_saturday
+            )
+          `)
           .order('zone')
           .order('id')
 
         if (error) throw error
 
-        setRoomsData(rooms || [])
+        const processedRooms = rooms?.map(room => ({
+          ...room,
+          price_weekday: room.cube45_room_prices?.[0]?.price_weekday,
+          price_friday: room.cube45_room_prices?.[0]?.price_friday,
+          price_saturday: room.cube45_room_prices?.[0]?.price_saturday
+        })) || []
+        
+        setRoomsData(processedRooms)
       } catch (error) {
         console.error('객실 데이터 조회 실패:', error)
         alert('객실 정보를 불러오는데 실패했습니다.')
@@ -192,6 +216,17 @@ export default function LocationPage() {
 
     fetchRoomsData()
   }, [])
+	
+  useEffect(() => {
+    const updateTotalPrice = async () => {
+      const price = await calculateTotalRoomPrice()
+      setTotalRoomPrice(price)
+    }
+    
+    if (selectedRoom && checkInDate && checkOutDate) {
+      updateTotalPrice()
+    }
+  }, [selectedRoom, checkInDate, checkOutDate])	
   
   // 객실명 동적 생성 함수
   const generateRoomDisplayName = (room: DbRoom): string => {
@@ -228,7 +263,63 @@ export default function LocationPage() {
   }
   
   // DB 데이터를 화면 표시용으로 변환하는 함수
-  const mapRoomData = (dbRoom: DbRoom): Room => {
+  const mapRoomData = async (dbRoom: DbRoom): Promise<Room> => {
+    let price = dbRoom.current_price || 0
+    
+    // 체크인과 체크아웃이 모두 있으면 총 요금 계산
+    if (checkInDate && checkOutDate) {
+      price = 0
+      const currentDate = new Date(checkInDate)
+      
+      // 특별 가격 조회
+      const startStr = `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}`
+      const endStr = `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}`
+      
+      const { data: specialPrices } = await supabase
+        .from('cube45_special_prices')
+        .select('special_date, price')
+        .eq('room_id', dbRoom.id)
+        .gte('special_date', startStr)
+        .lt('special_date', endStr)
+      
+      const specialPriceMap: Record<string, number> = {}
+      specialPrices?.forEach(sp => {
+        specialPriceMap[sp.special_date] = sp.price
+      })
+      
+      // 체크아웃 날짜 전날까지 각 날짜의 요금 합산
+      while (currentDate < checkOutDate) {
+        const dateStr = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`
+        
+        // 특별 가격 우선, 없으면 요일별 가격
+        if (specialPriceMap[dateStr]) {
+          price += specialPriceMap[dateStr]
+        } else {
+          const dayOfWeek = currentDate.getDay()
+          
+          if (dayOfWeek === 5) { // 금요일
+            price += dbRoom.price_friday || dbRoom.current_price || 0
+          } else if (dayOfWeek === 6) { // 토요일
+            price += dbRoom.price_saturday || dbRoom.current_price || 0
+          } else { // 주중
+            price += dbRoom.price_weekday || dbRoom.current_price || 0
+          }
+        }
+        
+        currentDate.setDate(currentDate.getDate() + 1)
+      }
+    } else if (checkInDate) {
+      // 체크아웃 날짜가 없으면 1박 기준 표시
+      const dayOfWeek = checkInDate.getDay()
+      if (dayOfWeek === 5) { // 금요일
+        price = dbRoom.price_friday || dbRoom.current_price || 0
+      } else if (dayOfWeek === 6) { // 토요일
+        price = dbRoom.price_saturday || dbRoom.current_price || 0
+      } else { // 주중
+        price = dbRoom.price_weekday || dbRoom.current_price || 0
+      }
+    }
+    
     return {
       id: dbRoom.id,
       name: generateRoomDisplayName(dbRoom),
@@ -238,7 +329,7 @@ export default function LocationPage() {
       maxGuests: parseInt(String(dbRoom.max_capacity)) || 0,
       size: parseInt(String(dbRoom.area)) || 0,
       petFriendly: dbRoom.pet_friendly === '가능',
-      price: dbRoom.current_price || 0
+      price: price
     }
   }
   
@@ -302,14 +393,6 @@ export default function LocationPage() {
     '1월', '2월', '3월', '4월', '5월', '6월',
     '7월', '8월', '9월', '10월', '11월', '12월'
   ]
-
-  // 체크인/체크아웃 날짜 계산 (더 빠른 날짜가 체크인)
-  const checkInDate = firstDate && secondDate 
-    ? (firstDate <= secondDate ? firstDate : secondDate) 
-    : firstDate
-  const checkOutDate = firstDate && secondDate 
-    ? (firstDate <= secondDate ? secondDate : firstDate) 
-    : secondDate
   
   // 숙박일 계산 함수
   const calculateNights = () => {
@@ -318,6 +401,55 @@ export default function LocationPage() {
       return Math.ceil(timeDiff / (1000 * 60 * 60 * 24))
     }
     return 1
+  }
+  
+  // 총 객실 요금 계산 함수 (여러 날짜의 요금 합산)
+  const calculateTotalRoomPrice = async (): Promise<number> => {
+    if (!checkInDate || !checkOutDate || !selectedRoom) return 0
+    
+    let totalPrice = 0
+    const currentDate = new Date(checkInDate)
+    
+    // 특별 가격 기간 조회
+    const startStr = `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}`
+    const endStr = `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}`
+    
+    const { data: specialPrices } = await supabase
+      .from('cube45_special_prices')
+      .select('special_date, price')
+      .eq('room_id', selectedRoom.id)
+      .gte('special_date', startStr)
+      .lt('special_date', endStr)
+    
+    const specialPriceMap: Record<string, number> = {}
+    specialPrices?.forEach(sp => {
+      specialPriceMap[sp.special_date] = sp.price
+    })
+    
+    // 체크아웃 날짜 전날까지 계산
+    while (currentDate < checkOutDate) {
+      const dateStr = `${currentDate.getFullYear()}-${(currentDate.getMonth() + 1).toString().padStart(2, '0')}-${currentDate.getDate().toString().padStart(2, '0')}`
+      
+      // 특별 가격 우선, 없으면 요일별 가격
+      if (specialPriceMap[dateStr]) {
+        totalPrice += specialPriceMap[dateStr]
+      } else {
+        const dayOfWeek = currentDate.getDay()
+        const roomData = roomsData.find(r => r.id === selectedRoom.id)
+        
+        if (dayOfWeek === 5) {
+          totalPrice += roomData?.price_friday || selectedRoom.price
+        } else if (dayOfWeek === 6) {
+          totalPrice += roomData?.price_saturday || selectedRoom.price
+        } else {
+          totalPrice += roomData?.price_weekday || selectedRoom.price
+        }
+      }
+      
+      currentDate.setDate(currentDate.getDate() + 1)
+    }
+    
+    return totalPrice
   }
 
   const isDateSelected = (date: number) => {
@@ -333,8 +465,8 @@ export default function LocationPage() {
   }
 
   const getFilteredRooms = async (selectedBuildingParam = selectedBuilding, adultCount?: number, childCount?: number) => {
-    // DB 데이터를 화면용으로 변환
-    let rooms = roomsData.map(mapRoomData)
+    // DB 데이터를 화면용으로 변환 (Promise.all로 병렬 처리)
+    let rooms = await Promise.all(roomsData.map(mapRoomData))
     
     // 동별 필터링 - 파라미터로 받은 값 사용
     if (selectedBuildingParam !== '전체') {
@@ -638,10 +770,10 @@ export default function LocationPage() {
       studentCount: studentCount,
       childCount: childCount,
       infantCount: infantCount,
-      roomPrice: selectedRoom?.price || 0,
+      roomPrice: totalRoomPrice,
       additionalFee: calculateAdditionalFee(),
       optionsFee: calculateOptionsFee(),
-      totalAmount: (selectedRoom?.price || 0) + calculateAdditionalFee() + calculateOptionsFee(),
+      totalAmount: totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee(),
       selectedOptions: selectedOptions,
       customerRequest: customerRequest
     }
@@ -1482,7 +1614,7 @@ export default function LocationPage() {
                           <h4 className="text-sm font-medium mb-2 text-gray-800">총 결제 금액</h4>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">객실요금</span>
-                            <span className="text-sm">₩{selectedRoom?.price.toLocaleString() || '0'}</span>
+                            <span className="text-sm">₩{totalRoomPrice.toLocaleString()}</span>
                           </div>
                           
                           {/* 추가인원요금이 있을 때만 표시 */}
@@ -1506,10 +1638,9 @@ export default function LocationPage() {
                           <div className="flex justify-between items-center">
                             <span className="text-lg font-medium">총 결제금액</span>
                             <span className="text-lg font-bold text-red-500">
-                              ₩{((selectedRoom?.price || 0) + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
+                              ₩{(totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
                             </span>
                           </div>
-                        </div>
                         
                         {/* 버튼 */}
                         <div className="flex gap-4">
@@ -1661,8 +1792,9 @@ export default function LocationPage() {
                       </div>
                     </div>
                   </div>
-                )}
-                {activeStep === 3 && (
+                </div>
+              )}
+              {activeStep === 3 && (
                   <div className="flex justify-center mb-6">
                     <div className="w-[750px] bg-gray-50 p-8">
                       <div className="text-center mb-8">
@@ -1749,7 +1881,7 @@ export default function LocationPage() {
                         <div className="grid" style={{gridTemplateColumns: '30% 70%'}}>
                           <div className="bg-gray-100 p-3 pl-6 font-medium text-left">결제금액</div>
                           <div className="p-3 text-red-500 font-bold text-left pl-8">
-                            ₩{((selectedRoom?.price || 0) + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
+                            ₩{(totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
                           </div>
                         </div>
                       </div>

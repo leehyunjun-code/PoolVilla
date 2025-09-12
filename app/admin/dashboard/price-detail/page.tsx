@@ -92,12 +92,32 @@ export default function PriceDetail() {
         }
       })
 
+      // 최빈값 계산 함수
+      const getMostFrequent = (prices: number[]): number => {
+        const frequencyMap: { [key: number]: number } = {}
+        prices.forEach(price => {
+          frequencyMap[price] = (frequencyMap[price] || 0) + 1
+        })
+        
+        let maxFrequency = 0
+        let mostFrequent = prices[0]
+        
+        for (const [price, frequency] of Object.entries(frequencyMap)) {
+          if (frequency > maxFrequency) {
+            maxFrequency = frequency
+            mostFrequent = Number(price)
+          }
+        }
+        
+        return mostFrequent
+      }
+
       const zones: ZoneData[] = Object.keys(groupedData).map(zone => {
         const rooms = groupedData[zone]
         const avgPrices = {
-          weekday: Math.round(rooms.reduce((sum, r) => sum + r.price_weekday, 0) / rooms.length),
-          friday: Math.round(rooms.reduce((sum, r) => sum + r.price_friday, 0) / rooms.length),
-          saturday: Math.round(rooms.reduce((sum, r) => sum + r.price_saturday, 0) / rooms.length)
+          weekday: getMostFrequent(rooms.map(r => r.price_weekday)),
+          friday: getMostFrequent(rooms.map(r => r.price_friday)),
+          saturday: getMostFrequent(rooms.map(r => r.price_saturday))
         }
         
         inputs[`zone_${zone}`] = {
@@ -112,8 +132,8 @@ export default function PriceDetail() {
       setZoneData(zones)
       setPriceInputs(inputs)
       
-      // 첫 번째 객실을 기본 선택값으로 설정
-      if (zones.length > 0 && zones[0].rooms.length > 0) {
+      // 이전 선택 유지, 없으면 첫 번째 객실 선택
+      if (!selectedRoom && zones.length > 0 && zones[0].rooms.length > 0) {
         setSelectedRoom(zones[0].rooms[0].room_id)
       }
     } catch (error) {
@@ -135,11 +155,14 @@ export default function PriceDetail() {
   }
 
   const handleInputChange = (id: string, dayType: string, value: string) => {
+    // 쉼표 제거하고 숫자로 변환
+    const numValue = parseInt(value.replace(/,/g, '')) || 0
+    
     setPriceInputs(prev => ({
       ...prev,
       [id]: {
         ...prev[id],
-        [dayType]: value
+        [dayType]: numValue
       }
     }))
   }
@@ -218,7 +241,42 @@ export default function PriceDetail() {
     return new Date(date.getFullYear(), date.getMonth(), 1).getDay()
   }
 
+  const [specialPrices, setSpecialPrices] = useState<Record<string, number>>({})
+  
+  // 특별 가격 조회 함수 추가
+  const fetchSpecialPrices = async (roomId: string, year: number, month: number) => {
+    const startDate = `${year}-${month.toString().padStart(2, '0')}-01`
+    // 해당 월의 마지막 날 계산
+    const lastDay = new Date(year, month, 0).getDate()
+    const endDate = `${year}-${month.toString().padStart(2, '0')}-${lastDay.toString().padStart(2, '0')}`
+    
+    const { data, error } = await supabase
+      .from('cube45_special_prices')
+      .select('special_date, price')
+      .eq('room_id', roomId)
+      .gte('special_date', startDate)
+      .lte('special_date', endDate)
+    
+    if (!error && data) {
+      const prices: Record<string, number> = {}
+      data.forEach(item => {
+        prices[item.special_date] = item.price
+      })
+      setSpecialPrices(prices)
+    }
+  }
+  
   const getPriceForDate = (date: Date) => {
+    const dateStr = `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`
+    
+    
+    // 특별 가격이 있으면 우선 적용
+    if (specialPrices[dateStr]) {
+      console.log('특별 가격 적용:', specialPrices[dateStr])
+      return specialPrices[dateStr]
+    }
+    
+    // 없으면 요일별 기본 가격
     const dayOfWeek = date.getDay()
     const room = zoneData.flatMap(z => z.rooms).find(r => r.room_id === selectedRoom)
     
@@ -228,6 +286,16 @@ export default function PriceDetail() {
     if (dayOfWeek === 6) return room.price_saturday
     return room.price_weekday
   }
+  
+  // 월 변경 또는 객실 변경 시 특별 가격 조회
+  useEffect(() => {
+    const currentYear = selectedMonth.getFullYear()
+    const currentMonth = selectedMonth.getMonth() + 1
+    
+    if (selectedRoom && currentYear && currentMonth) {
+      fetchSpecialPrices(selectedRoom, currentYear, currentMonth)
+    }
+  }, [selectedRoom, selectedMonth])
 
   const getDayType = (date: Date) => {
     const dayOfWeek = date.getDay()
@@ -247,7 +315,6 @@ export default function PriceDetail() {
       return
     }
 
-    const dayType = getDayType(selectedDate)
     const inputKey = `calendar_${selectedRoom}_${selectedDate.toISOString().split('T')[0]}`
     const newPrice = parseInt(String(priceInputs[inputKey]?.price || getPriceForDate(selectedDate)))
 
@@ -257,27 +324,32 @@ export default function PriceDetail() {
     }
 
     try {
-      const updateData: Partial<{
-        price_weekday: number
-        price_friday: number
-        price_saturday: number
-      }> = {}
-      updateData[`price_${dayType}`] = newPrice
+      const dateStr = `${selectedDate.getFullYear()}-${(selectedDate.getMonth() + 1).toString().padStart(2, '0')}-${selectedDate.getDate().toString().padStart(2, '0')}`
       
+      // 특별 가격 테이블에 upsert (있으면 update, 없으면 insert)
       const { error } = await supabase
-        .from('cube45_room_prices')
-        .update(updateData)
-        .eq('room_id', selectedRoom)
+        .from('cube45_special_prices')
+        .upsert({
+          room_id: selectedRoom,
+          special_date: dateStr,
+          price: newPrice,
+          updated_at: new Date().toISOString()
+        })
 
       if (error) throw error
       
       const roomName = zoneData.flatMap(z => z.rooms).find(r => r.room_id === selectedRoom)?.room_name
-      alert(`${roomName} ${selectedDate.toLocaleDateString()} 가격이 저장되었습니다.`)
+      alert(`${roomName} ${selectedDate.toLocaleDateString()} 특별 가격이 저장되었습니다.`)
+      
+      // 특별 가격 다시 불러오기
+      await fetchSpecialPrices(selectedRoom, selectedDate.getFullYear(), selectedDate.getMonth() + 1)
+      
+      // 기본 가격 데이터도 새로고침
       fetchPriceData()
       
     } catch (error) {
-      console.error('달력 가격 저장 실패:', error)
-      alert('저장에 실패했습니다.')
+      console.error('특별 가격 저장 실패 상세:', error)
+      alert(`저장 실패: ${error.message || '알 수 없는 오류'}`)
     }
   }
 
@@ -354,23 +426,23 @@ export default function PriceDetail() {
                           <input
                             type="text"
                             value={priceInputs[`zone_${zone.zone}`]?.weekday?.toLocaleString() || ''}
-                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'weekday', e.target.value.replace(/,/g, ''))}
+                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'weekday', e.target.value)}
                             className="w-28 px-2 py-1 border rounded text-center"
                           />
                         </td>
                         <td className="text-center px-4 py-3">
                           <input
                             type="text"
-                            value={priceInputs[`zone_${zone.zone}`]?.weekday?.toLocaleString() || ''}
-                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'weekday', e.target.value.replace(/,/g, ''))}
+                            value={priceInputs[`zone_${zone.zone}`]?.friday?.toLocaleString() || ''}
+                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'friday', e.target.value)}
                             className="w-28 px-2 py-1 border rounded text-center"
                           />
                         </td>
                         <td className="text-center px-4 py-3">
                           <input
                             type="text"
-                            value={priceInputs[`zone_${zone.zone}`]?.weekday?.toLocaleString() || ''}
-                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'weekday', e.target.value.replace(/,/g, ''))}
+                            value={priceInputs[`zone_${zone.zone}`]?.saturday?.toLocaleString() || ''}
+                            onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'saturday', e.target.value)}
                             className="w-28 px-2 py-1 border rounded text-center"
                           />
                         </td>
@@ -501,7 +573,13 @@ export default function PriceDetail() {
                       `}
                     >
                       <div className="font-medium">{day}</div>
-                      <div className="text-xs mt-1">{price.toLocaleString()}</div>
+                      <div className={`text-xs mt-1 ${
+                        specialPrices[`${selectedMonth.getFullYear()}-${(selectedMonth.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`] 
+                          ? 'text-red-500 font-bold' 
+                          : ''
+                      }`}>
+                        {price.toLocaleString()}
+                      </div>
                     </button>
                   )
                 })}
