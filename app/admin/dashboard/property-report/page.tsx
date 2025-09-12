@@ -15,12 +15,25 @@ interface DailyReport {
   total: number
 }
 
+interface DetailReservation {
+    id: number
+    reservation_number: string
+    room_name: string
+    guest_name: string
+    booker_name: string
+    check_in_date: string
+    check_out_date: string
+    nights: number
+    total_amount: number
+    type: 'check_in' | 'staying'
+  }
+
 export default function PropertyReportDetail() {
   const [selectedMonth, setSelectedMonth] = useState(new Date())
   const [monthlyData, setMonthlyData] = useState<Record<string, DailyReport>>({})
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [loading, setLoading] = useState(true)
-  const [detailReservations, setDetailReservations] = useState<any[]>([])
+  const [detailReservations, setDetailReservations] = useState<DetailReservation[]>([])
   const [totalRooms, setTotalRooms] = useState(0)
 
   // 전체 객실 수 조회

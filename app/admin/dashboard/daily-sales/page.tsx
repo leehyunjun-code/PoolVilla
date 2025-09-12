@@ -13,12 +13,26 @@ interface DailyData {
   occupiedRooms: number
 }
 
+interface DetailReservation {
+    id: number
+    room_name: string
+    guest_name: string
+    booker_name: string
+    adult_count: number
+    student_count: number
+    child_count: number
+    infant_count: number
+    check_in_date: string
+    check_out_date: string
+    total_amount: number
+  }
+
 export default function DailySalesDetail() {
   const [selectedMonth, setSelectedMonth] = useState(new Date())
   const [monthlyData, setMonthlyData] = useState<Record<string, DailyData>>({})
   const [selectedDate, setSelectedDate] = useState<Date | null>(null)
   const [loading, setLoading] = useState(true)
-  const [detailReservations, setDetailReservations] = useState<any[]>([])
+  const [detailReservations, setDetailReservations] = useState<DetailReservation[]>([])
   const [totalRooms, setTotalRooms] = useState(0)
 
   // 전체 객실 수 조회
