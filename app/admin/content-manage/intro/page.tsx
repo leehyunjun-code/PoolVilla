@@ -1,8 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 import AdminNavigation from '@/components/admin/navigation'
+import Image from 'next/image'
+
+// TypeScript 타입 정의
+interface ExtraData {
+  tag?: string
+  description?: string
+  [key: string]: string | undefined
+}
 
 interface PageContent {
   id: number
@@ -15,7 +23,7 @@ interface PageContent {
   image_url: string
   display_order: number
   is_active: boolean
-  extra_data: any
+  extra_data: ExtraData | null
 }
 
 interface CafeItem {
@@ -28,12 +36,18 @@ interface CafeItem {
   display_order: number
 }
 
+interface UpdateData {
+  title?: string
+  image_url?: string
+  extra_data?: ExtraData
+  [key: string]: string | ExtraData | undefined
+}
+
 export default function PageContentsManage() {
   const [activeTab, setActiveTab] = useState<'intro' | 'location' | 'tour'>('intro')
   const [contents, setContents] = useState<PageContent[]>([])
   const [cafes, setCafes] = useState<CafeItem[]>([])
   const [loading, setLoading] = useState(true)
-  const [uploading, setUploading] = useState(false)
   const [editingCafe, setEditingCafe] = useState<string | null>(null)
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
     show: false,
@@ -41,16 +55,12 @@ export default function PageContentsManage() {
     type: 'success'
   })
 
-  useEffect(() => {
-    fetchContents()
-  }, [activeTab])
-
   const showToast = (message: string, type: 'success' | 'error' = 'success') => {
     setToast({ show: true, message, type })
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000)
   }
 
-  const fetchContents = async () => {
+  const fetchContents = useCallback(async () => {
     setLoading(true)
     try {
       const { data, error } = await supabase
@@ -82,16 +92,19 @@ export default function PageContentsManage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [activeTab])
+
+  useEffect(() => {
+    fetchContents()
+  }, [fetchContents])
 
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
-      setUploading(true)
       const fileExt = file.name.split('.').pop()
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`
       const filePath = `page-contents/${fileName}`
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from('cube45-images')
         .upload(filePath, file, {
           cacheControl: '3600',
@@ -109,12 +122,10 @@ export default function PageContentsManage() {
       console.error('이미지 업로드 실패:', error)
       showToast('이미지 업로드에 실패했습니다.', 'error')
       return null
-    } finally {
-      setUploading(false)
     }
   }
 
-  const handleUpdate = async (section_name: string, field: string, value: any) => {
+  const handleUpdate = async (section_name: string, field: string, value: string | ExtraData) => {
     try {
       const { error } = await supabase
         .from('cube45_page_contents')
@@ -134,7 +145,7 @@ export default function PageContentsManage() {
 
   const handleCafeUpdate = async (section_name: string, updates: Partial<CafeItem>) => {
     try {
-      const updateData: any = {}
+      const updateData: UpdateData = {}
       
       if (updates.title !== undefined) updateData.title = updates.title
       if (updates.image_url !== undefined) updateData.image_url = updates.image_url
@@ -274,12 +285,19 @@ export default function PageContentsManage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
                     <div className="relative">
-                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-                        <img
-                          src={getContent('banner')?.image_url || ''}
-                          alt="배너 이미지"
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden relative">
+                        {getContent('banner')?.image_url ? (
+                          <Image
+                            src={getContent('banner')?.image_url || ''}
+                            alt="배너 이미지"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span>이미지 없음</span>
+                          </div>
+                        )}
                       </div>
                       <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
                         <span className="text-sm font-medium text-gray-700">이미지 변경</span>
@@ -351,13 +369,18 @@ export default function PageContentsManage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">이미지</label>
                     <div className="relative">
-                      <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
-                        {getContent('exclusive_cube_image')?.image_url && (
-                          <img
-                            src={getContent('exclusive_cube_image').image_url}
+                      <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden relative">
+                        {getContent('exclusive_cube_image')?.image_url ? (
+                          <Image
+                            src={getContent('exclusive_cube_image')?.image_url || ''}
                             alt="Exclusive Cube 이미지"
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                           />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span>이미지 없음</span>
+                          </div>
                         )}
                       </div>
                       <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
@@ -410,13 +433,18 @@ export default function PageContentsManage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">이미지</label>
                     <div className="relative">
-                      <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
-                        {getContent('exceptional_retreat_image')?.image_url && (
-                          <img
-                            src={getContent('exceptional_retreat_image').image_url}
+                      <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden relative">
+                        {getContent('exceptional_retreat_image')?.image_url ? (
+                          <Image
+                            src={getContent('exceptional_retreat_image')?.image_url || ''}
                             alt="Exceptional Retreat 이미지"
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                           />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span>이미지 없음</span>
+                          </div>
                         )}
                       </div>
                       <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
@@ -445,12 +473,19 @@ export default function PageContentsManage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
                     <div className="relative">
-                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-                        <img
-                          src={getContent('banner')?.image_url || ''}
-                          alt="배너 이미지"
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden relative">
+                        {getContent('banner')?.image_url ? (
+                          <Image
+                            src={getContent('banner')?.image_url || ''}
+                            alt="배너 이미지"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span>이미지 없음</span>
+                          </div>
+                        )}
                       </div>
                       <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
                         <span className="text-sm font-medium text-gray-700">이미지 변경</span>
@@ -522,12 +557,13 @@ export default function PageContentsManage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">배치도 이미지</label>
                     <div className="relative">
-                      <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden">
+                      <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden relative">
                         {getContent('layout_image')?.image_url ? (
-                          <img
-                            src={getContent('layout_image').image_url}
+                          <Image
+                            src={getContent('layout_image')?.image_url || ''}
                             alt="배치도 이미지"
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
@@ -561,12 +597,19 @@ export default function PageContentsManage() {
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
                     <div className="relative">
-                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
-                        <img
-                          src={getContent('banner')?.image_url || ''}
-                          alt="배너 이미지"
-                          className="w-full h-full object-cover"
-                        />
+                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden relative">
+                        {getContent('banner')?.image_url ? (
+                          <Image
+                            src={getContent('banner')?.image_url || ''}
+                            alt="배너 이미지"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span>이미지 없음</span>
+                          </div>
+                        )}
                       </div>
                       <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
                         <span className="text-sm font-medium text-gray-700">이미지 변경</span>
@@ -644,11 +687,12 @@ export default function PageContentsManage() {
                     <div key={cafe.section_name} className="border rounded-lg p-4">
                       <div className="flex gap-4">
                         {/* 이미지 */}
-                        <div className="w-32 h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0">
-                          <img
+                        <div className="w-32 h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0 relative">
+                          <Image
                             src={cafe.image_url}
                             alt={cafe.title}
-                            className="w-full h-full object-cover"
+                            fill
+                            className="object-cover"
                           />
                         </div>
                         
