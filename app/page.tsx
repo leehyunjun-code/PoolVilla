@@ -8,7 +8,30 @@ import Footer from '@/components/Footer'
 import Navigation from '@/components/Navigation'
 import OffersSection from '@/components/OffersSection'
 import Link from 'next/link'
+import { supabase } from '@/lib/supabase'
 
+// 타입 정의
+interface ZoneSummary {
+  zone: string
+  minArea: number
+  maxArea: number
+  minCapacity: number
+  maxCapacity: number
+}
+
+interface SlideData {
+  id: number
+  image_url: string
+  title?: string
+  subtitle?: string
+}
+
+interface Cube45Data {
+  topText: string
+  mainTitle: string
+  bottomText: string
+  imageUrl: string
+}
 
 export default function Home() {
   const [checkIn, setCheckIn] = useState('')
@@ -19,28 +42,104 @@ export default function Home() {
   const [adults, setAdults] = useState(2)
   const [children, setChildren] = useState(0)
 
-  // 슬라이드 데이터 - 루프 개선을 위해 복제
-  const originalSlides = [
-    {
-      id: 1,
-      image: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1920',
-    },
-    {
-      id: 2,
-      image: 'https://images.unsplash.com/photo-1571896349842-33c89424de2d?w=1920',
-    },
-    {
-      id: 3,
-      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920',
-    },
-    {
-      id: 4,
-      image: 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?w=1920',
+  // Supabase에서 가져올 데이터 상태
+  const [zoneSummaries, setZoneSummaries] = useState<Record<string, ZoneSummary>>({})
+  const [sliderData, setSliderData] = useState<SlideData[]>([])
+  const [cube45Data, setCube45Data] = useState<Cube45Data>({
+    topText: 'Exclusive Cube of Joy',
+    mainTitle: 'CUBE 45',
+    bottomText: '큐브45에서만 누릴 수 있는 즐거움',
+    imageUrl: 'https://pds.joongang.co.kr//news/component/htmlphoto_mmdata/201712/29/593e01a7-940d-4de9-9f53-7e74528341ae.jpg'
+  })
+  const [loading, setLoading] = useState(true)
+
+  // 모든 데이터 가져오기
+  useEffect(() => {
+    const fetchAllData = async () => {
+      try {
+        // 1. 슬라이더 데이터 가져오기
+        const { data: sliderContents, error: sliderError } = await supabase
+          .from('cube45_main_contents')
+          .select('*')
+          .eq('section_type', 'slider')
+          .eq('is_active', true)
+          .order('display_order', { ascending: true })
+
+        if (sliderError) throw sliderError
+
+        const formattedSlides = sliderContents?.map((slide, index) => ({
+          id: slide.id,
+          image_url: slide.image_url,
+          title: slide.title,
+          subtitle: slide.subtitle
+        })) || []
+
+        // 슬라이드 복제 (루프 효과)
+        const duplicatedSlides = [...formattedSlides, ...formattedSlides.map(slide => ({
+          ...slide,
+          id: slide.id + 1000
+        }))]
+        
+        setSliderData(duplicatedSlides)
+
+        // 2. CUBE 45 섹션 데이터 가져오기
+        const { data: cube45Content, error: cube45Error } = await supabase
+          .from('cube45_main_contents')
+          .select('*')
+          .eq('section_type', 'cube45')
+          .eq('is_active', true)
+          .single()
+
+        if (!cube45Error && cube45Content) {
+          setCube45Data({
+            topText: cube45Content.subtitle || '',
+            mainTitle: cube45Content.title || '',
+            bottomText: cube45Content.description || '',
+            imageUrl: cube45Content.image_url || 'https://pds.joongang.co.kr//news/component/htmlphoto_mmdata/201712/29/593e01a7-940d-4de9-9f53-7e74528341ae.jpg'
+          })
+        }
+
+        // 3. 동별 정보 가져오기
+        const { data: rooms, error: roomsError } = await supabase
+          .from('cube45_rooms')
+          .select('zone, area, standard_capacity, max_capacity')
+
+        if (roomsError) throw roomsError
+
+        // 동별로 그룹화하고 min/max 계산
+        const summaries: Record<string, ZoneSummary> = {}
+        
+        rooms?.forEach(room => {
+          const area = parseInt(room.area.replace('평', ''))
+          const standardCap = parseInt(room.standard_capacity.replace('명', ''))
+          const maxCap = parseInt(room.max_capacity.replace('명', ''))
+
+          if (!summaries[room.zone]) {
+            summaries[room.zone] = {
+              zone: room.zone,
+              minArea: area,
+              maxArea: area,
+              minCapacity: standardCap,
+              maxCapacity: maxCap
+            }
+          } else {
+            summaries[room.zone].minArea = Math.min(summaries[room.zone].minArea, area)
+            summaries[room.zone].maxArea = Math.max(summaries[room.zone].maxArea, area)
+            summaries[room.zone].minCapacity = Math.min(summaries[room.zone].minCapacity, standardCap)
+            summaries[room.zone].maxCapacity = Math.max(summaries[room.zone].maxCapacity, maxCap)
+          }
+        })
+
+        setZoneSummaries(summaries)
+      } catch (error) {
+        console.error('데이터 조회 실패:', error)
+      } finally {
+        setLoading(false)
+      }
     }
-  ]
-  
-  // 슬라이드를 복제하여 부드러운 루프 만들기
-  const slides = [...originalSlides, ...originalSlides.map(slide => ({...slide, id: slide.id + 4}))]
+
+    fetchAllData()
+  }, [])
 
   // 박수 계산
   useEffect(() => {
@@ -57,9 +156,10 @@ export default function Home() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
+        console.log('스크롤 감지:', entry.isIntersecting)
         setIsVisible(entry.isIntersecting)
       },
-      { threshold: 0.3 }
+      { threshold: 0.1 }  // 0.3에서 0.1로 낮춤
     )
 
     if (cube45Ref.current) {
@@ -73,6 +173,28 @@ export default function Home() {
     }
   }, [])
 
+  // 동별 정보 표시 헬퍼 함수
+  const getZoneDisplay = (zone: string) => {
+    const summary = zoneSummaries[zone]
+    if (!summary) return { area: '로딩중...', capacity: '로딩중...' }
+    
+    const area = summary.minArea === summary.maxArea 
+      ? `${summary.minArea}평` 
+      : `${summary.minArea}~${summary.maxArea}평`
+    
+    const capacity = `${summary.minCapacity}~${summary.maxCapacity}명`
+    
+    return { area, capacity }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="text-lg">로딩 중...</div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white pt-28">
       {/* 네비게이션 */}
@@ -80,56 +202,64 @@ export default function Home() {
       
       {/* 3분할 메인 슬라이더 */}
       <div style={{ height: '600px', position: 'relative', overflow: 'hidden', marginTop: '50px' }}>
-        <Swiper
-          modules={[SwiperNavigation, Autoplay]}
-          spaceBetween={40}
-          slidesPerView={1.7}
-          centeredSlides={true}
-          navigation={{
-            nextEl: '.swiper-button-next-custom',
-            prevEl: '.swiper-button-prev-custom',
-          }}
-          autoplay={{ 
-            delay: 5000, 
-            disableOnInteraction: false 
-          }}
-          loop={true}
-          watchSlidesProgress={true}
-          breakpoints={{
-            640: {
-              slidesPerView: 1.4,
-              spaceBetween: 25,
-            },
-            768: {
-              slidesPerView: 1.6,
-              spaceBetween: 35,
-            },
-            1024: {
-              slidesPerView: 1.8,
-              spaceBetween: 45,
-            },
-            1280: {
-              slidesPerView: 2.2,
-              spaceBetween: 60,
-            },
-          }}
-          className="h-full"
-        >
-          {slides.map((slide) => (
-            <SwiperSlide key={slide.id}>
-              <div className="relative w-full h-full">
-                <img 
-                  src={slide.image} 
-                  alt={`Slide ${slide.id}`}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
+        {sliderData.length > 0 ? (
+          <Swiper
+            modules={[SwiperNavigation, Autoplay]}
+            spaceBetween={40}
+            slidesPerView={1.7}
+            centeredSlides={true}
+            navigation={{
+              nextEl: '.swiper-button-next-custom',
+              prevEl: '.swiper-button-prev-custom',
+            }}
+            autoplay={{ 
+              delay: 5000, 
+              disableOnInteraction: false 
+            }}
+            loop={true}
+            watchSlidesProgress={true}
+            breakpoints={{
+              640: {
+                slidesPerView: 1.4,
+                spaceBetween: 25,
+              },
+              768: {
+                slidesPerView: 1.6,
+                spaceBetween: 35,
+              },
+              1024: {
+                slidesPerView: 1.8,
+                spaceBetween: 45,
+              },
+              1280: {
+                slidesPerView: 2.2,
+                spaceBetween: 60,
+              },
+            }}
+            className="h-full"
+          >
+            {sliderData.map((slide) => (
+              <SwiperSlide key={slide.id}>
+                <div className="relative w-full h-full">
+                  <img 
+                    src={slide.image_url} 
+                    alt={slide.title || `Slide ${slide.id}`}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
+                  <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
+                    {slide.title && <h3 className="text-3xl font-bold mb-2">{slide.title}</h3>}
+                    {slide.subtitle && <p className="text-lg">{slide.subtitle}</p>}
+                  </div>
                 </div>
-              </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        ) : (
+          <div className="h-full flex items-center justify-center">
+            <p>슬라이더 이미지가 없습니다.</p>
+          </div>
+        )}
 
         {/* 커스텀 네비게이션 버튼 */}
         <button className="swiper-button-prev-custom absolute left-10 top-1/2 -translate-y-1/2 z-10 bg-white/20 backdrop-blur-sm text-white p-4 rounded-full hover:bg-white/30 transition-colors">
@@ -297,18 +427,18 @@ export default function Home() {
         {/* 전체 가로줄 */}
         <div className="border-t border-gray-300"></div>
         
-        {/* 정보 영역 */}
+        {/* 정보 영역 - Supabase 데이터 연동 */}
         <div className="flex">
           {/* A동 정보 */}
           <div className="pt-4 px-4 flex-1">
             <div className="flex items-center">
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">크기</span>
-                <p className="font-bold text-xl text-gray-800">22~40평</p>
+                <p className="font-bold text-xl text-gray-800">{getZoneDisplay('A').area}</p>
               </div>
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">인원</span>
-                <p className="font-bold text-xl text-gray-800">4~10명</p>
+                <p className="font-bold text-xl text-gray-800">{getZoneDisplay('A').capacity}</p>
               </div>
             </div>
           </div>
@@ -321,11 +451,11 @@ export default function Home() {
             <div className="flex items-center">
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">크기</span>
-                <p className="font-bold text-xl text-gray-800">22~40평</p>
+                <p className="font-bold text-xl text-gray-800">{getZoneDisplay('B').area}</p>
               </div>
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">인원</span>
-                <p className="font-bold text-xl text-gray-800">4~10명</p>
+                <p className="font-bold text-xl text-gray-800">{getZoneDisplay('B').capacity}</p>
               </div>
             </div>
           </div>
@@ -338,11 +468,11 @@ export default function Home() {
             <div className="flex items-center">
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">크기</span>
-                <p className="font-bold text-xl text-gray-800">22~40평</p>
+                <p className="font-bold text-xl text-gray-800">{getZoneDisplay('C').area}</p>
               </div>
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">인원</span>
-                <p className="font-bold text-xl text-gray-800">4~10명</p>
+                <p className="font-bold text-xl text-gray-800">{getZoneDisplay('C').capacity}</p>
               </div>
             </div>
           </div>
@@ -355,20 +485,20 @@ export default function Home() {
             <div className="flex items-center">
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">크기</span>
-                <p className="font-bold text-xl text-gray-800">22~40평</p>
+                <p className="font-bold text-xl text-gray-800">{getZoneDisplay('D').area}</p>
               </div>
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">인원</span>
-                <p className="font-bold text-xl text-gray-800">4~10명</p>
+                <p className="font-bold text-xl text-gray-800">{getZoneDisplay('D').capacity}</p>
               </div>
             </div>
           </div>
         </div>
         
-        {/* Exclusive Cube 섹션 */}
+        {/* Exclusive Cube 섹션 - Supabase 데이터 연동 */}
         <div ref={cube45Ref} className="mt-20 relative" style={{ height: '400px' }}>
           <img 
-            src="https://pds.joongang.co.kr//news/component/htmlphoto_mmdata/201712/29/593e01a7-940d-4de9-9f53-7e74528341ae.jpg"
+            src={cube45Data.imageUrl}
             alt="CUBE 45 Pool"
             className="w-full h-full object-cover"
           />
@@ -376,18 +506,20 @@ export default function Home() {
             <div className="h-full flex items-center">
               <div className="container mx-auto px-4">
                 <div className="text-right text-white" style={{ marginRight: '100px' }}>
-                  <p className={`mb-2 ${isVisible ? 'animate-fade-up' : 'opacity-0'}`} style={{ 
+                  <p className={`mb-2 ${isVisible ? 'animate-fade-up' : ''}`} style={{ 
                     fontSize: '2rem', 
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-                  }}>Exclusive Cube of Joy</p>
-                  <h2 className={`font-bold mb-6 ${isVisible ? 'animate-fade-up-delay-1' : 'opacity-0'}`} style={{ 
+                    textShadow: '2px 2px 4px rgba(0,0,0,1)',
+                    color: 'white',
+                  }}>{cube45Data.topText}</p>
+                  <h2 className={`font-bold mb-6 ${isVisible ? 'animate-fade-up-delay-1' : ''}`} style={{ 
                     fontSize: '5rem', 
                     textShadow: '2px 2px 3px rgba(0,0,0,0.8)',
-                  }}>CUBE 45</h2>
-                  <p className={`${isVisible ? 'animate-fade-up-delay-2' : 'opacity-0'}`} style={{ 
+                  }}>{cube45Data.mainTitle}</h2>
+                  <p className={`${isVisible ? 'animate-fade-up-delay-2' : ''}`} style={{ 
                     fontSize: '2rem', 
-                    textShadow: '1px 1px 2px rgba(0,0,0,0.8)',
-                  }}>큐브45에서만 누릴 수 있는 즐거움</p>
+                    textShadow: '2px 2px 4px rgba(0,0,0,1)',
+                    color: 'white',
+                  }}>{cube45Data.bottomText}</p>
                 </div>
               </div>
             </div>
