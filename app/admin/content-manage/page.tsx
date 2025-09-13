@@ -229,7 +229,7 @@ export default function ContentManage() {
   }
 
   // 슬라이더 수정
-  const handleUpdateSlider = async (id: number, field: string, value: any) => {
+  const handleUpdateSlider = async (id: number, field: string, value: string | boolean | number) => {
     try {
       const { error } = await supabase
         .from('cube45_main_contents')
