@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase'
 
 interface ExtraData {
   parent?: string
-  [key: string]: any
+  [key: string]: string | undefined
 }
 
 interface VariousContent {

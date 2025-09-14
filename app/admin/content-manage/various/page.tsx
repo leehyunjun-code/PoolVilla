@@ -8,7 +8,9 @@ import Image from 'next/image'
 // TypeScript 타입 정의
 interface ExtraData {
   parent?: string
-  [key: string]: any
+  number?: string
+  koreanTitle?: string
+  [key: string]: string | undefined
 }
 
 interface VariousContent {
