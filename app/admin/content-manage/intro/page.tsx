@@ -38,6 +38,7 @@ interface CafeItem {
 
 export default function PageContentsManage() {
   const [activeTab, setActiveTab] = useState<'intro' | 'location' | 'tour'>('intro')
+  const [contents, setContents] = useState<PageContent[]>([])
   const [cafes, setCafes] = useState<CafeItem[]>([])
   const [editedContents, setEditedContents] = useState<PageContent[]>([])
   const [loading, setLoading] = useState(true)
