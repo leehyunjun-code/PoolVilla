@@ -1,9 +1,82 @@
 'use client'
+import { useState, useEffect } from 'react'
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Image from 'next/image'
+import { supabase } from '@/lib/supabase'
+
+interface ExtraData {
+  parent?: string
+  [key: string]: any
+}
+
+interface VariousContent {
+  id: number
+  page_name: string
+  section_name: string
+  content_type: 'section' | 'card'
+  title: string
+  subtitle: string
+  description: string
+  image_url: string
+  display_order: number
+  is_active: boolean
+  extra_data: ExtraData | null
+}
+
+interface SectionWithCards {
+  section: VariousContent
+  cards: VariousContent[]
+}
 
 export default function GuestInfoPage() {
+  const [sectionGroups, setSectionGroups] = useState<SectionWithCards[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchContents()
+  }, [])
+
+  const fetchContents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cube45_various_contents')
+        .select('*')
+        .eq('page_name', 'guide')
+        .eq('is_active', true)
+        .order('display_order')
+
+      if (error) throw error
+
+      // 섹션과 카드를 그룹화
+      const sections = data?.filter(item => item.content_type === 'section') || []
+      const groups = sections.map(section => ({
+        section,
+        cards: data?.filter(item => 
+          item.content_type === 'card' && 
+          item.extra_data?.parent === section.section_name
+        ).sort((a, b) => a.display_order - b.display_order) || []
+      }))
+      
+      setSectionGroups(groups)
+    } catch (error) {
+      console.error('데이터 로드 실패:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-gray-600">로딩 중...</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="min-h-screen bg-white">
       {/* 네비게이션 */}
@@ -27,7 +100,7 @@ export default function GuestInfoPage() {
           </div>
         </div>
         
-        {/* 이용안내 섹션 */}
+        {/* 이용안내 콘텐츠 */}
         <div className="py-20 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="max-w-6xl mx-auto">
@@ -43,85 +116,43 @@ export default function GuestInfoPage() {
                 </div>
               </div>
 
-              {/* 이용안내 */}
-              <div className="mb-20">
-                <h2 className="text-2xl font-medium mb-8">이용안내</h2>
-                
-                <div className="space-y-8 text-lg  text-black">
-                  {/* 애견입실 */}
-                  <div>
-                    <h3 className="text-lg font-medium text-black mb-3">애견입실: 애견동반시 1마리당(1박당) 추가요금 발생</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>* 0~8kg 10,000원 | 8.1kg~13kg 15,000원 | 13kg 초과시 입실 불가 | 현장결제 객실당 13kg 이하 | 최대 2마리까지 입실가능</li>
-                      <li>* 객실당 배변패드, 애견식기 구비완료</li>
-                      <li>* 전체 총 200평 면적의 천연잔디 애견운동장 보유(마킹이 잦은 반려견은 실내 매너벨트 착용필수)</li>
-                      <li>* 맹견 및 입질이 있는 반려견 입실 제한</li>
-                      <li>* 동반한 애견의 배설물 청소 (장시간 방치로 인한 이염 및 오염 발생 시 배상금 청구될 수 있음)</li>
-                    </ul>
-                  </div>
-
-                  {/* 수영장 */}
-                  <div>
-                    <h3 className="text-lg font-medium text-black mb-3">수영장</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>* 사계절 실내수영장 미온수 가능 (이용 시 추가요금 별도)</li>
-                    </ul>
-                  </div>
-
-                  {/* 추가금 안내사항 */}
-                  <div>
-                    <h3 className="text-lg font-medium text-black mb-3">추가금 안내사항</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>* 추가인원 요금(1박기준): 성인1인 3만원 / 학생1인 2만원 / 아동1인 1만원 / 24개월 미만 2인 무료</li>
-                      <li>* 실내수영장 미온수: 이용 시 추가요금 별도</li>
-                      <li className="ml-4">동절기 (11월1일~5월31일) 10만원, 기타계절 (6월1일~10월31일) 5만원</li>
-                      <li>* 숙박 전일 전화 예약 필수 (당일 미온수 신청 불가)</li>
-                      <li>* 숙박 당일 도착 예정 시간을 미리 알려주시면 최대한 시간에 맞추어 미온수 제공해드립니다.</li>
-                      <li>* BBQ숯: 4인용 3만원 / 4인용 이상 5만원</li>
-                      <li>* 벽난로: 5만원 (20pcs)</li>
-                      <li>* 침구류: 추가인원이 있을 시 추가인원 요금안에 포함됨 2인 1SET 제공 </li>
-                      <li className="ml-4">(예:매트리스1장,베개2개,이불1장) 추가인원이 없으나 침구류만 요청 시 비용 2만원</li>
-                    </ul>
+              {/* 동적 섹션 렌더링 */}
+              {sectionGroups.map((group, index) => (
+                <div key={group.section.id}>
+                  {/* 섹션 제목 */}
+                  <div className={index > 0 ? 'mt-20' : ''}>
+                    {index > 0 && (
+                      /* 섹션 구분선 */
+                      <div className="flex items-center mb-20">
+                        <div className="w-96 border-t border-gray-300"></div>
+                        <div className="px-4"></div>
+                      </div>
+                    )}
+                    
+                    <h2 className="text-2xl font-medium mb-8">{group.section.title}</h2>
+                    
+                    <div className="space-y-8 text-black">
+                      {/* 카드(항목) 렌더링 */}
+                      {group.cards.map((card) => (
+                        <div key={card.id}>
+                          <h3 className="text-lg font-medium text-black mb-3">
+                            {card.title}
+                          </h3>
+                          {card.description && (
+                            <div className="text-sm space-y-2">
+                              {card.description.split('\n').map((line, idx) => (
+                                <div key={idx} className={line.startsWith('  ') ? 'ml-4' : ''}>
+                                  {line}
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </div>
-              </div>
-				
-			  {/* 왼쪽 밑줄만 */}
-              <div className="flex items-center mb-20">
-                <div className="w-96 border-t border-gray-300"></div>
-                <div className="px-4"></div>
-              </div>	
-
-              {/* 취소 환불규정 */}
-              <div>
-                <h2 className="text-2xl font-medium mb-8">취소 환불규정</h2>
-                
-                <div className="space-y-8 text-black">
-                  {/* 고객센터 정보 */}
-                  <div>
-                    <h3 className="text-lg font-medium text-black mb-3"> 고객 센터 : 전화 070-5129-1674 (평일 근무시간 내 상담, 예약 취소 및 환불)</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>– 예약 취소 및 환불 신청은 홈페이지 문의게시판 (예약 취소 및 문의) 또는 직접취소하여 주시면 안내 드립니다.</li>
-                      <li>– 예약 취소 환불 업무시간은 평일 오전 9시 ~ 오후 6시 입니다. 업무시간 종료 후 취소는 다음날로 적용됩니다.</li>
-                      <li>– 현금 입금 및 카드 결제 예약 및 취소는 접수 후 영업일 기준 1~5일 소요될 수 있습니다.</li>
-                    </ul>
-                  </div>
-
-                  {/* 주요 규정 */}
-                  <div>
-                    <h3 className="text-lg font-medium text-black mb-3">예약 취소 및 환불 주요 규정</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li>– 올바른 예약문화 정착을 위하여 예약취소시 규정을 위와 같이 운영하고 있으니 꼭 확인 후 예약해 주시기 바랍니다.</li>
-                      <li>– 캠핑장 입실 후 단순변심 및 결제건에 대한 환불은 불가합니다. (환불액은 객실전체 요금에서 환불 됩니다)</li>
-                      <li>– 환불규정에 따라 환불드리는 금액에 차이가 있으니 반드시 확인하시기 바랍니다.</li>
-                      <li>– 환불은 입금자 또는 결제자명으로만 가능하며, 환불 수수료는 제외한 후 입금 또는 취소 됩니다.</li>
-                      <li>– 1개월 이상 장기숙박 예약일 경우 환불규정은 상이하오니 확인해 주시기 바랍니다.</li>
-                      <li>– 예약 결제 완료 후 2시간 이내 취소요청시 전액환불이 가능하나, 그 외에는 ‘입실일로부터 남은 날짜’에 따라 위의 규정을 따릅니다.</li>
-                      <li>(당일 이용 예약 후 취소는 환불이 어렵습니다, 이점 유의하여주시기 바랍니다)</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>

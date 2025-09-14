@@ -158,6 +158,23 @@ export default function AdminNavigation() {
                   CUBE 45 관리
                 </a>
               </li>
+              <li>
+                <a 
+                  href="/admin/content-manage/various" 
+                  className={`flex items-center p-2 text-sm rounded ${
+                    pathname === '/admin/content-manage/various'
+                      ? 'text-blue-600 bg-blue-50' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="mr-2">•</span>
+                  <span>
+                    부대시설,<br/>
+                    이용안내,<br/>
+                    스페셜오퍼 관리
+                  </span>
+                </a>
+              </li>	
             </ul>
           </li>
         </ul>
