@@ -38,7 +38,6 @@ interface CafeItem {
 
 export default function PageContentsManage() {
   const [activeTab, setActiveTab] = useState<'intro' | 'location' | 'tour'>('intro')
-  const [contents, setContents] = useState<PageContent[]>([])
   const [cafes, setCafes] = useState<CafeItem[]>([])
   const [editedContents, setEditedContents] = useState<PageContent[]>([])
   const [loading, setLoading] = useState(true)
@@ -190,7 +189,7 @@ export default function PageContentsManage() {
 
   const handleCafeUpdate = async (section_name: string, updates: Partial<CafeItem>) => {
     try {
-      const updateData: any = {}
+      const updateData: Record<string, string | ExtraData> = {}
       
       if (updates.title !== undefined) updateData.title = updates.title
       if (updates.image_url !== undefined) updateData.image_url = updates.image_url

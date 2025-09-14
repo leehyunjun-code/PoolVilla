@@ -17,7 +17,7 @@ interface PageContent {
   image_url: string | null
   display_order: number
   is_active: boolean
-  extra_data: Record<string, any> | null
+  extra_data: Record<string, string | undefined> | null
 }
 
 export default function LocationPage() {
