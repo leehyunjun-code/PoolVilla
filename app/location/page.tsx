@@ -3,35 +3,111 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
+import { useEffect, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+
+interface PageContent {
+  id: number
+  page_name: string
+  section_name: string
+  content_type: string
+  title: string | null
+  subtitle: string | null
+  description: string | null
+  image_url: string | null
+  display_order: number
+  is_active: boolean
+  extra_data: Record<string, any> | null
+}
 
 export default function LocationPage() {
+  const [contents, setContents] = useState<PageContent[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    fetchContents()
+  }, [])
+
+  const fetchContents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cube45_page_contents')
+        .select('*')
+        .eq('page_name', 'location')
+        .eq('is_active', true)
+        .order('display_order')
+
+      if (error) throw error
+      setContents(data || [])
+    } catch (error) {
+      console.error('데이터 로드 실패:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getContent = (section_name: string) => {
+    return contents.find(c => c.section_name === section_name)
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-gray-600">로딩 중...</span>
+        </div>
+      </div>
+    )
+  }
+
+  const bannerContent = getContent('banner')
+  const layoutTextContent = getContent('layout_text')
+  const layoutImageContent = getContent('layout_image')
+
   return (
     <div className="min-h-screen bg-white">
       {/* 네비게이션 */}
       <Navigation />
-
+      
       {/* 메인 콘텐츠 */}
       <div className="pt-28">
         {/* CUBE 45 헤더 섹션 */}
         <div className="relative">
           <div className="h-[500px] relative overflow-hidden">
-            <Image 
-              src="/images/cube45/background2.jpg"
-              alt="CUBE 45" 
-              fill
-              priority
-              quality={100}
-              className="object-cover"
-              sizes="100vw"
-            />
+            {bannerContent?.image_url ? (
+              <Image 
+                src={bannerContent.image_url}
+                alt="CUBE 45" 
+                fill
+                priority
+                quality={100}
+                className="object-cover"
+                sizes="100vw"
+              />
+            ) : (
+              <Image 
+                src="/images/cube45/background2.jpg"
+                alt="CUBE 45" 
+                fill
+                priority
+                quality={100}
+                className="object-cover"
+                sizes="100vw"
+              />
+            )}
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent"></div>
             
             {/* 텍스트 오버레이 */}
             <div className="absolute inset-0 flex items-center">
               <div className="container mx-auto px-8">
                 <div className="text-white max-w-2xl">
-                  <h1 className="text-7xl font-bold mb-4">CUBE 45</h1>	
-                  <p className="text-lg mb-2">즐거움을 담은 단 하나의 큐브</p>
+                  <h1 className="text-7xl font-bold mb-4">
+                    {bannerContent?.title || 'CUBE 45'}
+                  </h1>	
+                  <p className="text-lg mb-2">
+                    {bannerContent?.subtitle || '즐거움을 담은 단 하나의 큐브'}
+                  </p>
                 </div>
               </div>
             </div>
@@ -61,48 +137,77 @@ export default function LocationPage() {
 
         {/* 배치도 섹션 */}
         <div className="py-20">
-         <div className="container mx-auto px-8">
-           <div className="flex items-start gap-16">  {/* items-center를 items-start로 변경 */}
-             {/* 왼쪽 텍스트 */}
-             <div className="w-1/3 relative">
-               <h2 className="text-5xl font-light mb-4 leading-tight">
-                 CUBE 45<br />
-                 LAYOUT
-               </h2>
-               {/* 구분선 - LAYOUT 텍스트 바로 아래, 왼쪽으로 더 연장 */}
-               <div className="absolute border-t border-gray-300" 
-                    style={{ 
-                      left: '-350px',
-                      right: '0',
-                      bottom: '-50px'
-                    }}></div>
-             </div>
-             <div className="w-2/3 mt-16">  {/* mt-16으로 오른쪽만 아래로 */}
-               <h3 className="text-xl font-bold mb-6">
-                 고요한 자연 속에서 당신만을 위한 프라이빗 쉼터
-               </h3>
-               <p className="text-base text-gray-700 leading-relaxed">
-                 LX22의 특별한 공간들을 한눈에 만나보세요.<br />
-                 자연과 하나 되는 LX22 풀빌라는 편리함과 휴식을 동시에<br />
-                 제공하는 다채로운 부대시설을 자랑합니다.<br />
-                 여유로운 시간을 위한 모든 것이 준비되어 있습니다.
-               </p>
-             </div>
-           </div>
-         </div>
+          <div className="container mx-auto px-8">
+            <div className="flex items-start gap-16">
+              {/* 왼쪽 텍스트 */}
+              <div className="w-1/3 relative">
+                <h2 className="text-5xl font-light mb-4 leading-tight">
+                  {layoutTextContent?.title?.split('\n').map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      {i < (layoutTextContent?.title?.split('\n').length || 0) - 1 && <br/>}
+                    </span>
+                  )) || (
+                    <>
+                      CUBE 45<br />
+                      LAYOUT
+                    </>
+                  )}
+                </h2>
+                {/* 구분선 - LAYOUT 텍스트 바로 아래, 왼쪽으로 더 연장 */}
+                <div className="absolute border-t border-gray-300" 
+                     style={{ 
+                       left: '-350px',
+                       right: '0',
+                       bottom: '-50px'
+                     }}></div>
+              </div>
+              
+              <div className="w-2/3 mt-16">
+                <h3 className="text-xl font-bold mb-6">
+                  {layoutTextContent?.subtitle || '고요한 자연 속에서 당신만을 위한 프라이빗 쉼터'}
+                </h3>
+                <p className="text-base text-gray-700 leading-relaxed">
+                  {layoutTextContent?.description?.split('\n').map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      {i < (layoutTextContent?.description?.split('\n').length || 0) - 1 && <br/>}
+                    </span>
+                  )) || (
+                    <>
+                      LX22의 특별한 공간들을 한눈에 만나보세요.<br />
+                      자연과 하나 되는 LX22 풀빌라는 편리함과 휴식을 동시에<br />
+                      제공하는 다채로운 부대시설을 자랑합니다.<br />
+                      여유로운 시간을 위한 모든 것이 준비되어 있습니다.
+                    </>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 		  
-	  {/* 배치도 이미지 */}
-	  <div className="w-full py-16">
-	   <Image 
-	     src="/images/cube45/location.jpg"
-	     alt="CUBE 45 배치도"
-	     width={1920}
-	     height={1080}
-	     className="w-full h-auto object-cover"
-	   />
-	  </div>
+      {/* 배치도 이미지 */}
+      <div className="w-full py-16">
+        {layoutImageContent?.image_url ? (
+          <Image 
+            src={layoutImageContent.image_url}
+            alt="CUBE 45 배치도"
+            width={1920}
+            height={1080}
+            className="w-full h-auto object-cover"
+          />
+        ) : (
+          <Image 
+            src="/images/cube45/location.jpg"
+            alt="CUBE 45 배치도"
+            width={1920}
+            height={1080}
+            className="w-full h-auto object-cover"
+          />
+        )}
+      </div>
       
       <Footer />
     </div>

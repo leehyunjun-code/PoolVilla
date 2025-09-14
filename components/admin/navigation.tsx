@@ -141,8 +141,24 @@ export default function AdminNavigation() {
               <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
               </svg>
-              콘텐츠 관리
+              메인 관리
             </a>
+            {/* 메인페이지 관리 하위 메뉴 */}
+            <ul className="ml-8 mt-2 space-y-1">
+              <li>
+                <a 
+                  href="/admin/content-manage/intro" 
+                  className={`flex items-center p-2 text-sm rounded ${
+                    pathname === '/admin/content-manage/intro'
+                      ? 'text-blue-600 bg-blue-50' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="mr-2">•</span>
+                  CUBE 45 관리
+                </a>
+              </li>
+            </ul>
           </li>
         </ul>
 

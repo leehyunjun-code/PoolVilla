@@ -3,9 +3,27 @@ import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { supabase } from '@/lib/supabase'
+
+interface PageContent {
+  id: number
+  page_name: string
+  section_name: string
+  content_type: string
+  title: string | null
+  subtitle: string | null
+  description: string | null
+  image_url: string | null
+  display_order: number
+  is_active: boolean
+  extra_data: Record<string, any> | null
+}
 
 export default function IntroPage() {
+  const [contents, setContents] = useState<PageContent[]>([])
+  const [loading, setLoading] = useState(true)
+  
   // 애니메이션을 위한 ref들
   const leftTextRef = useRef(null)
   const rightImageRef = useRef(null)
@@ -13,6 +31,34 @@ export default function IntroPage() {
   const leftTitleRef = useRef(null)
   const rightTextRef = useRef(null)
   const reservationBtnRef = useRef(null)
+
+  // 데이터 가져오기
+  useEffect(() => {
+    fetchContents()
+  }, [])
+
+  const fetchContents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cube45_page_contents')
+        .select('*')
+        .eq('page_name', 'intro')
+        .eq('is_active', true)
+        .order('display_order')
+
+      if (error) throw error
+      setContents(data || [])
+    } catch (error) {
+      console.error('데이터 로드 실패:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // 특정 섹션 콘텐츠 가져오기
+  const getContent = (section_name: string) => {
+    return contents.find(c => c.section_name === section_name)
+  }
 
   useEffect(() => {
     // Intersection Observer 설정
@@ -46,7 +92,24 @@ export default function IntroPage() {
     })
 
     return () => observer.disconnect()
-  }, [])
+  }, [loading]) // loading이 끝난 후 Observer 설정
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-white flex items-center justify-center">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+          <span className="text-gray-600">로딩 중...</span>
+        </div>
+      </div>
+    )
+  }
+
+  const bannerContent = getContent('banner')
+  const exclusiveCubeContent = getContent('exclusive_cube')
+  const exclusiveCubeImage = getContent('exclusive_cube_image')
+  const exceptionalRetreatContent = getContent('exceptional_retreat')
+  const exceptionalRetreatImage = getContent('exceptional_retreat_image')
 
   return (
     <>
@@ -88,23 +151,31 @@ export default function IntroPage() {
           {/* CUBE 45 헤더 섹션 */}
           <div className="relative">
             <div className="h-[500px] relative overflow-hidden">
-              <Image 
-                src="/images/cube45/background.jpg"
-                alt="CUBE 45" 
-                fill
-                priority
-                quality={100}
-                className="object-cover"
-                sizes="100vw"
-              />
+              {bannerContent?.image_url ? (
+                <Image 
+                  src={bannerContent.image_url}
+                  alt="CUBE 45" 
+                  fill
+                  priority
+                  quality={100}
+                  className="object-cover"
+                  sizes="100vw"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-200"></div>
+              )}
               <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent"></div>
               
               {/* 텍스트 오버레이 */}
               <div className="absolute inset-0 flex items-center">
                 <div className="container mx-auto px-8">
                   <div className="text-white max-w-2xl">
-                    <h1 className="text-7xl font-bold mb-4">CUBE 45</h1>	
-                    <p className="text-lg mb-2">즐거움을 담은 단 하나의 큐브</p>
+                    <h1 className="text-7xl font-bold mb-4">
+                      {bannerContent?.title || 'CUBE 45'}
+                    </h1>	
+                    <p className="text-lg mb-2">
+                      {bannerContent?.subtitle || '즐거움을 담은 단 하나의 큐브'}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -140,8 +211,17 @@ export default function IntroPage() {
                 <div ref={leftTextRef} className="slide-from-left">
                   <div className="mt-12 mb-8 relative">
                     <h2 className="text-5xl font-light leading-tight">
-                      Exclusive<br/>
-                      Cube of Joy
+                      {exclusiveCubeContent?.title?.split('\n').map((line, i) => (
+                        <span key={i}>
+                          {line}
+                          {i < (exclusiveCubeContent?.title?.split('\n').length || 0) - 1 && <br/>}
+                        </span>
+                      )) || (
+                        <>
+                          Exclusive<br/>
+                          Cube of Joy
+                        </>
+                      )}
                     </h2>
                     <span className="absolute text-gray-500 text-base border-b border-gray-400 pb-1" 
                           style={{ top: '50%', right: '310px', transform: 'translateY(-50%)' }}>
@@ -154,14 +234,23 @@ export default function IntroPage() {
                   
                   <div className="space-y-6">
                     <div>
-                      <h3 className="text-2xl font-semibold mb-3">고요한 휴식 속 프라이빗 빌라</h3>
+                      <h3 className="text-2xl font-semibold mb-3">
+                        {exclusiveCubeContent?.subtitle || '고요한 휴식 속 프라이빗 빌라'}
+                      </h3>
                       <p className="text-black leading-relaxed text-xl">
-                        고요한 자연 속에서 당신만을 위한 프라이빗 쉼터<br/>
-                        사계절 내내 이용 가능한 실내 수영장과<br/>
-                        고급스러운 편의시설을 갖춘 LX22 풀빌라에서<br/>
-                        진정한 힐링을 경험하세요. 자연 속에서 일상의<br/>
-                        피로를 씻어내고 마음의 평화를 찾을 수 있는<br/>
-                        특별한 공간입니다.
+                        {exclusiveCubeContent?.description?.split('\n').map((line, i) => (
+                          <span key={i}>
+                            {line}
+                            {i < (exclusiveCubeContent?.description?.split('\n').length || 0) - 1 && <br/>}
+                          </span>
+                        )) || (
+                          <>
+                            고요한 자연 속에서 당신만을 위한 프라이빗 쉼터<br/>
+                            사계절 내내 이용 가능한 실내 수영장과<br/>
+                            고급스러운 편의시설을 갖춘 LX22 풀빌라에서<br/>
+                            진정한 힐링을 경험하세요.
+                          </>
+                        )}
                       </p>
                     </div>
                   </div>
@@ -175,7 +264,7 @@ export default function IntroPage() {
                 {/* 오른쪽 이미지 영역 - 오른쪽에서 슬라이드 인 */}
                 <div ref={rightImageRef} className="flex justify-center -mt-28 slide-from-right">
                   <div 
-                    className="shadow-2xl overflow-hidden"
+                    className="shadow-2xl overflow-hidden relative"
                     style={{
                       width: '640px',
                       height: '480px',
@@ -185,11 +274,17 @@ export default function IntroPage() {
                       borderBottomRightRadius: '0'
                     }}
                   >
-                    <img 
-                      src="https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800" 
-                      alt="CUBE 45 Interior" 
-                      className="w-full h-full object-cover"
-                    />
+                    {exclusiveCubeImage?.image_url ? (
+                      <Image 
+                        src={exclusiveCubeImage.image_url}
+                        alt="CUBE 45 Interior" 
+                        fill
+                        className="object-cover"
+                        sizes="640px"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200"></div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -206,7 +301,7 @@ export default function IntroPage() {
                   
                   {/* 중앙 이미지 - 아래에서 슬라이드 인 */}
                   <div ref={centerImageRef} 
-                       className="overflow-hidden shadow-lg slide-from-bottom"
+                       className="overflow-hidden shadow-lg slide-from-bottom relative"
                        style={{
                          width: 'calc(16rem * 1.5)',
                          height: 'calc(22rem * 1.5)',
@@ -217,20 +312,35 @@ export default function IntroPage() {
                          marginLeft: '-160px',
 						 zIndex: 10	 
                        }}>
-                    <img 
-                      src="https://images.unsplash.com/photo-1564013799919-ab600027ffc6?w=800" 
-                      alt="Villa Pool View" 
-                      className="w-full h-full object-cover"
-                    />
+                    {exceptionalRetreatImage?.image_url ? (
+                      <Image 
+                        src={exceptionalRetreatImage.image_url}
+                        alt="Villa Pool View" 
+                        fill
+                        className="object-cover"
+                        sizes="384px"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200"></div>
+                    )}
                   </div>
                   
                   {/* 왼쪽 위 제목 - 왼쪽에서 슬라이드 인 */}
                   <div ref={leftTitleRef} className="absolute slide-from-left" style={{ left: '-600px', top: '-16px' }}>
                     <h2 className="text-4xl font-light leading-tight">
-                      An Exceptional<br/>
-                      Retreat<br/>
-                      in the<br/>
-                      Grandest Villa
+                      {exceptionalRetreatContent?.title?.split('\n').map((line, i) => (
+                        <span key={i}>
+                          {line}
+                          {i < (exceptionalRetreatContent?.title?.split('\n').length || 0) - 1 && <br/>}
+                        </span>
+                      )) || (
+                        <>
+                          An Exceptional<br/>
+                          Retreat<br/>
+                          in the<br/>
+                          Grandest Villa
+                        </>
+                      )}
                     </h2>
                   </div>
                   
@@ -249,13 +359,22 @@ export default function IntroPage() {
                   <div ref={rightTextRef} className="absolute left-80 top-102 w-96 whitespace-nowrap slide-from-right">
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-2xl font-semibold mb-3">고요한 휴식 속 프라이빗 빌라</h3>
+                        <h3 className="text-2xl font-semibold mb-3">
+                          {exceptionalRetreatContent?.subtitle || '고요한 휴식 속 프라이빗 빌라'}
+                        </h3>
                         <p className="text-black leading-relaxed text-xl">
-                          고요한 자연 속에서 당신만을 위한 프라이빗 쉼터<br/>
-                          사계절 내내 이용 가능한 실내 수영장과 고급스러운<br/>
-                          편의시설을 갖춘 LX22 풀빌라에서 진정한 힐링을 경험하세요.<br/>
-                          자연 속에서 일상의 피로를 씻어내고<br/>
-                          마음의 평화를 찾을 수 있는 특별한 공간입니다.
+                          {exceptionalRetreatContent?.description?.split('\n').map((line, i) => (
+                            <span key={i}>
+                              {line}
+                              {i < (exceptionalRetreatContent?.description?.split('\n').length || 0) - 1 && <br/>}
+                            </span>
+                          )) || (
+                            <>
+                              고요한 자연 속에서 당신만을 위한 프라이빗 쉼터<br/>
+                              사계절 내내 이용 가능한 실내 수영장과 고급스러운<br/>
+                              편의시설을 갖춘 LX22 풀빌라에서 진정한 힐링을 경험하세요.
+                            </>
+                          )}
                         </p>
                       </div>
                     </div>
@@ -263,9 +382,11 @@ export default function IntroPage() {
                   
                   {/* 오른쪽 아래 Reservation 버튼 - 오른쪽에서 슬라이드 인 */}
                   <div ref={reservationBtnRef} className="absolute slide-from-right" style={{ right: '-500px', bottom: '-150px' }}>
-                    <button className="px-8 py-2 border border-gray-800 rounded-full text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors">
-                      Reservation
-                    </button>
+                    <Link href="/reservation">
+                      <button className="px-8 py-2 border border-gray-800 rounded-full text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors">
+                        Reservation
+                      </button>
+                    </Link>
                   </div>
                 </div>
               </div>
