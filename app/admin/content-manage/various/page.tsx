@@ -355,16 +355,24 @@ export default function VariousContentsManage() {
         .eq('content_type', 'banner')
         .maybeSingle()  // 없어도 에러 안나게
       
+      // 3. 업데이트할 데이터 준비 (타입 안전하게)
+      const updateData: any = {
+        image_url: currentBanner.image_url,
+        title: '',
+        subtitle: ''
+      }
+      
+      // guide 탭일 때만 제목/부제목 설정
+      if (activeTab === 'guide' && 'title' in currentBanner && 'subtitle' in currentBanner) {
+        updateData.title = currentBanner.title
+        updateData.subtitle = currentBanner.subtitle
+      }
+      
       if (existingBanner) {
         // 3-1. 있으면 UPDATE
         const { error } = await supabase
           .from('cube45_various_contents')
-          .update({
-            image_url: currentBanner.image_url,
-            // guide 탭일 때만 제목/부제목 저장
-            title: activeTab === 'guide' ? currentBanner.title : '',
-            subtitle: activeTab === 'guide' ? currentBanner.subtitle : ''
-          })
+          .update(updateData)
           .eq('id', existingBanner.id)
         
         if (error) throw error
@@ -376,10 +384,8 @@ export default function VariousContentsManage() {
             page_name: activeTab,
             section_name: 'banner',
             content_type: 'banner',  // 중요: content_type을 'banner'로
-            title: activeTab === 'guide' ? currentBanner.title : '',
-            subtitle: activeTab === 'guide' ? currentBanner.subtitle : '',
+            ...updateData,
             description: '',
-            image_url: currentBanner.image_url,
             display_order: 0,  // 배너는 항상 최상단
             is_active: true
           })
