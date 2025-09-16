@@ -389,23 +389,89 @@ export default function RoomManagePage() {
     }
   }
 
-  // 이미지 추가
-  const handleAddImage = async (sectionPrefix: string) => {
-    const newSectionName = `${sectionPrefix}_${Date.now()}`
-    const maxOrder = Math.max(...editedContents.map(c => c.display_order || 0))
-    
-    const newContent: RoomContent = {
-      id: 0,
-      page_type: selectedRoom ? 'room' : `zone_${activeTab}`,
-      room_id: selectedRoom,
-      section_name: newSectionName,
-      content: null,
-      image_url: '/images/room/aroom.jpg',
-      display_order: maxOrder + 1,
-      is_active: true
+  // 이미지 추가 (파일 선택 포함)
+  const handleAddImage = async (sectionPrefix: string, file?: File) => {
+    try {
+      // 1~5 중 비어있는 번호 찾기
+      const existingNumbers = editedContents
+        .filter(c => c.section_name.startsWith(sectionPrefix + '_'))
+        .map(c => {
+          const parts = c.section_name.split('_');
+          return parseInt(parts[parts.length - 1]) || 0;
+        })
+        .filter(n => n >= 1 && n <= 5);
+      
+      let newNumber = 0;
+      for (let i = 1; i <= 5; i++) {
+        if (!existingNumbers.includes(i)) {
+          newNumber = i;
+          break;
+        }
+      }
+      
+      if (newNumber === 0) {
+        showToast('최대 5개까지만 추가 가능합니다.', 'error');
+        return;
+      }
+      
+      const newSectionName = `${sectionPrefix}_${newNumber}`;
+      
+      // 파일이 있으면 먼저 업로드
+      let imageUrl = '/images/room/aroom.jpg';
+      if (file) {
+        const uploadedUrl = await uploadImage(file);
+        if (uploadedUrl) {
+          imageUrl = uploadedUrl;
+        }
+      }
+      
+      // DB에 INSERT
+      const { data, error } = await supabase
+        .from('cube45_room_contents')
+        .insert({
+          page_type: selectedRoom ? 'room' : `zone_${activeTab}`,
+          room_id: selectedRoom,
+          section_name: newSectionName,
+          content: null,
+          image_url: imageUrl,
+          display_order: newNumber,
+          is_active: true
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('이미지 추가 실패:', error);
+        showToast('이미지 추가에 실패했습니다.', 'error');
+        return;
+      }
+      
+      if (data) {
+        setEditedContents([...editedContents, data]);
+        showToast('이미지가 추가되었습니다.', 'success');
+      }
+    } catch (error) {
+      console.error('이미지 추가 오류:', error);
+      showToast('이미지 추가 중 오류가 발생했습니다.', 'error');
     }
-    
-    setEditedContents([...editedContents, newContent])
+  }
+  
+  // 파일 선택 핸들러 추가
+  const handleAddImageWithFile = (sectionPrefix: string) => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        if (file.size > 5 * 1024 * 1024) {
+          showToast('파일 크기는 5MB 이하여야 합니다.', 'error');
+          return;
+        }
+        await handleAddImage(sectionPrefix, file);
+      }
+    };
+    input.click();
   }
 
   // 이미지 삭제
@@ -780,7 +846,7 @@ export default function RoomManagePage() {
                       <h2 className="text-xl font-semibold">슬라이더 이미지</h2>
                       <div className="space-x-2">
                         <button
-                          onClick={() => handleAddImage('slider')}
+                          onClick={() => handleAddImageWithFile('slider')}
                           className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
                         >
                           이미지 추가

@@ -1368,7 +1368,9 @@ export default function VariousContentsManage() {
 
                 {/* 오퍼 목록 */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {contents.map((offer, index) => (
+                  {contents
+                    .filter(item => item.content_type === 'offer')  // 배너 제외하고 오퍼만 필터링
+                    .map((offer, index) => (
                     <div key={offer.id} className="rounded-lg overflow-hidden shadow">
                       <div className="h-48 bg-gray-100 relative">
                         {offer.image_url ? (
