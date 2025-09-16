@@ -21,7 +21,7 @@ export default function D4Page() {
   const pathname = usePathname()
   
   // D4 페이지 전용
-  const roomId = 'D4
+  const roomId = 'D4'
   
   // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)

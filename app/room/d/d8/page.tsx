@@ -21,7 +21,7 @@ export default function D8Page() {
   const pathname = usePathname()
   
   // D8 페이지 전용
-  const roomId = 'D8
+  const roomId = 'D8'
   
   // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)

@@ -21,7 +21,7 @@ export default function D10Page() {
   const pathname = usePathname()
   
   // D10 페이지 전용
-  const roomId = 'D10
+  const roomId = 'D10'
   
   // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)

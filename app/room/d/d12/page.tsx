@@ -21,7 +21,7 @@ export default function D12Page() {
   const pathname = usePathname()
   
   // D12 페이지 전용
-  const roomId = 'D12
+  const roomId = 'D12'
   
   // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)

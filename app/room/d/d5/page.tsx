@@ -21,7 +21,7 @@ export default function D5Page() {
   const pathname = usePathname()
   
   // D5 페이지 전용
-  const roomId = 'D5
+  const roomId = 'D5'
   
   // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)

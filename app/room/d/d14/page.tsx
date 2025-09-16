@@ -21,7 +21,7 @@ export default function D14Page() {
   const pathname = usePathname()
   
   // D14 페이지 전용
-  const roomId = 'D14
+  const roomId = 'D14'
   
   // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)

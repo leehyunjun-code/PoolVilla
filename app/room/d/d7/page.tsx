@@ -21,7 +21,7 @@ export default function D7Page() {
   const pathname = usePathname()
   
   // D7 페이지 전용
-  const roomId = 'D7
+  const roomId = 'D7'
   
   // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)
