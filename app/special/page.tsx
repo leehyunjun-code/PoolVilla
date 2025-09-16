@@ -6,8 +6,22 @@ import OffersSection from '@/components/OffersSection'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
+interface BannerData {
+  id: number
+  page_name: string
+  section_name: string
+  content_type: string
+  title: string
+  subtitle: string
+  description: string
+  image_url: string
+  display_order: number
+  is_active: boolean
+  extra_data: any
+}
+
 export default function ReservationGuidePage() {
-  const [bannerData, setBannerData] = useState(null)
+  const [bannerData, setBannerData] = useState<BannerData | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
