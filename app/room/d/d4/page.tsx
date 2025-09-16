@@ -284,7 +284,7 @@ export default function D4Page() {
                   )}
                   {getContent('guide_additional')?.content && (
                     <div className="text-sm md:text-base">
-                      {getContent('guide_additional')?.content.split('\n').map((line, index) => (
+                      {getContent('guide_additional')?.content?.split('\n').map((line, index) => (
                         <div key={index} className={`${line.startsWith('•') ? 'py-1' : 'pb-2'} break-words`}>
                           {line}
                         </div>
