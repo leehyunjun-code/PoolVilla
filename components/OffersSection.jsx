@@ -13,6 +13,17 @@ export default function OffersSection() {
     fetchOffers()
   }, [])
 
+  // 자동 슬라이드 기능
+  useEffect(() => {
+    if (offersData.length <= 3) return
+
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev === offersData.length - 1 ? 0 : prev + 1))
+    }, 1500) // 1.5초마다 자동 이동
+
+    return () => clearInterval(interval)
+  }, [offersData.length])
+
   const fetchOffers = async () => {
     try {
       const { data, error } = await supabase

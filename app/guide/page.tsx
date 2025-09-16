@@ -10,12 +10,11 @@ interface ExtraData {
   [key: string]: string | undefined
 }
 
-
 interface VariousContent {
   id: number
   page_name: string
   section_name: string
-  content_type: 'section' | 'card'
+  content_type: 'section' | 'card' | 'banner'
   title: string
   subtitle: string
   description: string
@@ -32,6 +31,7 @@ interface SectionWithCards {
 
 export default function GuestInfoPage() {
   const [sectionGroups, setSectionGroups] = useState<SectionWithCards[]>([])
+  const [bannerData, setBannerData] = useState<VariousContent | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -48,6 +48,10 @@ export default function GuestInfoPage() {
         .order('display_order')
 
       if (error) throw error
+
+      // 배너 데이터 분리
+      const banner = data?.find(item => item.content_type === 'banner') || null
+      setBannerData(banner)
 
       // 섹션과 카드를 그룹화
       const sections = data?.filter(item => item.content_type === 'section') || []
@@ -85,11 +89,11 @@ export default function GuestInfoPage() {
       
       {/* 메인 콘텐츠 */}
       <div className="pt-28">
-        {/* CUBE 45 헤더 섹션 */}
+        {/* CUBE 45 헤더 섹션 - 배너 데이터 사용 */}
         <div className="relative">
           <div className="h-[500px] relative overflow-hidden">
             <Image 
-              src="/images/cube45/background2.jpg"
+              src={bannerData?.image_url || "/images/cube45/background2.jpg"}
               alt="CUBE 45" 
               fill
               priority
@@ -105,11 +109,15 @@ export default function GuestInfoPage() {
         <div className="py-20 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="max-w-6xl mx-auto">
-              {/* 헤더 */}
+              {/* 헤더 - 배너 데이터의 제목/부제목 사용 */}
               <div className="mb-12">
                 <p className="text-xl text-black mb-2">CUBE45</p>
-                <p className="text-xl text-black mb-4">URBAN POOL STAY</p>
-                <h1 className="text-5xl font-light mb-8">Guest Information</h1>
+                <p className="text-xl text-black mb-4">
+                  {bannerData?.title || "URBAN POOL STAY"}
+                </p>
+                <h1 className="text-5xl font-light mb-8">
+                  {bannerData?.subtitle || "Guest Information"}
+                </h1>
                 {/* 왼쪽 밑줄만 */}
                 <div className="flex items-center">
                   <div className="w-96 border-t border-gray-300"></div>

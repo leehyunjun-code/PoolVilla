@@ -14,7 +14,7 @@ interface VariousContent {
   id: number
   page_name: string
   section_name: string
-  content_type: 'section' | 'card'
+  content_type: 'section' | 'card' | 'banner'
   title: string
   subtitle: string
   description: string
@@ -31,6 +31,7 @@ interface SectionWithCards {
 
 export default function FacilitiesPage() {
   const [sectionGroups, setSectionGroups] = useState<SectionWithCards[]>([])
+  const [bannerData, setBannerData] = useState<VariousContent | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -47,6 +48,10 @@ export default function FacilitiesPage() {
         .order('display_order')
 
       if (error) throw error
+
+      // 배너 데이터 분리
+      const banner = data?.find(item => item.content_type === 'banner') || null
+      setBannerData(banner)
 
       // 섹션과 카드를 그룹화
       const sections = data?.filter(item => item.content_type === 'section') || []
@@ -84,11 +89,11 @@ export default function FacilitiesPage() {
       
       {/* 메인 콘텐츠 */}
       <div className="pt-28">
-        {/* 헤더 섹션 */}
+        {/* 헤더 섹션 - 배너 데이터 사용 */}
         <div className="relative">
           <div className="h-[500px] relative overflow-hidden">
             <Image 
-              src="/images/cube45/background2.jpg"
+              src={bannerData?.image_url || "/images/cube45/background2.jpg"}
               alt="CUBE 45" 
               fill
               priority

@@ -972,36 +972,54 @@ export default function RoomManagePage() {
                       {/* 갤러리 이미지 */}
                       <div>
                         <h3 className="text-lg font-medium mb-4">갤러리 이미지</h3>
-                        <div className="grid grid-cols-5 gap-4">
-                          {[1, 2, 3, 4, 5].map(num => (
-                            <div key={num} className="relative">
-                              <div className="w-full h-24 bg-gray-100 rounded overflow-hidden relative">
-                                <Image
-                                  src={getContent(`gallery_${num}`)?.image_url || '/images/room/aroom.jpg'}
-                                  alt={`갤러리 ${num}`}
-                                  fill
-                                  className="object-cover"
-                                />
-                              </div>
-                              <label className="block w-full text-center px-2 py-1 mt-2 bg-gray-200 text-sm rounded cursor-pointer hover:bg-gray-300">
-                                변경
-                                <input
-                                  type="file"
-                                  className="hidden"
-                                  accept="image/*"
-                                  onChange={(e) => handleImageUpload(`gallery_${num}`, e)}
-                                />
-                              </label>
-                            </div>
-                          ))}
+                        <div className="flex justify-between items-center mb-4">
+                          <span className="text-sm text-gray-500">최대 5개까지 추가 가능</span>
+                          <div className="space-x-2">
+                            <button
+                              onClick={() => handleAddImage('gallery')}
+                              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                            >
+                              이미지 추가
+                            </button>
+                            <button
+                              onClick={() => handleSaveSection(['gallery_1', 'gallery_2', 'gallery_3', 'gallery_4', 'gallery_5'])}
+                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            >
+                              저장
+                            </button>
+                          </div>
                         </div>
-                        <div className="mt-4 flex justify-end">
-                          <button
-                            onClick={() => handleSaveSection(['gallery_1', 'gallery_2', 'gallery_3', 'gallery_4', 'gallery_5'])}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                          >
-                            저장
-                          </button>
+                        <div className="grid grid-cols-5 gap-4">
+                          {[1, 2, 3, 4, 5].map(num => {
+                            const content = getContent(`gallery_${num}`)
+                            return content ? (
+                              <div key={num} className="relative">
+                                <div className="w-full h-24 bg-gray-100 rounded overflow-hidden relative">
+                                  <Image
+                                    src={content.image_url || '/images/room/aroom.jpg'}
+                                    alt={`갤러리 ${num}`}
+                                    fill
+                                    className="object-cover"
+                                  />
+                                </div>
+                                <label className="block w-full text-center px-2 py-1 mt-2 bg-gray-200 text-sm rounded cursor-pointer hover:bg-gray-300">
+                                  변경
+                                  <input
+                                    type="file"
+                                    className="hidden"
+                                    accept="image/*"
+                                    onChange={(e) => handleImageUpload(`gallery_${num}`, e)}
+                                  />
+                                </label>
+                                <button
+                                  onClick={() => handleDeleteImage(`gallery_${num}`)}
+                                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                                >
+                                  ×
+                                </button>
+                              </div>
+                            ) : null
+                          })}
                         </div>
                       </div>
 

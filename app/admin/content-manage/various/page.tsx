@@ -58,6 +58,13 @@ export default function VariousContentsManage() {
     image_url: ''
   })
   
+  // 배너 데이터 state 추가
+  const [bannerData, setBannerData] = useState({
+    facilities: { image_url: '' },
+    guide: { image_url: '', title: '', subtitle: '' },
+    special: { image_url: '' }
+  })
+  
   // 토스트 메시지
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
     show: false,
@@ -79,7 +86,7 @@ export default function VariousContentsManage() {
         .select('*')
         .eq('page_name', activeTab)
         .order('display_order')
-
+      
       if (error) throw error
       
       setContents(data || [])
@@ -97,6 +104,25 @@ export default function VariousContentsManage() {
         setSectionGroups(groups)
       }
       
+      // 배너 데이터 조회 추가
+      const { data: bannerDataResult } = await supabase
+        .from('cube45_various_contents')
+        .select('*')
+        .eq('page_name', activeTab)
+        .eq('content_type', 'banner')
+        .maybeSingle()
+      
+      if (bannerDataResult) {
+        setBannerData(prev => ({
+          ...prev,
+          [activeTab]: {
+            image_url: bannerDataResult.image_url || '',
+            title: bannerDataResult.title || '',
+            subtitle: bannerDataResult.subtitle || ''
+          }
+        }))
+      }
+      
     } catch (error) {
       console.error('데이터 로드 실패:', error)
       showToast('데이터를 불러오는데 실패했습니다.', 'error')
@@ -104,7 +130,7 @@ export default function VariousContentsManage() {
       setLoading(false)
     }
   }, [activeTab])
-
+  
   useEffect(() => {
     fetchContents()
   }, [fetchContents])
@@ -315,6 +341,58 @@ export default function VariousContentsManage() {
       showToast('카드 삭제에 실패했습니다.', 'error')
     }
   }
+  
+  const handleSaveBanner = async () => {
+    try {
+      // 1. 현재 탭의 배너 데이터 가져오기
+      const currentBanner = bannerData[activeTab as keyof typeof bannerData]
+      
+      // 2. DB에 이미 배너가 있는지 확인
+      const { data: existingBanner } = await supabase
+        .from('cube45_various_contents')
+        .select('id')
+        .eq('page_name', activeTab)
+        .eq('content_type', 'banner')
+        .maybeSingle()  // 없어도 에러 안나게
+      
+      if (existingBanner) {
+        // 3-1. 있으면 UPDATE
+        const { error } = await supabase
+          .from('cube45_various_contents')
+          .update({
+            image_url: currentBanner.image_url,
+            // guide 탭일 때만 제목/부제목 저장
+            title: activeTab === 'guide' ? currentBanner.title : '',
+            subtitle: activeTab === 'guide' ? currentBanner.subtitle : ''
+          })
+          .eq('id', existingBanner.id)
+        
+        if (error) throw error
+      } else {
+        // 3-2. 없으면 INSERT
+        const { error } = await supabase
+          .from('cube45_various_contents')
+          .insert({
+            page_name: activeTab,
+            section_name: 'banner',
+            content_type: 'banner',  // 중요: content_type을 'banner'로
+            title: activeTab === 'guide' ? currentBanner.title : '',
+            subtitle: activeTab === 'guide' ? currentBanner.subtitle : '',
+            description: '',
+            image_url: currentBanner.image_url,
+            display_order: 0,  // 배너는 항상 최상단
+            is_active: true
+          })
+        
+        if (error) throw error
+      }
+      
+      showToast('배너가 저장되었습니다.', 'success')
+    } catch (error) {
+      console.error('배너 저장 실패:', error)
+      showToast('배너 저장에 실패했습니다.', 'error')
+    }
+  }
 
   if (loading) {
     return (
@@ -391,6 +469,55 @@ export default function VariousContentsManage() {
           {/* 부대시설 탭 */}
           {activeTab === 'facilities' && (
             <>
+              {/* 배너 섹션 */}
+              <div className="bg-white rounded-lg shadow p-6 mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">배너 이미지</h2>
+                  <button
+                    onClick={handleSaveBanner}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    저장
+                  </button>
+                </div>
+                <div className="w-full">
+                  <div className="relative h-64 bg-gray-100 rounded-lg overflow-hidden">
+                    {bannerData.facilities.image_url ? (
+                      <Image
+                        src={bannerData.facilities.image_url}
+                        alt="배너"
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-gray-400">
+                        <span>이미지를 업로드해주세요</span>
+                      </div>
+                    )}
+                    <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                      <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept="image/*"
+                        onChange={async (e) => {
+                          const file = e.target.files?.[0]
+                          if (file) {
+                            const url = await uploadImage(file)
+                            if (url) {
+                              setBannerData(prev => ({
+                                ...prev,
+                                facilities: { ...prev.facilities, image_url: url }
+                              }))
+                            }
+                          }
+                        }}
+                      />
+                    </label>
+                  </div>
+                </div>
+              </div>
+          
               {/* 섹션 추가 버튼 */}
               <div className="flex justify-end">
                 <button
@@ -486,7 +613,7 @@ export default function VariousContentsManage() {
                   </div>
 
                   {/* 섹션 편집 폼 - 항상 표시 */}
-                  <div className="mb-6 p-4 bg-gray-50 rounded">
+                  <div className="mb-6">
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                       <div className="space-y-4">
                         <div>
@@ -543,7 +670,7 @@ export default function VariousContentsManage() {
 
                   {/* 카드 추가 폼 */}
                   {addingCard === group.section.section_name && (
-                    <div className="border rounded-lg p-4 mb-4 bg-blue-50">
+                    <div className="p-4 mb-4 bg-blue-50 rounded-lg">
                       <h3 className="font-semibold mb-3">새 카드 추가</h3>
                       <div className="space-y-3">
                         <div>
@@ -608,7 +735,7 @@ export default function VariousContentsManage() {
                   {/* 카드 목록 */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {group.cards.map((card) => (
-                      <div key={card.id} className="border rounded-lg overflow-hidden">
+                      <div key={card.id} className="rounded-lg overflow-hidden shadow">
                         <div className="h-40 bg-gray-100 relative">
                           {card.image_url ? (
                             <Image
@@ -736,6 +863,84 @@ export default function VariousContentsManage() {
           {/* 이용안내 탭 */}
           {activeTab === 'guide' && (
             <>
+              {/* 배너 섹션 */}
+              <div className="bg-white rounded-lg shadow p-6 mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">배너 섹션</h2>
+                  <button
+                    onClick={handleSaveBanner}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    저장
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
+                    <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+                      {bannerData.guide.image_url ? (
+                        <Image
+                          src={bannerData.guide.image_url}
+                          alt="배너"
+                          fill
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="h-full flex items-center justify-center text-gray-400">
+                          <span>이미지 없음</span>
+                        </div>
+                      )}
+                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                        <input
+                          type="file"
+                          className="hidden"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              const url = await uploadImage(file)
+                              if (url) {
+                                setBannerData(prev => ({
+                                  ...prev,
+                                  guide: { ...prev.guide, image_url: url }
+                                }))
+                              }
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                      <textarea
+                        value={bannerData.guide.title || ''}
+                        onChange={(e) => setBannerData(prev => ({
+                          ...prev,
+                          guide: { ...prev.guide, title: e.target.value }
+                        }))}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">부제목</label>
+                      <textarea
+                        value={bannerData.guide.subtitle || ''}
+                        onChange={(e) => setBannerData(prev => ({
+                          ...prev,
+                          guide: { ...prev.guide, subtitle: e.target.value }
+                        }))}
+                        rows={2}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+          
               {/* 섹션 추가 버튼 */}
               <div className="flex justify-end">
                 <button
@@ -897,7 +1102,7 @@ export default function VariousContentsManage() {
                   {/* 항목 목록 */}
                   <div className="space-y-4">
                     {group.cards.map((card) => (
-                      <div key={card.id} className="border rounded-lg p-4">
+                      <div key={card.id} className="p-4 bg-white rounded-lg shadow">
                         {editingCard === card.id ? (
                           <div className="space-y-3">
                             <div>
@@ -987,253 +1192,305 @@ export default function VariousContentsManage() {
 
           {/* 스페셜 오퍼 탭 */}
           {activeTab === 'special' && (
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-semibold">스페셜 오퍼 (OFFERS)</h2>
-                <button
-                  onClick={() => setAddingCard('offers')}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
-                >
-                  오퍼 추가
-                </button>
-              </div>
-
-              {/* 오퍼 추가 폼 */}
-              {addingCard === 'offers' && (
-                <div className="border rounded-lg p-4 mb-4 bg-blue-50">
-                  <h3 className="font-semibold mb-3">새 오퍼 추가</h3>
-                  <div className="space-y-3">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">영문 제목</label>
-                      <textarea
-                        value={newCard.title}
-                        onChange={(e) => setNewCard({...newCard, title: e.target.value})}
-                        rows={2}
-                        placeholder="예: Special Package"
-                        className="w-full px-3 py-2 border rounded resize-none"
+            <>
+              {/* 배너 섹션 */}
+              <div className="bg-white rounded-lg shadow p-6 mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">배너 이미지</h2>
+                  <button
+                    onClick={handleSaveBanner}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                  >
+                    저장
+                  </button>
+                </div>
+                <div className="w-full">
+                  <div className="relative h-64 bg-gray-100 rounded-lg overflow-hidden">
+                    {bannerData.special.image_url ? (
+                      <Image
+                        src={bannerData.special.image_url}
+                        alt="배너"
+                        fill
+                        className="object-cover"
                       />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">한글 제목</label>
-                      <textarea
-                        value={newCard.subtitle}
-                        onChange={(e) => setNewCard({...newCard, subtitle: e.target.value})}
-                        rows={2}
-                        placeholder="예: 스페셜 패키지"
-                        className="w-full px-3 py-2 border rounded resize-none"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">설명</label>
-                      <textarea
-                        value={newCard.description}
-                        onChange={(e) => setNewCard({...newCard, description: e.target.value})}
-                        rows={3}
-                        placeholder="오퍼 설명"
-                        className="w-full px-3 py-2 border rounded"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">이미지</label>
+                    ) : (
+                      <div className="h-full flex items-center justify-center text-gray-400">
+                        <span>이미지를 업로드해주세요</span>
+                      </div>
+                    )}
+                    <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                      <span className="text-sm font-medium text-gray-700">이미지 변경</span>
                       <input
                         type="file"
+                        className="hidden"
                         accept="image/*"
                         onChange={async (e) => {
                           const file = e.target.files?.[0]
                           if (file) {
                             const url = await uploadImage(file)
                             if (url) {
-                              setNewCard({...newCard, image_url: url})
-                              showToast('이미지가 업로드되었습니다.', 'success')
+                              setBannerData(prev => ({
+                                ...prev,
+                                special: { ...prev.special, image_url: url }
+                              }))
                             }
                           }
                         }}
-                        className="w-full px-3 py-2 border rounded"
                       />
-                    </div>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={async () => {
-                          try {
-                            const newOrder = contents.length + 1
-                            const { error } = await supabase
-                              .from('cube45_various_contents')
-                              .insert({
-                                page_name: 'special',
-                                section_name: `offer_${Date.now()}`,
-                                content_type: 'offer',
-                                title: 'CUBE 45 Private Pool Villa',
-                                subtitle: newCard.title || '새 오퍼',
-                                description: newCard.description || '',
-                                image_url: newCard.image_url || '',
-                                display_order: newOrder,
-                                is_active: true,
-                                extra_data: {
-                                  number: String(newOrder).padStart(2, '0'),
-                                  koreanTitle: newCard.subtitle || ''
-                                }
-                              })
-                            if (error) throw error
-                            showToast('오퍼가 추가되었습니다.', 'success')
-                            setAddingCard(null)
-                            setNewCard({ title: '', subtitle: '', description: '', image_url: '' })
-                            fetchContents()
-                          } catch (error) {
-                            showToast('추가에 실패했습니다.', 'error')
-                          }
-                        }}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                      >
-                        추가
-                      </button>
-                      <button
-                        onClick={() => {
-                          setAddingCard(null)
-                          setNewCard({ title: '', subtitle: '', description: '', image_url: '' })
-                        }}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
-                      >
-                        취소
-                      </button>
-                    </div>
+                    </label>
                   </div>
                 </div>
-              )}
+              </div>
+          
+              {/* 기존 오퍼 관리 섹션 */}
+              <div className="bg-white rounded-lg shadow p-6">
+                <div className="flex justify-between items-center mb-4">
+                  <h2 className="text-xl font-semibold">스페셜 오퍼 (OFFERS)</h2>
+                  <button
+                    onClick={() => setAddingCard('offers')}
+                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  >
+                    오퍼 추가
+                  </button>
+                </div>
 
-              {/* 오퍼 목록 */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {contents.map((offer, index) => (
-                  <div key={offer.id} className="border rounded-lg overflow-hidden">
-                    <div className="h-48 bg-gray-100 relative">
-                      {offer.image_url ? (
-                        <Image
-                          src={offer.image_url}
-                          alt={offer.title}
-                          fill
-                          className="object-cover"
+                {/* 오퍼 추가 폼 */}
+                {addingCard === 'offers' && (
+                  <div className="border rounded-lg p-4 mb-4 bg-blue-50">
+                    <h3 className="font-semibold mb-3">새 오퍼 추가</h3>
+                    <div className="space-y-3">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">영문 제목</label>
+                        <textarea
+                          value={newCard.title}
+                          onChange={(e) => setNewCard({...newCard, title: e.target.value})}
+                          rows={2}
+                          placeholder="예: Special Package"
+                          className="w-full px-3 py-2 border rounded resize-none"
                         />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-gray-400">
-                          <span>이미지 없음</span>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="p-4">
-                      {editingCard === offer.id ? (
-                        <div className="space-y-2">
-                          <textarea
-                            value={offer.title}
-                            onChange={(e) => {
-                              const updated = contents.map(c => 
-                                c.id === offer.id ? {...c, title: e.target.value} : c
-                              )
-                              setContents(updated)
-                            }}
-                            rows={2}
-                            className="w-full px-2 py-1 border rounded text-sm resize-none"
-                            placeholder="메인 타이틀 (예: CUBE 45 Private Pool Villa)"
-                          />
-                          <textarea
-                            value={offer.subtitle}
-                            onChange={(e) => {
-                              const updated = contents.map(c => 
-                                c.id === offer.id ? {...c, subtitle: e.target.value} : c
-                              )
-                              setContents(updated)
-                            }}
-                            rows={2}
-                            className="w-full px-2 py-1 border rounded text-sm resize-none"
-                            placeholder="영문 제목 (예: Special Package)"
-                          />
-                          <textarea
-                            value={offer.extra_data?.koreanTitle || ''}
-                            onChange={(e) => {
-                              const updated = contents.map(c => 
-                                c.id === offer.id ? {
-                                  ...c,
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">한글 제목</label>
+                        <textarea
+                          value={newCard.subtitle}
+                          onChange={(e) => setNewCard({...newCard, subtitle: e.target.value})}
+                          rows={2}
+                          placeholder="예: 스페셜 패키지"
+                          className="w-full px-3 py-2 border rounded resize-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">설명</label>
+                        <textarea
+                          value={newCard.description}
+                          onChange={(e) => setNewCard({...newCard, description: e.target.value})}
+                          rows={3}
+                          placeholder="오퍼 설명"
+                          className="w-full px-3 py-2 border rounded"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">이미지</label>
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              const url = await uploadImage(file)
+                              if (url) {
+                                setNewCard({...newCard, image_url: url})
+                                showToast('이미지가 업로드되었습니다.', 'success')
+                              }
+                            }
+                          }}
+                          className="w-full px-3 py-2 border rounded"
+                        />
+                      </div>
+                      <div className="flex gap-2">
+                        <button
+                          onClick={async () => {
+                            try {
+                              const newOrder = contents.length + 1
+                              const { error } = await supabase
+                                .from('cube45_various_contents')
+                                .insert({
+                                  page_name: 'special',
+                                  section_name: `offer_${Date.now()}`,
+                                  content_type: 'offer',
+                                  title: 'CUBE 45 Private Pool Villa',
+                                  subtitle: newCard.title || '새 오퍼',
+                                  description: newCard.description || '',
+                                  image_url: newCard.image_url || '',
+                                  display_order: newOrder,
+                                  is_active: true,
                                   extra_data: {
-                                    ...c.extra_data,
-                                    koreanTitle: e.target.value,
-                                    number: c.extra_data?.number || String(index + 1).padStart(2, '0')
+                                    number: String(newOrder).padStart(2, '0'),
+                                    koreanTitle: newCard.subtitle || ''
                                   }
-                                } : c
-                              )
-                              setContents(updated)
-                            }}
-                            rows={2}
-                            className="w-full px-2 py-1 border rounded text-sm resize-none"
-                            placeholder="한글 제목 (예: 스페셜 패키지)"
-                          />
-                          <label className="block">
-                            <span className="text-xs text-gray-500">이미지 변경</span>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={async (e) => {
-                                const file = e.target.files?.[0]
-                                if (file) {
-                                  const url = await uploadImage(file)
-                                  if (url) {
-                                    const updated = contents.map(c => 
-                                      c.id === offer.id ? {...c, image_url: url} : c
-                                    )
-                                    setContents(updated)
-                                    showToast('이미지가 업로드되었습니다.', 'success')
-                                  }
-                                }
-                              }}
-                              className="w-full text-xs"
-                            />
-                          </label>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => {
-                                const updatedOffer = contents.find(c => c.id === offer.id)
-                                if (updatedOffer) handleUpdateCard(updatedOffer)
-                              }}
-                              className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-                            >
-                              저장
-                            </button>
-                            <button
-                              onClick={() => {
-                                setEditingCard(null)
-                                fetchContents()
-                              }}
-                              className="px-2 py-1 bg-gray-300 text-gray-700 rounded text-xs hover:bg-gray-400"
-                            >
-                              취소
-                            </button>
-                          </div>
-                        </div>
-                      ) : (
-                        <>
-                          <div className="text-xs text-gray-500 mb-1">{offer.extra_data?.number || `#${String(index + 1).padStart(2, '0')}`}</div>
-                          <h3 className="font-semibold text-sm mb-1">{offer.title}</h3>
-                          <p className="text-xs text-gray-600 mb-1">{offer.subtitle}</p>
-                          <p className="text-xs text-gray-500 mb-2">{offer.extra_data?.koreanTitle}</p>
-                          <div className="flex gap-1">
-                            <button
-                              onClick={() => setEditingCard(offer.id)}
-                              className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
-                            >
-                              수정
-                            </button>
-                            <button
-                              onClick={() => handleDeleteCard(offer.id)}
-                              className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
-                            >
-                              삭제
-                            </button>
-                          </div>
-                        </>
-                      )}
+                                })
+                              if (error) throw error
+                              showToast('오퍼가 추가되었습니다.', 'success')
+                              setAddingCard(null)
+                              setNewCard({ title: '', subtitle: '', description: '', image_url: '' })
+                              fetchContents()
+                            } catch (error) {
+                              showToast('추가에 실패했습니다.', 'error')
+                            }
+                          }}
+                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        >
+                          추가
+                        </button>
+                        <button
+                          onClick={() => {
+                            setAddingCard(null)
+                            setNewCard({ title: '', subtitle: '', description: '', image_url: '' })
+                          }}
+                          className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                        >
+                          취소
+                        </button>
+                      </div>
                     </div>
                   </div>
-                ))}
+                )}
+
+                {/* 오퍼 목록 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {contents.map((offer, index) => (
+                    <div key={offer.id} className="rounded-lg overflow-hidden shadow">
+                      <div className="h-48 bg-gray-100 relative">
+                        {offer.image_url ? (
+                          <Image
+                            src={offer.image_url}
+                            alt={offer.title}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span>이미지 없음</span>
+                          </div>
+                        )}
+                      </div>
+                      
+                      <div className="p-4">
+                        {editingCard === offer.id ? (
+                          <div className="space-y-2">
+                            <textarea
+                              value={offer.title}
+                              onChange={(e) => {
+                                const updated = contents.map(c => 
+                                  c.id === offer.id ? {...c, title: e.target.value} : c
+                                )
+                                setContents(updated)
+                              }}
+                              rows={2}
+                              className="w-full px-2 py-1 border rounded text-sm resize-none"
+                              placeholder="메인 타이틀 (예: CUBE 45 Private Pool Villa)"
+                            />
+                            <textarea
+                              value={offer.subtitle}
+                              onChange={(e) => {
+                                const updated = contents.map(c => 
+                                  c.id === offer.id ? {...c, subtitle: e.target.value} : c
+                                )
+                                setContents(updated)
+                              }}
+                              rows={2}
+                              className="w-full px-2 py-1 border rounded text-sm resize-none"
+                              placeholder="영문 제목 (예: Special Package)"
+                            />
+                            <textarea
+                              value={offer.extra_data?.koreanTitle || ''}
+                              onChange={(e) => {
+                                const updated = contents.map(c => 
+                                  c.id === offer.id ? {
+                                    ...c,
+                                    extra_data: {
+                                      ...c.extra_data,
+                                      koreanTitle: e.target.value,
+                                      number: c.extra_data?.number || String(index + 1).padStart(2, '0')
+                                    }
+                                  } : c
+                                )
+                                setContents(updated)
+                              }}
+                              rows={2}
+                              className="w-full px-2 py-1 border rounded text-sm resize-none"
+                              placeholder="한글 제목 (예: 스페셜 패키지)"
+                            />
+                            <label className="block">
+                              <span className="text-xs text-gray-500">이미지 변경</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={async (e) => {
+                                  const file = e.target.files?.[0]
+                                  if (file) {
+                                    const url = await uploadImage(file)
+                                    if (url) {
+                                      const updated = contents.map(c => 
+                                        c.id === offer.id ? {...c, image_url: url} : c
+                                      )
+                                      setContents(updated)
+                                      showToast('이미지가 업로드되었습니다.', 'success')
+                                    }
+                                  }
+                                }}
+                                className="w-full text-xs"
+                              />
+                            </label>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => {
+                                  const updatedOffer = contents.find(c => c.id === offer.id)
+                                  if (updatedOffer) handleUpdateCard(updatedOffer)
+                                }}
+                                className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                              >
+                                저장
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setEditingCard(null)
+                                  fetchContents()
+                                }}
+                                className="px-2 py-1 bg-gray-300 text-gray-700 rounded text-xs hover:bg-gray-400"
+                              >
+                                취소
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className="text-xs text-gray-500 mb-1">{offer.extra_data?.number || `#${String(index + 1).padStart(2, '0')}`}</div>
+                            <h3 className="font-semibold text-sm mb-1">{offer.title}</h3>
+                            <p className="text-xs text-gray-600 mb-1">{offer.subtitle}</p>
+                            <p className="text-xs text-gray-500 mb-2">{offer.extra_data?.koreanTitle}</p>
+                            <div className="flex gap-1">
+                              <button
+                                onClick={() => setEditingCard(offer.id)}
+                                className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                              >
+                                수정
+                              </button>
+                              <button
+                                onClick={() => handleDeleteCard(offer.id)}
+                                className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                              >
+                                삭제
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
+            </>
           )}
         </div>
       </main>
