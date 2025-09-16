@@ -17,7 +17,7 @@ interface BannerData {
   image_url: string
   display_order: number
   is_active: boolean
-  extra_data: any
+  extra_data: Record<string, unknown> | null
 }
 
 export default function ReservationGuidePage() {
