@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
-// 인터페이스를 컴포넌트 외부로 이동
+// 인터페이스 정의
 interface Room {
   id: string
   name: string
@@ -20,7 +20,7 @@ interface Room {
   area: string | number
   pet_friendly: string
   current_price: number
-  fireplace: string  // 추가된 속성
+  fireplace: string
 }
 
 interface Summary {
@@ -31,35 +31,74 @@ interface Summary {
   roomCount: number
 }
 
+interface RoomContent {
+  id: number
+  page_type: string
+  room_id: string | null
+  section_name: string
+  content: string | null
+  image_url: string | null
+  display_order: number
+  is_active: boolean
+}
+
 export default function BZonePage() {
-  // 이미지 슬라이더를 위한 상태 관리
+  // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)
-  const totalImages = 5
-  // Supabase에서 B동 데이터 가져오기
+  const [sliderImages, setSliderImages] = useState<string[]>([])
   const [bRooms, setBRooms] = useState<Room[]>([])
   const [bSummary, setBSummary] = useState<Summary | null>(null)
+  const [contents, setContents] = useState<RoomContent[]>([])
   const [loading, setLoading] = useState<boolean>(true)
-  // 이전 이미지로 이동
-  const handlePrevImage = () => {
-    setCurrentImage((prev) => (prev === 0 ? totalImages - 1 : prev - 1))
-  }
-  // 다음 이미지로 이동
-  const handleNextImage = () => {
-    setCurrentImage((prev) => (prev === totalImages - 1 ? 0 : prev + 1))
+
+  // 콘텐츠 가져오기 헬퍼 함수
+  const getContent = (sectionName: string): RoomContent | undefined => {
+    return contents.find(c => c.section_name === sectionName)
   }
 
-  // B동 데이터 조회
+  // 이전 이미지로 이동
+  const handlePrevImage = () => {
+    setCurrentImage((prev) => (prev === 0 ? sliderImages.length - 1 : prev - 1))
+  }
+
+  // 다음 이미지로 이동
+  const handleNextImage = () => {
+    setCurrentImage((prev) => (prev === sliderImages.length - 1 ? 0 : prev + 1))
+  }
+
+  // 데이터 조회
   useEffect(() => {
-    const fetchBZoneData = async () => {
+    const fetchData = async () => {
       try {
-        const { data: rooms, error } = await supabase
+        // 1. B동 콘텐츠 조회
+        const { data: contentData, error: contentError } = await supabase
+          .from('cube45_room_contents')
+          .select('*')
+          .eq('page_type', 'zone_b')
+          .order('display_order')
+
+        if (contentError) throw contentError
+        setContents(contentData || [])
+
+        // 슬라이더 이미지 설정
+        const sliderImgs = []
+        for (let i = 1; i <= 5; i++) {
+          const sliderContent = contentData?.find(c => c.section_name === `slider_${i}`)
+          if (sliderContent?.image_url) {
+            sliderImgs.push(sliderContent.image_url)
+          }
+        }
+        setSliderImages(sliderImgs.length > 0 ? sliderImgs : ['/images/room/aroom.jpg'])
+
+        // 2. B동 객실 데이터 조회
+        const { data: rooms, error: roomError } = await supabase
           .from('cube45_rooms')
           .select('*')
           .eq('zone', 'B')
 
-        if (error) throw error
+        if (roomError) throw roomError
 
-        // 숫자 기준으로 정렬 (B9, B10, B11, B12 순서)
+        // 숫자 기준으로 정렬
         const sortedRooms = rooms?.sort((a, b) => {
           const numA = parseInt(a.id.replace('B', ''))
           const numB = parseInt(b.id.replace('B', ''))
@@ -71,8 +110,6 @@ export default function BZonePage() {
         // 요약 정보 계산
         if (rooms && rooms.length > 0) {
           const areas = [...new Set(rooms.map(room => room.area))].sort()
-          
-          // 숫자 기준으로 정렬
           const standardCapacities = [...new Set(rooms.map(room => room.standard_capacity))]
             .sort((a, b) => parseInt(a) - parseInt(b))
           const maxCapacities = [...new Set(rooms.map(room => room.max_capacity))]
@@ -87,13 +124,13 @@ export default function BZonePage() {
           })
         }
       } catch (error) {
-        console.error('B동 데이터 조회 실패:', error)
+        console.error('데이터 조회 실패:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchBZoneData()
+    fetchData()
   }, [])
 
   if (loading) {
@@ -117,7 +154,7 @@ export default function BZonePage() {
         <div className="relative">
           <div className="h-[500px] relative overflow-hidden">
             <Image 
-              src="/images/cube45/background2.jpg"
+              src={getContent('banner')?.image_url || "/images/cube45/background2.jpg"}
               alt="CUBE 45" 
               fill
               priority
@@ -162,10 +199,9 @@ export default function BZonePage() {
         <div className="py-20 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="max-w-6xl mx-auto relative">
-              {/* 메인 이미지 - 크기 축소 */}
               <div className="relative h-[450px] overflow-hidden">
                 <Image
-                  src="/images/room/aroom.jpg"
+                  src={sliderImages[currentImage] || "/images/room/aroom.jpg"}
                   alt={`B동 이미지 ${currentImage + 1}`}
                   fill
                   quality={100}
@@ -197,7 +233,7 @@ export default function BZonePage() {
 
                 {/* 하단 인디케이터 (점) */}
                 <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
-                  {[...Array(totalImages)].map((_, index) => (
+                  {sliderImages.map((_, index) => (
                     <button
                       key={index}
                       onClick={() => setCurrentImage(index)}
@@ -217,11 +253,10 @@ export default function BZonePage() {
         <div className="py-20 bg-gray-50">
           <div className="container mx-auto px-8">
             <div className="max-w-6xl mx-auto">
-              {/* 헤더 */}
+              {/* 헤더 - DB 데이터 사용 with whitespace-pre-line */}
               <div className="mb-12">
-                <p className="text-2xl text-black mb-2">CUBE45</p>
-                <p className="text-2xl text-black mb-4">URBAN POOL STAY</p>
-                <h1 className="text-6xl font-light mb-4">B-Zone</h1>
+                <p className="text-2xl text-black mb-2 whitespace-pre-line">{getContent('title')?.content || 'CUBE45'}</p>
+                <h1 className="text-6xl font-light mb-4">{getContent('subtitle')?.content || 'URBAN POOL STAY'}</h1>
                 {/* 중간이 끊긴 밑줄 */}
                 <div className="flex items-center">
                   <div className="flex-1 border-t border-gray-400"></div>
@@ -256,7 +291,7 @@ export default function BZonePage() {
                   </div>
                 </div>
 
-                {/* 오른쪽 전체 영역 - Information */}
+                {/* 오른쪽 전체 영역 - Information (DB 연동) */}
                 <div className="grid grid-cols-2 gap-8">
                   {/* 왼쪽 - 제목 */}
                   <div>
@@ -266,15 +301,15 @@ export default function BZonePage() {
                   <div className="space-y-3">
                     <div>
                       <span className="text-gray-600">체크인/체크아웃</span><br />
-                      <span>• 체크인 15시/체크아웃 11시</span>
+                      <span className="whitespace-pre-line">• {getContent('info_checkin')?.content || '체크인 15시/체크아웃 11시'}</span>
                     </div>
                     <div>
                       <span className="text-gray-600">애견동반</span><br />
-                      <span>• {bRooms[0]?.pet_friendly === '불가' ? '불가능' : '가능'}</span>
+                      <span className="whitespace-pre-line">• {getContent('info_pet')?.content || '불가능'}</span>
                     </div>
                     <div>
                       <span className="text-gray-600">수영장</span><br />
-                      <span>• 실내, 야외 수영장, 혹은 없음</span>
+                      <span className="whitespace-pre-line">• {getContent('info_pool')?.content || '실내, 야외 수영장, 혹은 없음'}</span>
                     </div>
                   </div>
                 </div>

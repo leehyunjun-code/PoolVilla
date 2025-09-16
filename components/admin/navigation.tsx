@@ -170,6 +170,21 @@ export default function AdminNavigation() {
           </li>
           <li>
             <a 
+              href="/admin/content-manage/room-manage" 
+              className={`flex items-center p-3 rounded ${
+                pathname === '/admin/content-manage/room-manage'
+                  ? 'text-blue-600 bg-blue-50' 
+                  : 'text-gray-600 hover:bg-gray-50'
+              }`}
+            >
+              <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
+              </svg>
+              객실 관리
+            </a>
+          </li>
+          <li>
+            <a 
               href="/admin/content-manage/various" 
               className={`flex items-center p-3 rounded ${
                 pathname === '/admin/content-manage/various'
@@ -186,21 +201,6 @@ export default function AdminNavigation() {
                 스페셜오퍼<br/>
 				관리  
               </span>
-            </a>
-          </li>
-          <li>
-            <a 
-              href="/admin/content-manage/room-manage" 
-              className={`flex items-center p-3 rounded ${
-                pathname === '/admin/content-manage/room-manage'
-                  ? 'text-blue-600 bg-blue-50' 
-                  : 'text-gray-600 hover:bg-gray-50'
-              }`}
-            >
-              <svg className="w-5 h-5 mr-3" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z" />
-              </svg>
-              객실 관리
             </a>
           </li>	
         </ul>
