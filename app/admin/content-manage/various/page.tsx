@@ -17,7 +17,7 @@ interface VariousContent {
   id: number
   page_name: string
   section_name: string
-  content_type: 'section' | 'card'
+  content_type: 'section' | 'card' | 'banner' | 'offer'
   title: string
   subtitle: string
   description: string
