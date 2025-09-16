@@ -355,8 +355,12 @@ export default function VariousContentsManage() {
         .eq('content_type', 'banner')
         .maybeSingle()  // 없어도 에러 안나게
       
-      // 3. 업데이트할 데이터 준비 (타입 안전하게)
-      const updateData: any = {
+      // 3. 업데이트할 데이터 준비 (타입 명시)
+      const updateData: {
+        image_url: string
+        title: string
+        subtitle: string
+      } = {
         image_url: currentBanner.image_url,
         title: '',
         subtitle: ''
