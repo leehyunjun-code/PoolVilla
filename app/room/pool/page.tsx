@@ -6,7 +6,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { supabase } from '@/lib/supabase'
 
-// Room 인터페이스 추가
+// Room 인터페이스
 interface Room {
   id: string
   name: string
@@ -23,22 +23,51 @@ interface Room {
   fireplace: string
 }
 
+// RoomContent 인터페이스 추가
+interface RoomContent {
+  id: number
+  page_type: string
+  room_id: string | null
+  section_name: string
+  content: string | null
+  image_url: string | null
+  display_order: number
+  is_active: boolean
+}
+
 export default function PoolVillaPage() {
-  // 전체 객실 데이터 상태 - 타입 지정
+  // 전체 객실 데이터 상태
   const [allRooms, setAllRooms] = useState<Room[]>([])
+  const [contents, setContents] = useState<RoomContent[]>([])
   const [loading, setLoading] = useState<boolean>(true)
 
-  // 전체 객실 데이터 조회
+  // 콘텐츠 가져오기 헬퍼 함수
+  const getContent = (sectionName: string): RoomContent | undefined => {
+    return contents.find(c => c.section_name === sectionName)
+  }
+
+  // 데이터 조회
   useEffect(() => {
-    const fetchAllRooms = async () => {
+    const fetchData = async () => {
       try {
-        const { data: rooms, error } = await supabase
+        // 1. Pool 페이지 콘텐츠 조회
+        const { data: contentData, error: contentError } = await supabase
+          .from('cube45_room_contents')
+          .select('*')
+          .eq('page_type', 'pool')
+          .order('display_order')
+
+        if (contentError) throw contentError
+        setContents(contentData || [])
+
+        // 2. 전체 객실 데이터 조회
+        const { data: rooms, error: roomError } = await supabase
           .from('cube45_rooms')
           .select('*')
 
-        if (error) throw error
+        if (roomError) throw roomError
 
-        // 동별, 숫자별로 정렬 (A3~A7, B9~B12, C13~C25, D1~D15 순서)
+        // 동별, 숫자별로 정렬
         const sortedRooms = rooms?.sort((a, b) => {
           // 먼저 동별로 정렬
           if (a.zone !== b.zone) {
@@ -52,13 +81,13 @@ export default function PoolVillaPage() {
 
         setAllRooms(sortedRooms)
       } catch (error) {
-        console.error('전체 객실 데이터 조회 실패:', error)
+        console.error('데이터 조회 실패:', error)
       } finally {
         setLoading(false)
       }
     }
 
-    fetchAllRooms()
+    fetchData()
   }, [])
 
   if (loading) {
@@ -82,7 +111,7 @@ export default function PoolVillaPage() {
         <div className="relative">
           <div className="h-[500px] relative overflow-hidden">
             <Image 
-              src="/images/cube45/background2.jpg"
+              src={getContent('banner')?.image_url || "/images/cube45/background2.jpg"}
               alt="CUBE 45" 
               fill
               priority
@@ -127,11 +156,10 @@ export default function PoolVillaPage() {
         <div className="py-20">
          <div className="container mx-auto px-8">
            <div className="flex items-start gap-16">
-             {/* 왼쪽 텍스트 */}
+             {/* 왼쪽 텍스트 - DB에서 가져온 제목 사용 */}
              <div className="w-1/3 relative">
                <h2 className="text-5xl font-light mb-4 leading-tight">
-                 Pool Villa<br />
-                 Overview
+                 {getContent('title')?.content || 'Pool Villa Overview'}
                </h2>
                {/* 구분선 */}
                <div className="absolute border-t border-gray-300" 
@@ -143,12 +171,12 @@ export default function PoolVillaPage() {
              </div>
              <div className="w-2/3 mt-16">
                <h3 className="text-xl font-bold mb-6">
-                 나에게 맞는 풀빌라, 바로 여기 CUBE 45 에서
+                 {getContent('subtitle')?.content || '나에게 맞는 풀빌라, 바로 여기 CUBE 45 에서'}
                </h3>
-               <p className="text-base text-gray-700 leading-relaxed">
-                 프라이빗한 휴식부터 단체로 함께 즐기는 공간까지, <br />
-                 CUBE 45 모든 객실의 상세 정보를 한눈에 확인하고 특별<br />
-                 한 경험을 선택하세요
+               <p className="text-base text-gray-700 leading-relaxed whitespace-pre-line">
+                 {getContent('description')?.content || 
+                 `프라이빗한 휴식부터 단체로 함께 즐기는 공간까지,
+CUBE 45 모든 객실의 상세 정보를 한눈에 확인하고 특별한 경험을 선택하세요`}
                </p>
              </div>
            </div>

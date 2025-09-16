@@ -174,6 +174,19 @@ export default function AdminNavigation() {
                     스페셜오퍼 관리
                   </span>
                 </a>
+              </li>
+              <li>
+                <a 
+                  href="/admin/content-manage/room-manage" 
+                  className={`flex items-center p-2 text-sm rounded ${
+                    pathname === '/admin/content-manage/room-manage'
+                      ? 'text-blue-600 bg-blue-50' 
+                      : 'text-gray-600 hover:bg-gray-50'
+                  }`}
+                >
+                  <span className="mr-2">•</span>
+                  객실 관리
+                </a>
               </li>	
             </ul>
           </li>
