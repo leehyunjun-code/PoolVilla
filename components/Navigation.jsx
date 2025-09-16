@@ -2,9 +2,12 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
+import { Menu, X, ChevronDown, ChevronUp } from 'lucide-react'
 
 export default function Navigation() {
   const [hoveredMenu, setHoveredMenu] = useState(null)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileSubMenuOpen, setMobileSubMenuOpen] = useState({})
   
   const menuItems = {
     'CUBE 45': ['CUBE 45', '배치도', '관광정보'],
@@ -24,11 +27,38 @@ export default function Navigation() {
       '관광정보': '/tour'
     },
     '독채객실': { 
-	  '풀빌라옵션': '/room/pool', 	
-	  'A동': '/room/a',	
+      '풀빌라옵션': '/room/pool', 	
+      'A동': '/room/a',	
       'B동': '/room/b',
       'C동': '/room/c',
       'D동': '/room/d'
+    }
+  }
+
+  // 메인 메뉴 링크 매핑
+  const mainMenuLinks = {
+    '부대시설': '/facilities',
+    '이용안내': '/guide',
+    '스페셜 오퍼': '/special',
+    '실시간예약': '/reservation',
+    '예약확인': '/comfirm'
+  }
+
+  // 모바일 서브메뉴 토글
+  const toggleMobileSubMenu = (menu) => {
+    setMobileSubMenuOpen(prev => ({
+      ...prev,
+      [menu]: !prev[menu]
+    }))
+  }
+
+  // 모바일 메뉴 클릭 처리
+  const handleMobileMenuClick = (menu) => {
+    if (menuItems[menu].length > 0) {
+      toggleMobileSubMenu(menu)
+    } else if (mainMenuLinks[menu]) {
+      window.location.href = mainMenuLinks[menu]
+      setMobileMenuOpen(false)
     }
   }
   
@@ -36,24 +66,37 @@ export default function Navigation() {
     <div className="fixed top-0 left-0 right-0 z-50">
       {/* 상단 로고 영역 */}
       <div style={{ backgroundColor: '#f5e6d3' }}>
-        <div className="text-center">
+        <div className="text-center relative">
+          {/* 모바일 햄버거 메뉴 버튼 */}
+          <button
+            className="md:hidden absolute left-4 top-1/2 -translate-y-1/2 p-2 z-10"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          >
+            {mobileMenuOpen ? (
+              <X size={24} className="text-gray-700" />
+            ) : (
+              <Menu size={24} className="text-gray-700" />
+            )}
+          </button>
+
+          {/* 로고 */}
           <Link href="/">
-            <div className="cursor-pointer flex justify-center items-center">
+            <div className="cursor-pointer flex justify-center items-center py-2 md:py-0">
               <Image 
                 src="/images/main/logo.jpg"
-                alt="THE SHILLA SEOUL"
+                alt="CUBE 45"
                 width={200}
                 height={80}
                 priority
-                className="object-contain"
+                className="object-contain w-32 md:w-[200px] h-16 md:h-20"
               />
             </div>
           </Link>
         </div>
       </div>
       
-      {/* 네비게이션 */}
-      <nav style={{ backgroundColor: '#7d6f5d' }} className="text-white shadow-lg">
+      {/* 데스크톱 네비게이션 */}
+      <nav style={{ backgroundColor: '#7d6f5d' }} className="hidden md:block text-white shadow-lg">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-center h-14">
             <ul className="flex items-stretch space-x-12">
@@ -123,6 +166,74 @@ export default function Navigation() {
           </div>
         </div>
       </nav>
+
+      {/* 모바일 슬라이드 메뉴 */}
+      <div 
+        className={`md:hidden fixed top-0 left-0 h-full w-72 bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-50 ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {/* 모바일 메뉴 헤더 */}
+        <div style={{ backgroundColor: '#7d6f5d' }} className="p-4 flex justify-between items-center">
+          <span className="text-white text-lg font-semibold">MENU</span>
+          <button
+            onClick={() => setMobileMenuOpen(false)}
+            className="text-white p-1"
+          >
+            <X size={24} />
+          </button>
+        </div>
+
+        {/* 모바일 메뉴 아이템 */}
+        <nav className="overflow-y-auto h-[calc(100%-64px)]">
+          <ul>
+            {Object.keys(menuItems).map((menu) => (
+              <li key={menu} className="border-b border-gray-200">
+                <div
+                  className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                  style={menu === '실시간예약' ? { backgroundColor: '#3E2B2C' } : {}}
+                  onClick={() => handleMobileMenuClick(menu)}
+                >
+                  <span className={`font-medium ${menu === '실시간예약' ? 'text-white font-semibold' : 'text-gray-700'}`}>
+                    {menu}
+                  </span>
+                  {menuItems[menu].length > 0 && (
+                    <span className={menu === '실시간예약' ? 'text-white' : 'text-gray-400'}>
+                      {mobileSubMenuOpen[menu] ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    </span>
+                  )}
+                </div>
+                
+                {/* 모바일 서브메뉴 */}
+                {menuItems[menu].length > 0 && mobileSubMenuOpen[menu] && (
+                  <ul className="bg-gray-50">
+                    {menuItems[menu].map((sub) => (
+                      <li key={sub}>
+                        <Link href={subMenuLinks[menu]?.[sub] || '#'}>
+                          <span 
+                            className="block px-8 py-2 text-sm text-gray-600 hover:bg-gray-100 cursor-pointer"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {sub}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </li>
+            ))}
+          </ul>
+        </nav>
+      </div>
+
+      {/* 모바일 메뉴 오버레이 */}
+      {mobileMenuOpen && (
+        <div 
+          className="md:hidden fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
     </div>
   )
 }

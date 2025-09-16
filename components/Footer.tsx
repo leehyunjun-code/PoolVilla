@@ -1,34 +1,33 @@
 import { Instagram, BookOpen } from 'lucide-react'
-
 export default function Footer() {
   return (
     <footer>
       {/* 상단 섹션 */}
-      <div style={{ backgroundColor: '#8B7355' }} className="text-white py-8">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="flex justify-between items-center gap-12">
-            {/* 왼쪽 BRANDFORUM 이미지 */}
+      <div style={{ backgroundColor: '#8B7355' }} className="text-white py-4 md:py-8">
+        <div className="max-w-5xl mx-auto px-3 md:px-6">
+          <div className="flex justify-between items-center gap-3 md:gap-12">
+            {/* 왼쪽 CUBE45 이미지 */}
             <img 
               src="/images/main/cube45.jpg" 
-              alt="BRANDFORUM" 
-              className="h-12 w-auto"
+              alt="CUBE45" 
+              className="h-8 md:h-12 w-auto flex-shrink-0"
             />
             
             {/* 오른쪽 영역 */}
-            <div>
-              {/* 메뉴 */}
-              <div className="flex gap-10 text-sm mb-3">
-                <span className="cursor-pointer hover:text-gray-200">CUBE 45</span>
-                <span className="cursor-pointer hover:text-gray-200">Pool Villa</span>
-                <span className="cursor-pointer hover:text-gray-200">Facility</span>
-                <span className="cursor-pointer hover:text-gray-200">Gallery</span>
-                <span className="cursor-pointer hover:text-gray-200">Special Offers</span>
-                <span className="cursor-pointer hover:text-gray-200">Reservation</span>
+            <div className="flex-1 min-w-0">
+              {/* 메뉴 - 모바일에서는 가로 스크롤 가능 */}
+              <div className="flex gap-2 md:gap-10 text-[10px] md:text-sm mb-2 md:mb-3 overflow-x-auto whitespace-nowrap scrollbar-hide">
+                <span className="cursor-pointer hover:text-gray-200 flex-shrink-0">CUBE 45</span>
+                <span className="cursor-pointer hover:text-gray-200 flex-shrink-0">Pool Villa</span>
+                <span className="cursor-pointer hover:text-gray-200 flex-shrink-0">Facility</span>
+                <span className="cursor-pointer hover:text-gray-200 flex-shrink-0">Gallery</span>
+                <span className="cursor-pointer hover:text-gray-200 flex-shrink-0 hidden sm:inline">Special Offers</span>
+                <span className="cursor-pointer hover:text-gray-200 flex-shrink-0">Reservation</span>
               </div>
               {/* 주소 정보 */}
-              <div className="text-xs text-gray-200">
-                <p>경기도 가평군 설악면 국수터길 13-1</p>
-                <p>사업자번호 : 301-37-28829 | 대표자 : 박언</p>
+              <div className="text-[9px] md:text-xs text-gray-200">
+                <p className="truncate">경기도 가평군 설악면 국수터길 13-1</p>
+                <p className="truncate">사업자번호: 301-37-28829 | 대표: 박언</p>
               </div>
             </div>
           </div>
@@ -36,41 +35,52 @@ export default function Footer() {
       </div>
       
       {/* 하단 섹션 */}
-      <div style={{ backgroundColor: '#4A3F36' }} className="text-gray-400 py-8">
-        <div className="max-w-5xl mx-auto px-6">
-          <div className="flex justify-between items-center gap-12">
+      <div style={{ backgroundColor: '#4A3F36' }} className="text-gray-400 py-4 md:py-8">
+        <div className="max-w-5xl mx-auto px-3 md:px-6">
+          <div className="flex justify-between items-center gap-2 md:gap-12">
             {/* 왼쪽 BRANDFORUM 이미지 */}
             <img 
               src="/images/main/BRANDFORUM.jpg" 
               alt="BRANDFORUM" 
-              className="h-12 w-auto"
+              className="h-8 md:h-12 w-auto flex-shrink-0"
             />
             
             {/* 중간 정보 */}
-            <div>
-              <div className="mb-3"></div>
-              <div className="text-xs text-white pl-30">
-                <p>온라인위탁사 : 주식회사 브랜드포럼 | 대표번호 : 02-338-1316</p>
-                <p>통신판매업신고증 : 2024-서울강서-0865</p>
-                <p>COPYRIGHT 2025 BRANDFORUM INC. All Right Reserved</p>
+            <div className="flex-1 min-w-0">
+              <div className="mb-1 md:mb-3"></div>
+              <div className="text-[8px] md:text-xs text-white md:pl-30">
+                <p className="truncate">온라인위탁사: (주)브랜드포럼 | 대표: 02-338-1316</p>
+                <p className="truncate">통신판매업신고: 2024-서울강서-0865</p>
+                <p className="text-[7px] md:text-xs">COPYRIGHT 2025 BRANDFORUM INC.</p>
               </div>
             </div>
             
             {/* 오른쪽 SNS 아이콘 박스 */}
             <div 
-              className="flex gap-4 p-4"
+              className="flex gap-2 md:gap-4 p-2 md:p-4 flex-shrink-0"
               style={{ backgroundColor: '#F1EBD6' }}
             >
               <a href="#" className="hover:opacity-80 transition-opacity">
-                <Instagram size={22} className="text-gray-700" />
+                <Instagram size={16} className="text-gray-700 md:w-[22px] md:h-[22px]" />
               </a>
               <a href="#" className="hover:opacity-80 transition-opacity">
-                <BookOpen size={22} className="text-gray-700" />
+                <BookOpen size={16} className="text-gray-700 md:w-[22px] md:h-[22px]" />
               </a>
             </div>
           </div>
         </div>
       </div>
+      
+      {/* 스크롤바 숨기기 스타일 */}
+      <style jsx>{`
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </footer>
   )
 }
