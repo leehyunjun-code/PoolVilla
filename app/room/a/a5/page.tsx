@@ -17,12 +17,11 @@ interface RoomContent {
   is_active: boolean
 }
 
-export default function RoomDetailPage() {
+export default function A5Page() {
   const pathname = usePathname()
   
-  // URL에서 roomId 추출 - A5로 고정되어 있지만 동적으로 처리
-  const pathParts = pathname?.split('/') || []
-  const roomId = 'A5' // 이 페이지는 A5 전용이므로 하드코딩
+  // A5 페이지 전용
+  const roomId = 'A5'
   
   // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)
@@ -48,6 +47,10 @@ export default function RoomDetailPage() {
   // 데이터 조회
   useEffect(() => {
     const fetchData = async () => {
+      if (!roomId) {
+        return;
+      }
+
       try {
         const upperRoomId = roomId.toUpperCase();
         const zone = upperRoomId[0].toLowerCase();
@@ -120,7 +123,8 @@ export default function RoomDetailPage() {
     )
   }
 
-  const zone = 'A';
+  const upperRoomId = roomId?.toUpperCase()
+  const zone = upperRoomId?.[0]
 
   return (
     <div className="min-h-screen bg-white">
@@ -131,7 +135,7 @@ export default function RoomDetailPage() {
       <div className="pt-28">
         {/* CUBE 45 헤더 섹션 */}
         <div className="relative">
-          <div className="h-[500px] relative overflow-hidden">
+          <div className="h-[300px] md:h-[400px] lg:h-[500px] relative overflow-hidden">
             <Image 
               src={getContent('banner')?.image_url || "/images/cube45/background2.jpg"}
               alt="CUBE 45" 
@@ -146,29 +150,29 @@ export default function RoomDetailPage() {
         </div>
         
         {/* Zone 텍스트 */}
-        <div className="flex items-center py-20 bg-gray-50">
-          <div className="container mx-auto px-8">
-            <div className="text-black max-w-2xl ml-64">
-              <h1 className="text-7xl mb-4 whitespace-pre-line">{getContent('zone_text')?.content || ''}</h1>	
-              <p className="text-3xl whitespace-pre-line">{getContent('hashtag')?.content || ''}</p>
+        <div className="flex items-center py-10 md:py-20 bg-gray-50">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="text-black max-w-2xl mx-auto md:ml-64 text-center md:text-left">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl mb-2 md:mb-4 whitespace-pre-line break-words">{getContent('zone_text')?.content || ''}</h1>	
+              <p className="text-xl md:text-2xl lg:text-3xl whitespace-pre-line break-words">{getContent('hashtag')?.content || ''}</p>
             </div>
           </div>
         </div>
 		  
         {/* 객실명 텍스트 */}
-        <div className="flex items-center bg-gray-50">
-          <div className="container mx-auto px-8">
-            <div className="text-black max-w-2xl ml-64">
-              <h1 className="text-7xl whitespace-pre-line">{getContent('room_name')?.content || ''}</h1>	
+        <div className="flex items-center bg-gray-50 pb-10 md:pb-0">
+          <div className="container mx-auto px-4 md:px-8">
+            <div className="text-black max-w-2xl mx-auto md:ml-64 text-center md:text-left">
+              <h1 className="text-4xl md:text-6xl lg:text-7xl whitespace-pre-line break-words">{getContent('room_name')?.content || ''}</h1>	
             </div>
           </div>
         </div> 
         
         {/* 이미지 슬라이더 섹션 */}
         <div className="py-10 bg-gray-50">
-          <div className="container mx-auto px-8">
+          <div className="container mx-auto px-4 md:px-8">
             <div className="max-w-5xl mx-auto relative">
-              <div className="relative h-[450px] overflow-hidden">
+              <div className="relative h-[300px] md:h-[400px] lg:h-[450px] overflow-hidden">
                 <Image
                   src={galleryImages[currentImage] || "/images/room/aroom.jpg"}
                   alt={`객실 이미지 ${currentImage + 1}`}
@@ -181,10 +185,10 @@ export default function RoomDetailPage() {
                 {/* 왼쪽 화살표 버튼 */}
                 <button
                   onClick={handlePrevImage}
-                  className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 transition-all"
+                  className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 md:p-3 transition-all"
                   aria-label="이전 이미지"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
@@ -192,10 +196,10 @@ export default function RoomDetailPage() {
                 {/* 오른쪽 화살표 버튼 */}
                 <button
                   onClick={handleNextImage}
-                  className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-3 transition-all"
+                  className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 md:p-3 transition-all"
                   aria-label="다음 이미지"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -219,116 +223,112 @@ export default function RoomDetailPage() {
         </div>
 
         {/* 정보 섹션 */}
-        <div className="py-20 bg-gray-50">
-          <div className="container mx-auto px-8">
+        <div className="py-10 md:py-20 bg-gray-50">
+          <div className="container mx-auto px-4 md:px-8">
             <div className="max-w-5xl mx-auto">
               {/* 연결된 줄 */}
-              <div className="mb-12">
+              <div className="mb-8 md:mb-12">
                 <div className="border-t border-gray-400"></div>
               </div>
         
               {/* 기본정보 */}
-              <div className="grid grid-cols-4 gap-4 mb-16">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10 md:mb-16">
                 <div>
-                  <h3 className="text-lg font-medium">기본정보</h3>
+                  <h3 className="text-lg font-medium mb-4 md:mb-0">기본정보</h3>
                 </div>
-                <div className="col-span-3 space-y-3">
+                <div className="col-span-1 md:col-span-3 space-y-3">
                   {getContent('basic_type')?.content && (
-                    <div className="whitespace-pre-line">객실타입 : {getContent('basic_type')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words">객실타입 : {getContent('basic_type')?.content}</div>
                   )}
                   {getContent('basic_room')?.content && (
-                    <div className="whitespace-pre-line">객실구성 : {getContent('basic_room')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words">객실구성 : {getContent('basic_room')?.content}</div>
                   )}
                   {getContent('basic_size')?.content && (
-                    <div className="whitespace-pre-line">객실크기 : {getContent('basic_size')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words">객실크기 : {getContent('basic_size')?.content}</div>
                   )}
                   {getContent('basic_capacity')?.content && (
-                    <div className="whitespace-pre-line">기준 / 최대인원 : {getContent('basic_capacity')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words">기준 / 최대인원 : {getContent('basic_capacity')?.content}</div>
                   )}
                   {getContent('basic_pool')?.content && (
-                    <div className="whitespace-pre-line">수영장 : {getContent('basic_pool')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words">수영장 : {getContent('basic_pool')?.content}</div>
                   )}
                 </div>
               </div>
         
               {/* 구분선 */}
-              <div className="mb-12">
+              <div className="mb-8 md:mb-12">
                 <div className="border-t border-gray-400"></div>
               </div>
         
               {/* 어메니티 */}
-              <div className="grid grid-cols-4 gap-4 mb-16">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10 md:mb-16">
                 <div>
-                  <h3 className="text-lg font-medium">어메니티</h3>
+                  <h3 className="text-lg font-medium mb-4 md:mb-0">어메니티</h3>
                 </div>
-                <div className="col-span-3 space-y-3">
+                <div className="col-span-1 md:col-span-3 space-y-3">
                   {getContent('amenity_1')?.content && (
-                    <div className="whitespace-pre-line">{getContent('amenity_1')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words">{getContent('amenity_1')?.content}</div>
                   )}
                   {getContent('amenity_2')?.content && (
-                    <div className="whitespace-pre-line">{getContent('amenity_2')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words">{getContent('amenity_2')?.content}</div>
                   )}
                 </div>
               </div>
         
               {/* 이용안내 */}
-              <div className="grid grid-cols-4 gap-4 mb-16">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10 md:mb-16">
                 <div>
-                  <h3 className="text-lg font-medium">이용안내</h3>
+                  <h3 className="text-lg font-medium mb-4 md:mb-0">이용안내</h3>
                 </div>
-                <div className="col-span-3 space-y-3">
+                <div className="col-span-1 md:col-span-3 space-y-3">
                   {getContent('guide_pet')?.content && (
-                    <div className="whitespace-pre-line">{getContent('guide_pet')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words">{getContent('guide_pet')?.content}</div>
                   )}
                   {getContent('guide_fireplace')?.content && (
-                    <div className="whitespace-pre-line">{getContent('guide_fireplace')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words">{getContent('guide_fireplace')?.content}</div>
                   )}
                   {getContent('guide_additional')?.content && (
-                    <div className="whitespace-pre-line">{getContent('guide_additional')?.content}</div>
+                    <div className="text-sm md:text-base">
+                      {getContent('guide_additional')?.content?.split('\n').map((line, index) => (
+                        <div key={index} className={`${line.startsWith('•') ? 'py-1' : 'pb-2'} break-words`}>
+                          {line}
+                        </div>
+                      ))}
+                    </div>
                   )}
                 </div>
               </div>		
         
               {/* 동별 바로가기 버튼들 */}
               <div className="flex flex-col items-center gap-8">
-                {/* 첫째줄 - A동 바로가기 (가운데) */}
+                {/* 첫째줄 - 해당 동 바로가기 (가운데) */}
                 <div className="flex justify-center">
-                  <a href="/room/a" className="block">
+                  <a href={`/room/${zone?.toLowerCase()}`} className="block">
                     <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
+                      className="px-10 md:px-16 py-4 md:py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity text-sm md:text-base"
                       style={{ backgroundColor: '#f5e6d3' }}
                     >
-                      A동 바로가기
+                      <span className="md:hidden">{zone}동<br/>바로가기</span>
+                      <span className="hidden md:inline">{zone}동 바로가기</span>
                     </button>
                   </a>
                 </div>
                 
-                {/* 둘째줄 - B,C,D동 바로가기 (3개 그리드) */}
-                <div className="grid grid-cols-3 gap-12">
-                  <a href="/room/b" className="block">
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      B동 바로가기
-                    </button>
-                  </a>
-                  <a href="/room/c" className="block">
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      C동 바로가기
-                    </button>
-                  </a>
-                  <a href="/room/d" className="block">
-                    <button 
-                      className="px-16 py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity"
-                      style={{ backgroundColor: '#f5e6d3' }}
-                    >
-                      D동 바로가기
-                    </button>
-                  </a>
+                {/* 둘째줄 - 나머지 동 바로가기 */}
+                <div className="grid grid-cols-3 gap-4 md:gap-12">
+                  {['A', 'B', 'C', 'D']
+                    .filter(z => z !== zone)
+                    .map(z => (
+                      <a key={z} href={`/room/${z.toLowerCase()}`} className="block">
+                        <button 
+                          className="px-6 md:px-16 py-4 md:py-6 rounded-full text-gray-800 hover:opacity-90 transition-opacity text-xs md:text-base"
+                          style={{ backgroundColor: '#f5e6d3' }}
+                        >
+                          <span className="md:hidden">{z}동<br/>바로가기</span>
+                          <span className="hidden md:inline">{z}동 바로가기</span>
+                        </button>
+                      </a>
+                    ))}
                 </div>
               </div>
             </div>
