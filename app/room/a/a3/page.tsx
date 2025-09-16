@@ -94,7 +94,7 @@ export default function RoomDetailPage() {
 
         // 3. 데이터 병합
         console.log('5. 데이터 병합 시작');
-        const mergedData = [];
+        const mergedData: RoomContent[] = [];
         const addedSections = new Set();
         
         // 1. 먼저 모든 개별 객실 데이터를 추가
