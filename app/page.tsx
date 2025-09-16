@@ -33,6 +33,31 @@ interface Cube45Data {
   imageUrl: string
 }
 
+interface VillaImage {
+  A: string
+  B: string
+  C: string
+  D: string
+}
+
+interface IndoorPoolData {
+  title: string
+  subtitle: string
+  imageUrl: string
+}
+
+interface ContactData {
+  reservation: {
+    phone: string
+    description: string
+    backgroundImage: string
+  }
+  onsite: {
+    phone: string
+    backgroundImage: string
+  }
+}
+
 export default function Home() {
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
@@ -51,46 +76,62 @@ export default function Home() {
     bottomText: '큐브45에서만 누릴 수 있는 즐거움',
     imageUrl: 'https://pds.joongang.co.kr//news/component/htmlphoto_mmdata/201712/29/593e01a7-940d-4de9-9f53-7e74528341ae.jpg'
   })
+  const [villaImages, setVillaImages] = useState<VillaImage>({
+    A: '/images/main/villa.jpg',
+    B: '/images/main/villa.jpg',
+    C: '/images/main/villa.jpg',
+    D: '/images/main/villa.jpg'
+  })
+  const [indoorPoolData, setIndoorPoolData] = useState<IndoorPoolData>({
+    title: 'Premium Play Villa',
+    subtitle: '• 실내 수영장',
+    imageUrl: 'https://yaimg.yanolja.com/v5/2025/04/20/13/6804f4aae77766.07230332.jpg'
+  })
+  const [contactData, setContactData] = useState<ContactData>({
+    reservation: {
+      phone: '070-5129-1667',
+      description: '이메일 : thebran@naver.com|상담시간 : 평일/휴일 오전 10시 ~ 오후 18시',
+      backgroundImage: '/images/main/left.jpg'
+    },
+    onsite: {
+      phone: '070-5129-1667',
+      backgroundImage: '/images/main/right.jpg'
+    }
+  })
   const [loading, setLoading] = useState(true)
 
   // 모든 데이터 가져오기
   useEffect(() => {
     const fetchAllData = async () => {
       try {
-        // 1. 슬라이더 데이터 가져오기
-        const { data: sliderContents, error: sliderError } = await supabase
+        // 1. 모든 main_contents 데이터 한번에 가져오기
+        const { data: mainContents, error: mainError } = await supabase
           .from('cube45_main_contents')
           .select('*')
-          .eq('section_type', 'slider')
           .eq('is_active', true)
-          .order('display_order', { ascending: true })
 
-        if (sliderError) throw sliderError
+        if (mainError) throw mainError
 
-        const formattedSlides = sliderContents?.map((slide, index) => ({
-          id: slide.id,
-          image_url: slide.image_url,
-          title: slide.title,
-          subtitle: slide.subtitle
-        })) || []
+        // 2. 슬라이더 데이터
+        const sliders = mainContents?.filter(item => item.section_type === 'slider')
+          .sort((a, b) => a.display_order - b.display_order)
+          .map(slide => ({
+            id: slide.id,
+            image_url: slide.image_url,
+            title: slide.title,
+            subtitle: slide.subtitle
+          })) || []
 
         // 슬라이드 복제 (루프 효과)
-        const duplicatedSlides = [...formattedSlides, ...formattedSlides.map(slide => ({
+        const duplicatedSlides = [...sliders, ...sliders.map(slide => ({
           ...slide,
           id: slide.id + 1000
         }))]
-        
         setSliderData(duplicatedSlides)
 
-        // 2. CUBE 45 섹션 데이터 가져오기
-        const { data: cube45Content, error: cube45Error } = await supabase
-          .from('cube45_main_contents')
-          .select('*')
-          .eq('section_type', 'cube45')
-          .eq('is_active', true)
-          .single()
-
-        if (!cube45Error && cube45Content) {
+        // 3. CUBE 45 섹션
+        const cube45Content = mainContents?.find(item => item.section_type === 'cube45')
+        if (cube45Content) {
           setCube45Data({
             topText: cube45Content.subtitle || '',
             mainTitle: cube45Content.title || '',
@@ -99,7 +140,48 @@ export default function Home() {
           })
         }
 
-        // 3. 동별 정보 가져오기
+        // 4. 풀빌라 이미지
+        const villaA = mainContents?.find(item => item.section_type === 'villa_A')
+        const villaB = mainContents?.find(item => item.section_type === 'villa_B')
+        const villaC = mainContents?.find(item => item.section_type === 'villa_C')
+        const villaD = mainContents?.find(item => item.section_type === 'villa_D')
+        
+        setVillaImages({
+          A: villaA?.image_url || '/images/main/villa.jpg',
+          B: villaB?.image_url || '/images/main/villa.jpg',
+          C: villaC?.image_url || '/images/main/villa.jpg',
+          D: villaD?.image_url || '/images/main/villa.jpg'
+        })
+
+        // 5. INDOOR POOL
+        const indoorPool = mainContents?.find(item => item.section_type === 'indoor_pool')
+        if (indoorPool) {
+          setIndoorPoolData({
+            title: indoorPool.title || 'Premium Play Villa',
+            subtitle: indoorPool.subtitle || '• 실내 수영장',
+            imageUrl: indoorPool.image_url || 'https://yaimg.yanolja.com/v5/2025/04/20/13/6804f4aae77766.07230332.jpg'
+          })
+        }
+
+        // 6. 문의 정보
+        const contactReservation = mainContents?.find(item => item.section_type === 'contact_reservation')
+        const contactOnsite = mainContents?.find(item => item.section_type === 'contact_onsite')
+        
+        if (contactReservation || contactOnsite) {
+          setContactData({
+            reservation: {
+              phone: contactReservation?.title || '070-5129-1667',
+              description: contactReservation?.description || '이메일 : thebran@naver.com|상담시간 : 평일/휴일 오전 10시 ~ 오후 18시',
+              backgroundImage: contactReservation?.image_url || '/images/main/left.jpg'
+            },
+            onsite: {
+              phone: contactOnsite?.title || '070-5129-1667',
+              backgroundImage: contactOnsite?.image_url || '/images/main/right.jpg'
+            }
+          })
+        }
+
+        // 7. 동별 정보 가져오기 (기존 코드)
         const { data: rooms, error: roomsError } = await supabase
           .from('cube45_rooms')
           .select('zone, area, standard_capacity, max_capacity')
@@ -156,19 +238,19 @@ export default function Home() {
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
-        console.log('스크롤 감지:', entry.isIntersecting)
         setIsVisible(entry.isIntersecting)
       },
-      { threshold: 0.1 }  // 0.3에서 0.1로 낮춤
+      { threshold: 0.1 }
     )
 
-    if (cube45Ref.current) {
-      observer.observe(cube45Ref.current)
+    const currentRef = cube45Ref.current
+    if (currentRef) {
+      observer.observe(currentRef)
     }
 
     return () => {
-      if (cube45Ref.current) {
-        observer.unobserve(cube45Ref.current)
+      if (currentRef) {
+        observer.unobserve(currentRef)
       }
     }
   }, [])
@@ -363,7 +445,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* POOL VILLA 섹션 */}
+      {/* POOL VILLA 섹션 - DB 연동 */}
       <main className="container mx-auto px-4 py-16">
         <h2 className="text-4xl font-bold text-center mb-12">POOL VILLA</h2>
         <div className="flex">
@@ -371,7 +453,7 @@ export default function Home() {
           <div className="bg-white overflow-hidden cursor-pointer flex-1">
             <div className="h-80 overflow-hidden">
               <img 
-                src="/images/main/villa.jpg" 
+                src={villaImages.A}
                 alt="풀빌라 A동"
                 className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
               />
@@ -385,7 +467,7 @@ export default function Home() {
           <div className="bg-white overflow-hidden cursor-pointer flex-1">
             <div className="h-80 overflow-hidden">
               <img 
-                src="/images/main/villa.jpg" 
+                src={villaImages.B}
                 alt="풀빌라 B동"
                 className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
               />
@@ -399,7 +481,7 @@ export default function Home() {
           <div className="bg-white overflow-hidden cursor-pointer flex-1">
             <div className="h-80 overflow-hidden">
               <img 
-                src="/images/main/villa.jpg" 
+                src={villaImages.C}
                 alt="풀빌라 C동"
                 className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
               />
@@ -413,7 +495,7 @@ export default function Home() {
           <div className="bg-white overflow-hidden cursor-pointer flex-1">
             <div className="h-80 overflow-hidden">
               <img 
-                src="/images/main/villa.jpg" 
+                src={villaImages.D}
                 alt="풀빌라 D동"
                 className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
               />
@@ -506,16 +588,16 @@ export default function Home() {
             <div className="h-full flex items-center">
               <div className="container mx-auto px-4">
                 <div className="text-right text-white" style={{ marginRight: '100px' }}>
-                  <p className={`mb-2 ${isVisible ? 'animate-fade-up' : ''}`} style={{ 
+                  <p className={`mb-2 whitespace-pre-line ${isVisible ? 'animate-fade-up' : ''}`} style={{ 
                     fontSize: '2rem', 
                     textShadow: '2px 2px 4px rgba(0,0,0,1)',
                     color: 'white',
                   }}>{cube45Data.topText}</p>
-                  <h2 className={`font-bold mb-6 ${isVisible ? 'animate-fade-up-delay-1' : ''}`} style={{ 
+                  <h2 className={`font-bold mb-6 whitespace-pre-line ${isVisible ? 'animate-fade-up-delay-1' : ''}`} style={{ 
                     fontSize: '5rem', 
                     textShadow: '2px 2px 3px rgba(0,0,0,0.8)',
                   }}>{cube45Data.mainTitle}</h2>
-                  <p className={`${isVisible ? 'animate-fade-up-delay-2' : ''}`} style={{ 
+                  <p className={`whitespace-pre-line ${isVisible ? 'animate-fade-up-delay-2' : ''}`} style={{ 
                     fontSize: '2rem', 
                     textShadow: '2px 2px 4px rgba(0,0,0,1)',
                     color: 'white',
@@ -553,16 +635,16 @@ export default function Home() {
         {/* OFFERS 섹션 - 컴포넌트로 대체 */}
         <OffersSection />
 
-        {/* INDOOR POOL 섹션 */}
+        {/* INDOOR POOL 섹션 - DB 연동 */}
         <div className="pt-16">
           <h2 className="text-3xl font-bold text-center mb-12">INDOOR POOL</h2>
           <div className="flex">
             <div className="w-1/3 flex items-center justify-center" style={{ backgroundColor: '#f5e6d3' }}>
               <div className="p-8">
-                <h3 className="text-2xl font-semibold mb-2">Premium Play Villa</h3>
-                <ul className="text-gray-600 mb-4">
-                  <li>• 실내 수영장</li>
-                </ul>
+                <h3 className="text-2xl font-semibold mb-2 whitespace-pre-line">{indoorPoolData.title}</h3>
+                <div className="text-gray-600 mb-4 whitespace-pre-line">
+                  {indoorPoolData.subtitle}
+                </div>
                 <Link href="/reservation">
                   <button className="border border-gray-800 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-100 transition-colors">
                     예약하기
@@ -572,7 +654,7 @@ export default function Home() {
             </div>
             <div className="w-2/3">
               <img 
-                src="https://yaimg.yanolja.com/v5/2025/04/20/13/6804f4aae77766.07230332.jpg"
+                src={indoorPoolData.imageUrl}
                 alt="Indoor Pool"
                 className="w-full h-96 object-cover"
               />
@@ -581,25 +663,26 @@ export default function Home() {
         </div>
       </main>
       
-      {/* 예약문의/현장문의 섹션 */}
+      {/* 예약문의/현장문의 섹션 - DB 연동 */}
       <div className="flex">
         {/* 예약문의 */}
-        <div className="w-1/2 relative h-96 bg-cover bg-center" style={{ backgroundImage: 'url(/images/main/left.jpg)' }}>
+        <div className="w-1/2 relative h-96 bg-cover bg-center" style={{ backgroundImage: `url(${contactData.reservation.backgroundImage})` }}>
           <div className="absolute inset-0 bg-black/40"></div>
           <div className="relative z-10 p-12 text-white h-full flex flex-col justify-center">
             <h3 className="text-2xl mb-6 border-b border-white inline-block pb-2">예약문의</h3>
-            <p className="text-4xl font-bold mb-4">070-5129-1667</p>
-            <p className="text-base">이메일 : thebran@naver.com</p>
-            <p className="text-base">상담시간 : 평일/휴일 오전 10시 ~ 오후 18시</p>
+            <p className="text-4xl font-bold mb-4">{contactData.reservation.phone}</p>
+            <div className="text-base whitespace-pre-line">
+              {contactData.reservation.description.replace(/\|/g, '\n')}
+            </div>
           </div>
         </div>
         
         {/* 현장문의 */}
-        <div className="w-1/2 relative h-96 bg-cover bg-center" style={{ backgroundImage: 'url(/images/main/right.jpg)' }}>
+        <div className="w-1/2 relative h-96 bg-cover bg-center" style={{ backgroundImage: `url(${contactData.onsite.backgroundImage})` }}>
           <div className="absolute inset-0 bg-black/40"></div>
           <div className="relative z-10 p-12 text-white h-full flex flex-col justify-center">
             <h3 className="text-2xl mb-6 border-b border-white inline-block pb-2">현장문의</h3>
-            <p className="text-4xl font-bold">070-5129-1667</p>
+            <p className="text-4xl font-bold">{contactData.onsite.phone}</p>
           </div>
         </div>
       </div>

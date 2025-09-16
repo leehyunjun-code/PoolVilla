@@ -13,8 +13,9 @@ interface SliderContent {
   is_active: boolean
 }
 
-interface Cube45Content {
+interface SectionContent {
   id: number
+  section_type: string
   subtitle: string
   title: string
   description: string
@@ -22,9 +23,16 @@ interface Cube45Content {
 }
 
 export default function ContentManage() {
-  const [activeTab, setActiveTab] = useState<'slider' | 'cube45'>('slider')
+  const [activeTab, setActiveTab] = useState<'slider' | 'villa' | 'cube45' | 'indoor' | 'contact'>('slider')
   const [sliders, setSliders] = useState<SliderContent[]>([])
-  const [cube45, setCube45] = useState<Cube45Content | null>(null)
+  const [cube45, setCube45] = useState<SectionContent | null>(null)
+  const [villaData, setVillaData] = useState<Record<string, SectionContent>>({})
+  const [indoorPool, setIndoorPool] = useState<SectionContent | null>(null)
+  const [contactData, setContactData] = useState<{
+    reservation: SectionContent | null
+    onsite: SectionContent | null
+  }>({ reservation: null, onsite: null })
+  
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
@@ -52,23 +60,46 @@ export default function ContentManage() {
 
   const fetchContent = async () => {
     try {
-      const { data: sliderData, error: sliderError } = await supabase
+      // 모든 데이터 한번에 가져오기
+      const { data: allData, error } = await supabase
         .from('cube45_main_contents')
         .select('*')
-        .eq('section_type', 'slider')
-        .order('display_order')
 
-      if (sliderError) throw sliderError
-      setSliders(sliderData || [])
+      if (error) throw error
 
-      const { data: cube45Data, error: cube45Error } = await supabase
-        .from('cube45_main_contents')
-        .select('*')
-        .eq('section_type', 'cube45')
-        .single()
+      // 1. 슬라이더 데이터
+      const sliderData = allData?.filter(item => item.section_type === 'slider')
+        .sort((a, b) => a.display_order - b.display_order) || []
+      setSliders(sliderData)
 
-      if (cube45Error && cube45Error.code !== 'PGRST116') throw cube45Error
-      setCube45(cube45Data)
+      // 2. CUBE 45 데이터
+      const cube45Data = allData?.find(item => item.section_type === 'cube45')
+      setCube45(cube45Data || null)
+
+      // 3. 풀빌라 데이터
+      const villaMap: Record<string, SectionContent> = {}
+      const villaTypes = ['villa_A', 'villa_B', 'villa_C', 'villa_D']
+      villaTypes.forEach(type => {
+        const villa = allData?.find(item => item.section_type === type)
+        if (villa) {
+          const zone = type.split('_')[1]
+          villaMap[zone] = villa
+        }
+      })
+      setVillaData(villaMap)
+
+      // 4. INDOOR POOL 데이터
+      const indoorData = allData?.find(item => item.section_type === 'indoor_pool')
+      setIndoorPool(indoorData || null)
+
+      // 5. 문의 섹션 데이터
+      const reservationData = allData?.find(item => item.section_type === 'contact_reservation')
+      const onsiteData = allData?.find(item => item.section_type === 'contact_onsite')
+      setContactData({
+        reservation: reservationData || null,
+        onsite: onsiteData || null
+      })
+
     } catch (error) {
       console.error('데이터 로드 실패:', error)
       showToast('데이터를 불러오는데 실패했습니다.', 'error')
@@ -149,7 +180,6 @@ export default function ContentManage() {
 
     const url = await uploadImage(file)
     if (url) {
-      // 새 슬라이더 즉시 추가
       try {
         const { error } = await supabase
           .from('cube45_main_contents')
@@ -176,21 +206,16 @@ export default function ContentManage() {
   // 순서 변경 처리
   const handleOrderChange = async (sliderId: number, newOrder: number) => {
     try {
-      // 현재 슬라이더 찾기
       const currentSlider = sliders.find(s => s.id === sliderId)
       if (!currentSlider) return
       
       const oldOrder = currentSlider.display_order
       
-      // 순서가 같으면 변경 없음
       if (oldOrder === newOrder) return
       
-      // 업데이트할 슬라이더들 계산
       const updates: { id: number; display_order: number }[] = []
       
       if (newOrder < oldOrder) {
-        // 순서를 앞으로 이동 (예: 5 -> 3)
-        // 3, 4를 4, 5로 밀기
         sliders.forEach(slider => {
           if (slider.id === sliderId) {
             updates.push({ id: slider.id, display_order: newOrder })
@@ -199,8 +224,6 @@ export default function ContentManage() {
           }
         })
       } else {
-        // 순서를 뒤로 이동 (예: 3 -> 5)
-        // 4, 5를 3, 4로 당기기
         sliders.forEach(slider => {
           if (slider.id === sliderId) {
             updates.push({ id: slider.id, display_order: newOrder })
@@ -210,7 +233,6 @@ export default function ContentManage() {
         })
       }
       
-      // 모든 업데이트를 병렬로 실행
       const updatePromises = updates.map(update =>
         supabase
           .from('cube45_main_contents')
@@ -254,13 +276,11 @@ export default function ContentManage() {
     if (!confirm('정말 삭제하시겠습니까?')) return
 
     try {
-      // 삭제할 슬라이더 찾기
       const sliderToDelete = sliders.find(s => s.id === id)
       if (!sliderToDelete) return
       
       const deletedOrder = sliderToDelete.display_order
       
-      // 먼저 슬라이더 삭제
       const { error: deleteError } = await supabase
         .from('cube45_main_contents')
         .delete()
@@ -268,7 +288,6 @@ export default function ContentManage() {
 
       if (deleteError) throw deleteError
       
-      // 삭제된 순서보다 큰 순서들을 1씩 감소
       const updates = sliders
         .filter(s => s.display_order > deletedOrder)
         .map(s => ({
@@ -276,7 +295,6 @@ export default function ContentManage() {
           display_order: s.display_order - 1
         }))
       
-      // 순서 업데이트
       if (updates.length > 0) {
         const updatePromises = updates.map(update =>
           supabase
@@ -293,6 +311,24 @@ export default function ContentManage() {
     } catch (error) {
       console.error('슬라이더 삭제 실패:', error)
       showToast('삭제에 실패했습니다.', 'error')
+    }
+  }
+
+  // 풀빌라 이미지 업데이트
+  const handleUpdateVilla = async (zone: string, imageUrl: string) => {
+    try {
+      const { error } = await supabase
+        .from('cube45_main_contents')
+        .update({ image_url: imageUrl })
+        .eq('section_type', `villa_${zone}`)
+
+      if (error) throw error
+      
+      showToast(`${zone}동 이미지가 변경되었습니다.`, 'success')
+      fetchContent()
+    } catch (error) {
+      console.error('풀빌라 이미지 수정 실패:', error)
+      showToast('수정에 실패했습니다.', 'error')
     }
   }
 
@@ -317,6 +353,56 @@ export default function ContentManage() {
       fetchContent()
     } catch (error) {
       console.error('CUBE 45 수정 실패:', error)
+      showToast('수정에 실패했습니다.', 'error')
+    }
+  }
+
+  // INDOOR POOL 수정
+  const handleUpdateIndoorPool = async () => {
+    if (!indoorPool) return
+
+    try {
+      const { error } = await supabase
+        .from('cube45_main_contents')
+        .update({
+          title: indoorPool.title,
+          subtitle: indoorPool.subtitle,
+          image_url: indoorPool.image_url
+        })
+        .eq('section_type', 'indoor_pool')
+
+      if (error) throw error
+      
+      showToast('INDOOR POOL 섹션이 업데이트되었습니다.', 'success')
+      fetchContent()
+    } catch (error) {
+      console.error('INDOOR POOL 수정 실패:', error)
+      showToast('수정에 실패했습니다.', 'error')
+    }
+  }
+
+  // 문의 섹션 수정
+  const handleUpdateContact = async (type: 'reservation' | 'onsite') => {
+    const data = type === 'reservation' ? contactData.reservation : contactData.onsite
+    if (!data) return
+
+    try {
+      const { error } = await supabase
+        .from('cube45_main_contents')
+        .update({
+          title: data.title,
+          subtitle: data.subtitle,
+          description: data.description,
+          image_url: data.image_url
+        })
+        .eq('section_type', `contact_${type}`)
+
+      if (error) throw error
+      
+      showToast(`${type === 'reservation' ? '예약문의' : '현장문의'} 섹션이 업데이트되었습니다.`, 'success')
+      fetchContent()
+    } catch (error) {
+      console.error('문의 섹션 수정 실패:', error)
       showToast('수정에 실패했습니다.', 'error')
     }
   }
@@ -349,15 +435,15 @@ export default function ContentManage() {
         {/* 헤더 */}
         <div className="bg-white border-b px-8 py-6">
           <h1 className="text-2xl font-bold text-gray-900">메인 콘텐츠 관리</h1>
-          <p className="mt-1 text-sm text-gray-500">메인 페이지의 슬라이더와 CUBE 45 섹션을 관리합니다</p>
+          <p className="mt-1 text-sm text-gray-500">메인 페이지의 모든 섹션을 관리합니다</p>
         </div>
 
-        {/* 탭 */}
+        {/* 탭 - 순서 변경됨 */}
         <div className="bg-white border-b px-8">
-          <nav className="flex space-x-8">
+          <nav className="flex space-x-8 overflow-x-auto">
             <button
               onClick={() => setActiveTab('slider')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'slider'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -366,14 +452,44 @@ export default function ContentManage() {
               슬라이더 관리
             </button>
             <button
+              onClick={() => setActiveTab('villa')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'villa'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              풀빌라 이미지
+            </button>
+            <button
               onClick={() => setActiveTab('cube45')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'cube45'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
               CUBE 45 섹션
+            </button>
+            <button
+              onClick={() => setActiveTab('indoor')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'indoor'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              INDOOR POOL
+            </button>
+            <button
+              onClick={() => setActiveTab('contact')}
+              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'contact'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              문의 정보
             </button>
           </nav>
         </div>
@@ -388,7 +504,7 @@ export default function ContentManage() {
                 onDragOver={handleDragOver}
                 onDragLeave={handleDragLeave}
                 onDrop={handleDrop}
-                className={`bg-white rounded-lg border-2 border-dashed transition-all ${
+                className={`bg-white border-2 border-dashed transition-all ${
                   isDragging 
                     ? 'border-blue-500 bg-blue-50' 
                     : 'border-gray-300 hover:border-gray-400'
@@ -430,7 +546,7 @@ export default function ContentManage() {
               </div>
 
               {/* 슬라이더 목록 테이블 */}
-              <div className="bg-white rounded-lg shadow overflow-hidden">
+              <div className="bg-white shadow overflow-hidden">
                 <table className="min-w-full">
                   <thead className="bg-gray-50">
                     <tr>
@@ -455,7 +571,7 @@ export default function ContentManage() {
                     {sliders.map((slider) => (
                       <tr key={slider.id} className="hover:bg-gray-50">
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="relative w-20 h-12 bg-gray-100 rounded overflow-hidden">
+                          <div className="relative w-20 h-12 bg-gray-100 overflow-hidden">
                             <img
                               src={slider.image_url}
                               alt=""
@@ -553,9 +669,47 @@ export default function ContentManage() {
             </div>
           )}
 
+          {/* 풀빌라 이미지 관리 */}
+          {activeTab === 'villa' && (
+            <div className="bg-white shadow p-8">
+              <h2 className="text-xl font-semibold mb-6">풀빌라 동별 이미지 관리</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {['A', 'B', 'C', 'D'].map((zone) => (
+                  <div key={zone} className="p-4">
+                    <h3 className="text-lg font-medium mb-3">풀빌라 {zone}동</h3>
+                    <div className="relative h-48 bg-gray-100 overflow-hidden">
+                      <img
+                        src={villaData[zone]?.image_url || '/images/main/villa.jpg'}
+                        alt={`풀빌라 ${zone}동`}
+                        className="w-full h-full object-cover"
+                      />
+                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              const url = await uploadImage(file)
+                              if (url) {
+                                handleUpdateVilla(zone, url)
+                              }
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* CUBE 45 관리 */}
           {activeTab === 'cube45' && cube45 && (
-            <div className="bg-white rounded-lg shadow p-8">
+            <div className="bg-white shadow p-8">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 {/* 왼쪽: 폼 */}
                 <div className="space-y-6">
@@ -564,7 +718,7 @@ export default function ContentManage() {
                       배경 이미지
                     </label>
                     <div className="relative">
-                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden">
+                      <div className="w-full h-48 bg-gray-100 overflow-hidden">
                         <img
                           src={cube45.image_url}
                           alt="CUBE 45 배경"
@@ -595,12 +749,12 @@ export default function ContentManage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       상단 텍스트
                     </label>
-                    <input
-                      type="text"
+                    <textarea
                       value={cube45.subtitle}
                       onChange={(e) => setCube45({...cube45, subtitle: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                       placeholder="Exclusive Cube of Joy"
+                      rows={2}
                     />
                   </div>
 
@@ -608,12 +762,12 @@ export default function ContentManage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       메인 타이틀
                     </label>
-                    <input
-                      type="text"
+                    <textarea
                       value={cube45.title}
                       onChange={(e) => setCube45({...cube45, title: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                       placeholder="CUBE 45"
+                      rows={2}
                     />
                   </div>
 
@@ -621,12 +775,12 @@ export default function ContentManage() {
                     <label className="block text-sm font-medium text-gray-700 mb-2">
                       하단 텍스트
                     </label>
-                    <input
-                      type="text"
+                    <textarea
                       value={cube45.description}
                       onChange={(e) => setCube45({...cube45, description: e.target.value})}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
                       placeholder="큐브45에서만 누릴 수 있는 즐거움"
+                      rows={2}
                     />
                   </div>
 
@@ -642,7 +796,7 @@ export default function ContentManage() {
                 {/* 오른쪽: 미리보기 */}
                 <div className="lg:pl-8">
                   <h3 className="text-sm font-medium text-gray-700 mb-4">미리보기</h3>
-                  <div className="relative w-full h-64 rounded-lg overflow-hidden shadow-lg">
+                  <div className="relative w-full h-64 overflow-hidden shadow-lg">
                     <img
                       src={cube45.image_url}
                       alt="미리보기"
@@ -664,6 +818,235 @@ export default function ContentManage() {
                   </div>
                 </div>
               </div>
+            </div>
+          )}
+
+          {/* INDOOR POOL 관리 */}
+          {activeTab === 'indoor' && (
+            <div className="bg-white shadow p-8">
+              <h2 className="text-xl font-semibold mb-6">INDOOR POOL 섹션 관리</h2>
+              {indoorPool ? (
+                <div className="space-y-6 max-w-2xl">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      제목
+                    </label>
+                    <textarea
+                      value={indoorPool.title}
+                      onChange={(e) => setIndoorPool({...indoorPool, title: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      placeholder="Premium Play Villa"
+                      rows={2}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      설명 (• 로 시작)
+                    </label>
+                    <textarea
+                      value={indoorPool.subtitle}
+                      onChange={(e) => setIndoorPool({...indoorPool, subtitle: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                      placeholder="• 실내 수영장"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">
+                      이미지
+                    </label>
+                    <div className="relative h-48 bg-gray-100 overflow-hidden">
+                      <img
+                        src={indoorPool.image_url}
+                        alt="Indoor Pool"
+                        className="w-full h-full object-cover"
+                      />
+                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0]
+                            if (file) {
+                              const url = await uploadImage(file)
+                              if (url) {
+                                setIndoorPool({...indoorPool, image_url: url})
+                              }
+                            }
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={handleUpdateIndoorPool}
+                    className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition-colors"
+                  >
+                    변경사항 저장
+                  </button>
+                </div>
+              ) : (
+                <div className="text-center py-12 text-gray-500">
+                  INDOOR POOL 데이터가 없습니다. 
+                  Supabase에서 indoor_pool 섹션을 추가해주세요.
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 문의 정보 관리 */}
+          {activeTab === 'contact' && (
+            <div className="space-y-6">
+              {/* 예약문의 */}
+              {contactData.reservation && (
+                <div className="bg-white shadow p-8">
+                  <h2 className="text-xl font-semibold mb-6">예약문의</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          배경 이미지
+                        </label>
+                        <div className="relative h-48 bg-gray-100 overflow-hidden">
+                          <img
+                            src={contactData.reservation.image_url}
+                            alt="예약문의 배경"
+                            className="w-full h-full object-cover"
+                          />
+                          <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                            <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                            <input
+                              type="file"
+                              className="sr-only"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                  const url = await uploadImage(file)
+                                  if (url && contactData.reservation) {
+                                    setContactData({
+                                      ...contactData,
+                                      reservation: {...contactData.reservation, image_url: url}
+                                    })
+                                  }
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          전화번호
+                        </label>
+                        <textarea
+                          value={contactData.reservation.title}
+                          onChange={(e) => setContactData({
+                            ...contactData,
+                            reservation: {...contactData.reservation!, title: e.target.value}
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                          rows={2}
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          추가 정보
+                        </label>
+                        <textarea
+                          value={contactData.reservation.description}
+                          onChange={(e) => setContactData({
+                            ...contactData,
+                            reservation: {...contactData.reservation!, description: e.target.value}
+                          })}
+                          rows={4}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                          placeholder="이메일 : thebran@naver.com|상담시간 : 평일/휴일 오전 10시 ~ 오후 18시"
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => handleUpdateContact('reservation')}
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                      >
+                        저장
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* 현장문의 */}
+              {contactData.onsite && (
+                <div className="bg-white shadow p-8">
+                  <h2 className="text-xl font-semibold mb-6">현장문의</h2>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          배경 이미지
+                        </label>
+                        <div className="relative h-48 bg-gray-100 overflow-hidden">
+                          <img
+                            src={contactData.onsite.image_url}
+                            alt="현장문의 배경"
+                            className="w-full h-full object-cover"
+                          />
+                          <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                            <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                            <input
+                              type="file"
+                              className="sr-only"
+                              accept="image/*"
+                              onChange={async (e) => {
+                                const file = e.target.files?.[0]
+                                if (file) {
+                                  const url = await uploadImage(file)
+                                  if (url && contactData.onsite) {
+                                    setContactData({
+                                      ...contactData,
+                                      onsite: {...contactData.onsite, image_url: url}
+                                    })
+                                  }
+                                }
+                              }}
+                            />
+                          </label>
+                        </div>
+                      </div>
+                      
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-2">
+                          전화번호
+                        </label>
+                        <textarea
+                          value={contactData.onsite.title}
+                          onChange={(e) => setContactData({
+                            ...contactData,
+                            onsite: {...contactData.onsite!, title: e.target.value}
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                          rows={2}
+                        />
+                      </div>
+
+                      <button
+                        onClick={() => handleUpdateContact('onsite')}
+                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                      >
+                        저장
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
