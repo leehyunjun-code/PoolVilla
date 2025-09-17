@@ -458,55 +458,55 @@ export default function AdminDashboard() {
       <AdminNavigation />
 
       {/* 메인 콘텐츠 */}
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-3 md:p-6 mt-14 md:mt-16 md:ml-48">
         <div className="max-w-7xl mx-auto">
-          {/* 헤더 */}
-          <div className="mb-6">
+          {/* 헤더 - 모바일에서는 숨김 */}
+          <div className="hidden md:block mb-6">
             <h1 className="text-2xl font-bold text-gray-800">대시보드</h1>
           </div>
 
           {/* 상단 3개 요약 카드 */}
-          <div className="grid grid-cols-3 gap-6 mb-6">
-            <div className="bg-white p-6 rounded shadow-sm">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-6 mb-4 md:mb-6">
+            <div className="bg-white p-4 md:p-6 rounded shadow-sm">
               <div className="flex items-center">
-                <div className="p-3 bg-green-100 rounded-full mr-4">
-                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-2 md:p-3 bg-green-100 rounded-full mr-3 md:mr-4">
+                  <svg className="w-6 md:w-8 h-6 md:h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">체크인</p>
-                  <p className="text-3xl font-bold text-green-600">{checkInCount}</p>
+                  <p className="text-xs md:text-sm text-gray-600">체크인</p>
+                  <p className="text-2xl md:text-3xl font-bold text-green-600">{checkInCount}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded shadow-sm">
+            <div className="bg-white p-4 md:p-6 rounded shadow-sm">
               <div className="flex items-center">
-                <div className="p-3 bg-red-100 rounded-full mr-4">
-                  <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-2 md:p-3 bg-red-100 rounded-full mr-3 md:mr-4">
+                  <svg className="w-6 md:w-8 h-6 md:h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">체크아웃</p>
-                  <p className="text-3xl font-bold text-red-600">{checkOutCount}</p>
+                  <p className="text-xs md:text-sm text-gray-600">체크아웃</p>
+                  <p className="text-2xl md:text-3xl font-bold text-red-600">{checkOutCount}</p>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded shadow-sm">
+            <div className="bg-white p-4 md:p-6 rounded shadow-sm">
               <div className="flex items-center">
-                <div className="p-3 bg-purple-100 rounded-full mr-4">
-                  <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="p-2 md:p-3 bg-purple-100 rounded-full mr-3 md:mr-4">
+                  <svg className="w-6 md:w-8 h-6 md:h-8 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">배정현황</p>
-                  <p className="text-3xl font-bold text-purple-600">
+                  <p className="text-xs md:text-sm text-gray-600">배정현황</p>
+                  <p className="text-2xl md:text-3xl font-bold text-purple-600">
                     {dailySales.occupancyRate}%
-                    <span className="text-lg font-medium ml-1">
+                    <span className="text-sm md:text-lg font-medium ml-1">
                       ({dailySales.occupiedRooms}/{totalRooms})
                     </span>
                   </p>
@@ -515,35 +515,35 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-12 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6">
             {/* 왼쪽 영역 */}
-            <div className="col-span-4 space-y-6">
+            <div className="col-span-1 md:col-span-4 space-y-4 md:space-y-6">
               {/* 일일 매출현황 */}
               <div className="bg-white rounded shadow-sm">
-                <div className="p-4 border-b">
-                  <h3 className="text-sm font-medium text-gray-700 flex items-center">
+                <div className="p-3 md:p-4 border-b">
+                  <h3 className="text-xs md:text-sm font-medium text-gray-700 flex items-center">
                     일일 매출현황
                     <button
                       onClick={() => window.open('/admin/dashboard/daily-sales', '_blank')}
                       className="ml-2 text-gray-400 hover:text-blue-600 transition-colors"
                       title="상세 매출 현황"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 md:w-4 h-3 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     </button>
                   </h3>
                 </div>
-                <div className="p-4">
-                  <table className="w-full text-sm">
+                <div className="p-3 md:p-4">
+                  <table className="w-full text-xs md:text-sm">
                     <tbody>
                       <tr className="bg-white">
-                        <td className="py-2 text-gray-600">투숙</td>
-                        <td className="py-2 text-right font-medium">{dailySales.currentGuests}<span className="text-gray-500">명</span></td>
+                        <td className="py-1 md:py-2 text-gray-600">투숙</td>
+                        <td className="py-1 md:py-2 text-right font-medium text-black">{dailySales.currentGuests}<span className="text-gray-500">명</span></td>
                       </tr>
                       <tr className="bg-gray-50">
-                        <td className="py-2 text-gray-600">매출</td>
-                        <td className="py-2 text-right font-medium">{dailySales.todayRevenue.toLocaleString()}<span className="text-gray-500">원</span></td>
+                        <td className="py-1 md:py-2 text-gray-600">매출</td>
+                        <td className="py-1 md:py-2 text-right font-medium text-black">{dailySales.todayRevenue.toLocaleString()}<span className="text-gray-500">원</span></td>
                       </tr>
                     </tbody>
                   </table>
@@ -552,26 +552,26 @@ export default function AdminDashboard() {
 
               {/* 날씨 위젯 */}
               <div className="bg-gradient-to-br from-blue-400 to-blue-600 rounded shadow-sm text-white">
-                <div className="p-4 border-b border-blue-300">
-                  <div className="text-sm">{mounted ? formatDate(currentTime) : '--.--(-)' }</div>
+                <div className="p-3 md:p-4 border-b border-blue-300">
+                  <div className="text-xs md:text-sm">{mounted ? formatDate(currentTime) : '--.--(-)' }</div>
                   <div className="text-xs text-blue-100">가평군</div>
                 </div>
-                <div className="p-4">
+                <div className="p-3 md:p-4">
                   <div className="flex items-center justify-between">
                     <div>
-                      <div className="text-2xl font-bold flex items-center">
+                      <div className="text-xl md:text-2xl font-bold flex items-center">
                         <span>{weather.temp}°</span>
-                        <div className="ml-2 text-3xl">
+                        <div className="ml-2 text-2xl md:text-3xl">
                           {weather.icon && (
                             <img 
                               src={`https:${weather.icon.replace('64x64', '128x128')}`}
                               alt={weather.description}
-                              className="w-16 h-16"
+                              className="w-12 md:w-16 h-12 md:h-16"
                             />
                           )}
                         </div>
                       </div>
-                      <div className="text-sm">{weather.description}</div>
+                      <div className="text-xs md:text-sm">{weather.description}</div>
                       <div className="text-xs text-blue-100">습도 {weather.humidity}%</div>
                     </div>
                   </div>
@@ -580,18 +580,18 @@ export default function AdminDashboard() {
             </div>
 
             {/* 중앙 영역 */}
-            <div className="col-span-8 space-y-6">
+            <div className="col-span-1 md:col-span-8 space-y-4 md:space-y-6">
               {/* 숙소리포트 */}
               <div className="bg-white rounded shadow-sm">
-                <div className="p-4 border-b">
-                  <h3 className="text-sm font-medium text-gray-700 flex items-center">
+                <div className="p-3 md:p-4 border-b">
+                  <h3 className="text-xs md:text-sm font-medium text-gray-700 flex items-center">
                     숙소리포트
                     <button
                       onClick={() => window.open('/admin/dashboard/property-report', '_blank')}
                       className="ml-2 text-gray-400 hover:text-blue-600 transition-colors"
                       title="상세 리포트"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 md:w-4 h-3 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     </button>
@@ -599,52 +599,56 @@ export default function AdminDashboard() {
                 </div>
                 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-xs md:text-sm">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="text-left py-3 px-4 font-medium text-gray-600"></th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-600">ADR</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-600">OCC</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-600">REV</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-600">
-                          BOOK<br/>
-                          <span className="text-xs text-gray-400">(예약/잔여/총객실)</span>
+                        <th className="text-left py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600"></th>
+                        <th className="text-center py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600">ADR</th>
+                        <th className="text-center py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600">OCC</th>
+                        <th className="text-center py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600">REV</th>
+                        <th className="text-center py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600">
+                          <span className="md:hidden">예약</span>
+                          <span className="hidden md:inline">BOOK<br/>
+                          <span className="text-xs text-gray-400">(예약/잔여/총객실)</span></span>
                         </th>
                       </tr>
                     </thead>
                     <tbody>
                       <tr className="bg-white">
-                        <td className="py-3 px-4 text-gray-600">오늘</td>
-                        <td className="text-center py-3 px-4">{propertyReport.today.adr.toLocaleString()}</td>
-                        <td className="text-center py-3 px-4">{propertyReport.today.occ}%</td>
-                        <td className="text-center py-3 px-4">{propertyReport.today.rev.toLocaleString()}</td>
-                        <td className="text-center py-3 px-4">{propertyReport.today.bookings}/<span className="text-red-500">{propertyReport.today.remaining}</span>/{propertyReport.today.total}</td>
+                        <td className="py-2 px-2 md:py-3 md:px-4 text-gray-600">오늘</td>
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{propertyReport.today.adr.toLocaleString()}</td>
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{propertyReport.today.occ}%</td>
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{propertyReport.today.rev.toLocaleString()}</td>
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{propertyReport.today.bookings}/<span className="text-red-500">{propertyReport.today.remaining}</span>/{propertyReport.today.total}</td>
                       </tr>
                       <tr className="bg-gray-50">
-                        <td className="py-3 px-4 text-gray-600">월간</td>
-                        <td className="text-center py-3 px-4">{propertyReport.monthly.adr.toLocaleString()}</td>
-                        <td className="text-center py-3 px-4">{propertyReport.monthly.occ}%</td>
-                        <td className="text-center py-3 px-4">{propertyReport.monthly.rev.toLocaleString()}</td>
-                        <td className="text-center py-3 px-4">{propertyReport.monthly.bookings}/<span className="text-red-500">{propertyReport.monthly.remaining}</span>/{propertyReport.monthly.total}</td>
+                        <td className="py-2 px-2 md:py-3 md:px-4 text-gray-600">월간</td>
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{propertyReport.monthly.adr.toLocaleString()}</td>
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{propertyReport.monthly.occ}%</td>
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{propertyReport.monthly.rev.toLocaleString()}</td>
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{propertyReport.monthly.bookings}/<span className="text-red-500">{propertyReport.monthly.remaining}</span>/{propertyReport.monthly.total}</td>
                       </tr>
                       <tr className="bg-white">
-                        <td className="py-3 px-4 text-gray-600">전월대비</td>
-                        <td className="text-center py-3 px-4">
+                        <td className="py-2 px-2 md:py-3 md:px-4 text-gray-600">
+                          <span className="md:hidden">전월</span>
+                          <span className="hidden md:inline">전월대비</span>
+                        </td>
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4">
                           <span className={propertyReport.monthly.adr >= propertyReport.lastMonth.adr ? "text-blue-500" : "text-red-500"}>
                             {propertyReport.monthly.adr >= propertyReport.lastMonth.adr ? '↑' : '↓'} {Math.abs(propertyReport.monthly.adr - propertyReport.lastMonth.adr).toLocaleString()}
                           </span>
                         </td>
-                        <td className="text-center py-3 px-4">
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4">
                           <span className={propertyReport.monthly.occ >= propertyReport.lastMonth.occ ? "text-blue-500" : "text-red-500"}>
                             {propertyReport.monthly.occ >= propertyReport.lastMonth.occ ? '↑' : '↓'} {Math.abs(propertyReport.monthly.occ - propertyReport.lastMonth.occ)}%
                           </span>
                         </td>
-                        <td className="text-center py-3 px-4">
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4">
                           <span className={propertyReport.monthly.rev >= propertyReport.lastMonth.rev ? "text-blue-500" : "text-red-500"}>
                             {propertyReport.monthly.rev >= propertyReport.lastMonth.rev ? '↑' : '↓'} {Math.abs(propertyReport.monthly.rev - propertyReport.lastMonth.rev).toLocaleString()}
                           </span>
                         </td>
-                        <td className="text-center py-3 px-4">
+                        <td className="text-center py-2 px-2 md:py-3 md:px-4">
                           <span className={propertyReport.monthly.bookings >= propertyReport.lastMonth.bookings ? "text-blue-500" : "text-red-500"}>
                             {propertyReport.monthly.bookings >= propertyReport.lastMonth.bookings ? '↑' : '↓'} {Math.abs(propertyReport.monthly.bookings - propertyReport.lastMonth.bookings)}
                           </span>
@@ -665,15 +669,15 @@ export default function AdminDashboard() {
 
               {/* 요금관리 */}
               <div className="bg-white rounded shadow-sm">
-                <div className="p-4 border-b">
-                  <h3 className="text-sm font-medium text-gray-700 flex items-center">
+                <div className="p-3 md:p-4 border-b">
+                  <h3 className="text-xs md:text-sm font-medium text-gray-700 flex items-center">
                     요금관리
                     <button
                       onClick={() => window.open('/admin/dashboard/price-detail', '_blank')}
                       className="ml-2 text-gray-400 hover:text-blue-600 transition-colors"
                       title="상세 요금 변경"
                     >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-3 md:w-4 h-3 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
                       </svg>
                     </button>
@@ -681,14 +685,20 @@ export default function AdminDashboard() {
                 </div>
                 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-xs md:text-sm">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="text-left py-3 px-4 font-medium text-gray-600">상품명</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-600">잔여객실수</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-600">현재가</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-600">변경가</th>
-                        <th className="text-center py-3 px-4 font-medium text-gray-600"></th>
+                        <th className="text-left py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600">
+                          <span className="md:hidden">상품</span>
+                          <span className="hidden md:inline">상품명</span>
+                        </th>
+                        <th className="text-center py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600">
+                          <span className="md:hidden">잔여</span>
+                          <span className="hidden md:inline">잔여객실수</span>
+                        </th>
+                        <th className="text-center py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600">현재가</th>
+                        <th className="text-center py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600">변경가</th>
+                        <th className="text-center py-2 px-2 md:py-3 md:px-4 font-medium text-gray-600"></th>
                       </tr>
                     </thead>
                     <tbody>
@@ -698,15 +708,15 @@ export default function AdminDashboard() {
                         
                         return (
                           <tr key={zone.zone} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                            <td className="py-3 px-4 text-gray-700">{zone.zone}</td>
-                            <td className="text-center py-3 px-4">{zone.availableRooms}</td>
-                            <td className="text-center py-3 px-4">{zone.currentPrice.toLocaleString()}</td>
-                            <td className="text-center py-3 px-4">
+                            <td className="py-2 px-2 md:py-3 md:px-4 text-gray-700">{zone.zone}</td>
+                            <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{zone.availableRooms}</td>
+                            <td className="text-center py-2 px-2 md:py-3 md:px-4 text-black">{zone.currentPrice.toLocaleString()}</td>
+                            <td className="text-center py-2 px-2 md:py-3 md:px-4">
                               <div className="flex items-center justify-center gap-1">
                                 <select 
                                   value={change.operator}
                                   onChange={(e) => handlePriceChange(zoneKey, 'operator', e.target.value)}
-                                  className="w-12 px-1 py-1 border rounded text-center text-sm"
+                                  className="w-10 md:w-12 px-1 py-1 border rounded text-center text-xs md:text-sm"
                                 >
                                   <option value="+">+</option>
                                   <option value="-">-</option>
@@ -717,16 +727,16 @@ export default function AdminDashboard() {
                                   type="number" 
                                   value={change.amount}
                                   onChange={(e) => handlePriceChange(zoneKey, 'amount', e.target.value)}
-                                  className="w-20 px-2 py-1 border rounded text-center text-sm" 
+                                  className="w-16 md:w-20 px-1 md:px-2 py-1 border rounded text-center text-xs md:text-sm" 
                                   placeholder="금액"
                                   step="0.1"
                                 />
                               </div>
                             </td>
-                            <td className="text-center py-3 px-4">
+                            <td className="text-center py-2 px-2 md:py-3 md:px-4">
                               <button 
                                 onClick={() => handleSavePrice(zone)}
-                                className="px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                                className="px-2 md:px-3 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
                               >
                                 저장
                               </button>

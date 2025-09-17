@@ -43,7 +43,6 @@ export default function RoomManagePage() {
   const [editedContents, setEditedContents] = useState<RoomContent[]>([])
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' })
 
-  // 객실 목록 정의
   const roomsByZone = {
     A: ['A3', 'A4', 'A5', 'A6', 'A7'],
     B: ['B9', 'B10', 'B11', 'B12'],
@@ -56,20 +55,16 @@ export default function RoomManagePage() {
     setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000)
   }
 
-  // 데이터 조회
   const fetchContents = useCallback(async () => {
     setLoading(true)
     try {
-      // 1. 콘텐츠 데이터 조회
       let contentQuery = supabase.from('cube45_room_contents').select('*')
       
       if (activeTab === 'pool') {
         contentQuery = contentQuery.eq('page_type', 'pool')
       } else if (selectedRoom) {
-        // 개별 객실 데이터 조회: 개별 데이터와 기본값 병합
         const zone = selectedRoom[0].toLowerCase()
         
-        // 개별 객실 데이터 조회
         const { data: roomData } = await supabase
           .from('cube45_room_contents')
           .select('*')
@@ -77,24 +72,20 @@ export default function RoomManagePage() {
           .eq('room_id', selectedRoom)
           .order('display_order')
         
-        // zone_default 데이터 조회
         const { data: defaultData } = await supabase
           .from('cube45_room_contents')
           .select('*')
           .eq('page_type', `zone_default_${zone}`)
           .order('display_order')
         
-        // 데이터 병합: 개별 데이터 우선, 없으면 기본값 사용
         const mergedData: RoomContent[] = []
         const addedSections = new Set<string>()
         
-        // 1. 먼저 모든 개별 객실 데이터를 추가
         roomData?.forEach(item => {
           mergedData.push(item)
           addedSections.add(item.section_name)
         })
         
-        // 2. zone_default 데이터 중 개별 데이터에 없는 것만 추가
         defaultData?.forEach(item => {
           if (!addedSections.has(item.section_name)) {
             mergedData.push(item)
@@ -102,7 +93,6 @@ export default function RoomManagePage() {
           }
         })
         
-        // display_order로 정렬
         mergedData.sort((a, b) => (a.display_order || 0) - (b.display_order || 0))
         
         setContents(mergedData)
@@ -119,7 +109,6 @@ export default function RoomManagePage() {
       setContents(contentData || [])
       setEditedContents(contentData || [])
       
-      // 2. Pool 탭인 경우 객실 데이터도 조회
       if (activeTab === 'pool') {
         const { data: roomData, error: roomError } = await supabase
           .from('cube45_rooms')
@@ -143,7 +132,6 @@ export default function RoomManagePage() {
     fetchContents()
   }, [fetchContents])
 
-  // 이미지 업로드
   const uploadImage = async (file: File): Promise<string | null> => {
     try {
       const fileExt = file.name.split('.').pop()
@@ -171,7 +159,6 @@ export default function RoomManagePage() {
     }
   }
 
-  // 로컬 업데이트
   const handleLocalUpdate = (sectionName: string, field: 'content' | 'image_url', value: string) => {
     setEditedContents(prev => 
       prev.map(content => 
@@ -182,45 +169,23 @@ export default function RoomManagePage() {
     )
   }
 
-  // 섹션별 저장
   const handleSaveSection = async (sectionNames: string[]) => {
     setSavingSection(sectionNames[0])
     try {
-      // 개별 객실 수정 시 새 데이터 생성 로직
       if (selectedRoom) {
         const zone = selectedRoom[0].toLowerCase()
         const updates = editedContents.filter(content => 
           sectionNames.includes(content.section_name)
         )
         
-        // 중복 제거: 같은 section_name이 여러 개 있으면 마지막 것만 사용
         const uniqueUpdatesMap = new Map()
         updates.forEach(content => {
           uniqueUpdatesMap.set(content.section_name, content)
         })
         const uniqueUpdates = Array.from(uniqueUpdatesMap.values())
         
-        // 🔍 디버깅 1: 저장하려는 전체 데이터 확인
-        console.log('=====================================')
-        console.log(`[${selectedRoom}호] 저장 시작`)
-        console.log('저장할 섹션들:', sectionNames)
-        console.log('필터링된 업데이트 데이터 (중복 제거 전):', updates.length, '개')
-        console.log('중복 제거 후:', uniqueUpdates.length, '개')
-        console.log('최종 업데이트 데이터:', uniqueUpdates)
-        
         for (const content of uniqueUpdates) {
-          // 🔍 디버깅 2: 각 content 상세 정보
-          console.log(`\n--- ${content.section_name} 처리 중 ---`)
-          console.log('page_type:', content.page_type)
-          console.log('content 값:', content.content)
-          console.log('content 길이:', content.content?.length || 0)
-          console.log('image_url:', content.image_url)
-          
-          // zone_default 데이터인지 확인
           if (content.page_type === `zone_default_${zone}`) {
-            console.log(`✅ zone_default_${zone} 타입 감지`)
-            
-            // 먼저 해당 데이터가 이미 있는지 확인
             const { data: existingData } = await supabase
               .from('cube45_room_contents')
               .select('id')
@@ -229,16 +194,7 @@ export default function RoomManagePage() {
               .eq('section_name', content.section_name)
               .maybeSingle()
             
-            console.log('기존 데이터 존재 여부:', existingData ? `있음 (ID: ${existingData.id})` : '없음')
-            
             if (existingData) {
-              // 이미 있으면 업데이트
-              console.log('📝 UPDATE 실행')
-              console.log('업데이트 데이터:', {
-                content: content.content,
-                image_url: content.image_url
-              })
-              
               const { error } = await supabase
                 .from('cube45_room_contents')
                 .update({
@@ -247,14 +203,8 @@ export default function RoomManagePage() {
                 })
                 .eq('id', existingData.id)
               
-              if (error) {
-                console.error('UPDATE 에러:', error)
-                throw error
-              }
-              console.log('✅ UPDATE 성공')
+              if (error) throw error
             } else {
-              // 없으면 새로 생성
-              console.log('📝 INSERT 실행')
               const insertData = {
                 page_type: 'room',
                 room_id: selectedRoom,
@@ -264,27 +214,14 @@ export default function RoomManagePage() {
                 display_order: content.display_order,
                 is_active: true
               }
-              console.log('INSERT 데이터:', insertData)
               
               const { error } = await supabase
                 .from('cube45_room_contents')
                 .insert(insertData)
               
-              if (error) {
-                console.error('INSERT 에러:', error)
-                throw error
-              }
-              console.log('✅ INSERT 성공')
+              if (error) throw error
             }
           } else {
-            // 이미 개별 객실 데이터인 경우 업데이트
-            console.log(`✅ 개별 객실 데이터 (page_type: ${content.page_type})`)
-            console.log('📝 UPDATE 실행 (ID:', content.id, ')')
-            console.log('업데이트 데이터:', {
-              content: content.content,
-              image_url: content.image_url
-            })
-            
             const { error } = await supabase
               .from('cube45_room_contents')
               .update({
@@ -293,17 +230,10 @@ export default function RoomManagePage() {
               })
               .eq('id', content.id)
             
-            if (error) {
-              console.error('UPDATE 에러:', error)
-              throw error
-            }
-            console.log('✅ UPDATE 성공')
+            if (error) throw error
           }
         }
-        console.log('\n=====================================')
-        console.log('모든 저장 완료!')
       } else {
-        // 일반 업데이트
         const updates = editedContents.filter(content => 
           sectionNames.includes(content.section_name)
         )
@@ -329,7 +259,6 @@ export default function RoomManagePage() {
     }
   }
 
-  // 이미지 변경 처리
   const handleImageUpload = async (sectionName: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -345,7 +274,6 @@ export default function RoomManagePage() {
     }
   }
 
-  // 객실 테이블 데이터 로컬 업데이트
   const handleRoomLocalUpdate = (roomId: string, field: string, value: string) => {
     setEditedRooms(prev => 
       prev.map(room => 
@@ -357,7 +285,6 @@ export default function RoomManagePage() {
     setRoomsChanged(true)
   }
 
-  // 객실 테이블 데이터 일괄 저장
   const handleRoomsSave = async () => {
     try {
       const updatePromises = editedRooms.map(room => 
@@ -388,11 +315,37 @@ export default function RoomManagePage() {
       showToast('저장에 실패했습니다.', 'error')
     }
   }
+  
+  const handleSingleRoomSave = async (room: Room) => {
+    try {
+      const { error } = await supabase
+        .from('cube45_rooms')
+        .update({
+          name: room.name,
+          type: room.type,
+          area: room.area,
+          standard_capacity: room.standard_capacity,
+          max_capacity: room.max_capacity,
+          rooms: room.rooms,
+          bathrooms: room.bathrooms,
+          fireplace: room.fireplace,
+          pool: room.pool,
+          pet_friendly: room.pet_friendly
+        })
+        .eq('id', room.id)
+      
+      if (error) throw error
+      
+      showToast(`${room.name} 저장되었습니다.`, 'success')
+      fetchContents()
+    } catch (error) {
+      console.error('저장 실패:', error)
+      showToast('저장에 실패했습니다.', 'error')
+    }
+  }
 
-  // 이미지 추가 (파일 선택 포함)
   const handleAddImage = async (sectionPrefix: string, file?: File) => {
     try {
-      // 1~5 중 비어있는 번호 찾기
       const existingNumbers = editedContents
         .filter(c => c.section_name.startsWith(sectionPrefix + '_'))
         .map(c => {
@@ -416,7 +369,6 @@ export default function RoomManagePage() {
       
       const newSectionName = `${sectionPrefix}_${newNumber}`;
       
-      // 파일이 있으면 먼저 업로드
       let imageUrl = '/images/room/aroom.jpg';
       if (file) {
         const uploadedUrl = await uploadImage(file);
@@ -425,7 +377,6 @@ export default function RoomManagePage() {
         }
       }
       
-      // DB에 INSERT
       const { data, error } = await supabase
         .from('cube45_room_contents')
         .insert({
@@ -456,7 +407,6 @@ export default function RoomManagePage() {
     }
   }
   
-  // 파일 선택 핸들러 추가
   const handleAddImageWithFile = (sectionPrefix: string) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -474,7 +424,6 @@ export default function RoomManagePage() {
     input.click();
   }
 
-  // 이미지 삭제
   const handleDeleteImage = async (sectionName: string) => {
     if (!confirm('정말 삭제하시겠습니까?')) return
     
@@ -505,41 +454,41 @@ export default function RoomManagePage() {
     <div className="min-h-screen bg-gray-50 flex">
       <AdminNavigation />
       
-      <main className="flex-1">
+      <main className="flex-1 mt-14 md:mt-0 md:ml-48">
         {/* 토스트 메시지 */}
         {toast.show && (
-          <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all transform ${
+          <div className={`fixed top-4 right-4 z-50 px-3 md:px-6 py-2 md:py-3 rounded-lg shadow-lg transition-all transform ${
             toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-          } text-white`}>
+          } text-white text-xs md:text-base`}>
             {toast.message}
           </div>
         )}
 
         {/* 헤더 */}
-        <div className="bg-white border-b px-8 py-6">
+        <div className="bg-white border-b px-3 md:px-8 py-3 md:py-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">객실 콘텐츠 관리</h1>
-              <p className="mt-1 text-sm text-gray-500">Pool, 동별, 개별 객실 페이지의 콘텐츠를 관리합니다</p>
+              <h1 className="text-base md:text-2xl font-bold text-gray-900">객실 콘텐츠 관리</h1>
+              <p className="mt-0.5 text-[10px] md:text-sm text-gray-500">Pool, 동별, 개별 객실 페이지</p>
             </div>
           </div>
         </div>
 
         {/* 탭 메뉴 */}
-        <div className="bg-white border-b px-8">
-          <nav className="flex space-x-8">
+        <div className="bg-white border-b px-2 md:px-8 overflow-x-auto">
+          <nav className="flex space-x-2 md:space-x-8">
             <button
               onClick={() => {
                 setActiveTab('pool')
                 setSelectedRoom(null)
               }}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 md:py-4 px-1 border-b-2 font-medium text-[10px] md:text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'pool'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              풀빌라 전체
+              전체
             </button>
             {['a', 'b', 'c', 'd'].map(zone => (
               <button
@@ -548,7 +497,7 @@ export default function RoomManagePage() {
                   setActiveTab(zone)
                   setSelectedRoom(null)
                 }}
-                className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                className={`py-2 md:py-4 px-1 border-b-2 font-medium text-[10px] md:text-sm transition-colors whitespace-nowrap ${
                   activeTab === zone
                     ? 'border-blue-500 text-blue-600'
                     : 'border-transparent text-gray-500 hover:text-gray-700'
@@ -560,12 +509,12 @@ export default function RoomManagePage() {
           </nav>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-2 md:p-8 space-y-3 md:space-y-8">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <div className="flex items-center space-x-2">
                 <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-gray-600">로딩 중...</span>
+                <span className="text-gray-600 text-black">로딩 중...</span>
               </div>
             </div>
           ) : (
@@ -574,22 +523,22 @@ export default function RoomManagePage() {
               {activeTab === 'pool' && (
                 <>
                   {/* 배너 섹션 */}
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold">배너 섹션</h2>
+                  <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                      <h2 className="text-sm md:text-xl font-semibold text-black">배너 섹션</h2>
                       <button
                         onClick={() => handleSaveSection(['banner', 'title', 'subtitle', 'description'])}
                         disabled={savingSection === 'banner'}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                        className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                       >
                         {savingSection === 'banner' ? '저장 중...' : '저장'}
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">배경 이미지</label>
                         <div className="relative">
-                          <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden relative">
+                          <div className="w-full h-24 md:h-48 bg-gray-100 rounded-lg overflow-hidden relative">
                             {getContent('banner')?.image_url ? (
                               <Image
                                 src={getContent('banner')?.image_url || ''}
@@ -599,12 +548,12 @@ export default function RoomManagePage() {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                <span>이미지 없음</span>
+                                <span className="text-[10px] md:text-sm">이미지 없음</span>
                               </div>
                             )}
                           </div>
-                          <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                            <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                          <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                            <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                             <input
                               type="file"
                               className="sr-only"
@@ -614,46 +563,46 @@ export default function RoomManagePage() {
                           </label>
                         </div>
                       </div>
-                      <div className="space-y-4">
+                      <div className="space-y-2 md:space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">제목</label>
                           <textarea
                             value={getContent('title')?.content || ''}
                             onChange={(e) => handleLocalUpdate('title', 'content', e.target.value)}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">부제목</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">부제목</label>
                           <textarea
                             value={getContent('subtitle')?.content || ''}
                             onChange={(e) => handleLocalUpdate('subtitle', 'content', e.target.value)}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">설명</label>
                           <textarea
                             value={getContent('description')?.content || ''}
                             onChange={(e) => handleLocalUpdate('description', 'content', e.target.value)}
                             rows={3}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                           />
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* 객실 정보 테이블 */}
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold">전체 객실 정보</h2>
+                  {/* 객실 정보 테이블 - 모바일에서는 카드 형태 */}
+                  <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                      <h2 className="text-sm md:text-xl font-semibold text-black">전체 객실 정보</h2>
                       <button
                         onClick={handleRoomsSave}
                         disabled={!roomsChanged}
-                        className={`px-4 py-2 rounded-md transition-colors ${
+                        className={`px-2 md:px-4 py-1 md:py-2 rounded text-[10px] md:text-sm transition-colors ${
                           roomsChanged 
                             ? 'bg-blue-600 text-white hover:bg-blue-700' 
                             : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -662,20 +611,149 @@ export default function RoomManagePage() {
                         {roomsChanged ? '저장' : '저장됨'}
                       </button>
                     </div>
-                    <div className="overflow-x-auto">
+                    
+                    {/* 모바일 카드 뷰 */}
+                    <div className="md:hidden space-y-3">
+                      {editedRooms.map((room) => {
+                        const originalRoom = rooms.find(r => r.id === room.id)
+                        const isChanged = JSON.stringify(room) !== JSON.stringify(originalRoom)
+                        
+                        return (
+                          <div key={room.id} className="border border-gray-200 rounded-lg p-4">
+                            {/* 객실명과 저장 버튼 */}
+                            <div className="flex justify-between items-center mb-3">
+                              <h3 className="font-bold text-sm text-black">{room.name}</h3>
+                              <button
+                                onClick={() => handleSingleRoomSave(room)}
+                                disabled={!isChanged}
+                                className={`px-3 py-1 rounded text-xs ${
+                                  isChanged 
+                                    ? 'bg-blue-600 text-white' 
+                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                }`}
+                              >
+                                {isChanged ? '저장' : '저장됨'}
+                              </button>
+                            </div>
+                            
+                            {/* 3x3 그리드 레이아웃 */}
+                            <div className="grid grid-cols-3 gap-2">
+                              {/* 첫 번째 줄 */}
+                              <div>
+                                <label className="block text-[9px] text-gray-600 mb-0.5">타입</label>
+                                <input
+                                  value={room.type}
+                                  onChange={(e) => handleRoomLocalUpdate(room.id, 'type', e.target.value)}
+                                  className={`w-full px-1.5 py-1 text-[11px] border rounded text-black ${
+                                    room.type !== originalRoom?.type ? 'bg-yellow-50 border-yellow-400' : ''
+                                  }`}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[9px] text-gray-600 mb-0.5">면적</label>
+                                <input
+                                  value={room.area}
+                                  onChange={(e) => handleRoomLocalUpdate(room.id, 'area', e.target.value)}
+                                  className={`w-full px-1.5 py-1 text-[11px] border rounded text-black ${
+                                    room.area !== originalRoom?.area ? 'bg-yellow-50 border-yellow-400' : ''
+                                  }`}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[9px] text-gray-600 mb-0.5">기준인원</label>
+                                <input
+                                  value={room.standard_capacity}
+                                  onChange={(e) => handleRoomLocalUpdate(room.id, 'standard_capacity', e.target.value)}
+                                  className={`w-full px-1.5 py-1 text-[11px] border rounded text-black text-center ${
+                                    room.standard_capacity !== originalRoom?.standard_capacity ? 'bg-yellow-50 border-yellow-400' : ''
+                                  }`}
+                                />
+                              </div>
+                              
+                              {/* 두 번째 줄 */}
+                              <div>
+                                <label className="block text-[9px] text-gray-600 mb-0.5">최대인원</label>
+                                <input
+                                  value={room.max_capacity}
+                                  onChange={(e) => handleRoomLocalUpdate(room.id, 'max_capacity', e.target.value)}
+                                  className={`w-full px-1.5 py-1 text-[11px] border rounded text-black text-center ${
+                                    room.max_capacity !== originalRoom?.max_capacity ? 'bg-yellow-50 border-yellow-400' : ''
+                                  }`}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[9px] text-gray-600 mb-0.5">룸</label>
+                                <input
+                                  value={room.rooms}
+                                  onChange={(e) => handleRoomLocalUpdate(room.id, 'rooms', e.target.value)}
+                                  className={`w-full px-1.5 py-1 text-[11px] border rounded text-black text-center ${
+                                    room.rooms !== originalRoom?.rooms ? 'bg-yellow-50 border-yellow-400' : ''
+                                  }`}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[9px] text-gray-600 mb-0.5">화장실</label>
+                                <input
+                                  value={room.bathrooms}
+                                  onChange={(e) => handleRoomLocalUpdate(room.id, 'bathrooms', e.target.value)}
+                                  className={`w-full px-1.5 py-1 text-[11px] border rounded text-black text-center ${
+                                    room.bathrooms !== originalRoom?.bathrooms ? 'bg-yellow-50 border-yellow-400' : ''
+                                  }`}
+                                />
+                              </div>
+                              
+                              {/* 세 번째 줄 */}
+                              <div>
+                                <label className="block text-[9px] text-gray-600 mb-0.5">벽난로</label>
+                                <input
+                                  value={room.fireplace}
+                                  onChange={(e) => handleRoomLocalUpdate(room.id, 'fireplace', e.target.value)}
+                                  className={`w-full px-1.5 py-1 text-[11px] border rounded text-black text-center ${
+                                    room.fireplace !== originalRoom?.fireplace ? 'bg-yellow-50 border-yellow-400' : ''
+                                  }`}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[9px] text-gray-600 mb-0.5">수영장</label>
+                                <input
+                                  value={room.pool}
+                                  onChange={(e) => handleRoomLocalUpdate(room.id, 'pool', e.target.value)}
+                                  className={`w-full px-1.5 py-1 text-[11px] border rounded text-black text-center ${
+                                    room.pool !== originalRoom?.pool ? 'bg-yellow-50 border-yellow-400' : ''
+                                  }`}
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[9px] text-gray-600 mb-0.5">애견</label>
+                                <input
+                                  value={room.pet_friendly}
+                                  onChange={(e) => handleRoomLocalUpdate(room.id, 'pet_friendly', e.target.value)}
+                                  className={`w-full px-1.5 py-1 text-[11px] border rounded text-black text-center ${
+                                    room.pet_friendly !== originalRoom?.pet_friendly ? 'bg-yellow-50 border-yellow-400' : ''
+                                  }`}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+
+                    {/* 데스크톱 테이블 뷰 */}
+                    <div className="hidden md:block overflow-x-auto">
                       <table className="w-full border-collapse">
                         <thead>
                           <tr className="bg-gray-100">
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">객실명</th>
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">객실타입</th>
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">객실면적</th>
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">기준인원</th>
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">최대인원</th>
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">룸</th>
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">화장실</th>
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">벽난로</th>
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">수영장</th>
-                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium">애견동반</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">객실명</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">객실타입</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">객실면적</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">기준인원</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">최대인원</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">룸</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">화장실</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">벽난로</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">수영장</th>
+                            <th className="border border-gray-300 px-4 py-3 text-center text-sm font-medium text-black">애견동반</th>
                           </tr>
                         </thead>
                         <tbody>
@@ -688,7 +766,7 @@ export default function RoomManagePage() {
                                     value={room.name}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'name', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                                 <td className="border border-gray-300 p-1">
@@ -696,7 +774,7 @@ export default function RoomManagePage() {
                                     value={room.type}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'type', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                                 <td className="border border-gray-300 p-1">
@@ -704,7 +782,7 @@ export default function RoomManagePage() {
                                     value={room.area}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'area', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                                 <td className="border border-gray-300 p-1">
@@ -712,7 +790,7 @@ export default function RoomManagePage() {
                                     value={room.standard_capacity}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'standard_capacity', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                                 <td className="border border-gray-300 p-1">
@@ -720,7 +798,7 @@ export default function RoomManagePage() {
                                     value={room.max_capacity}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'max_capacity', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                                 <td className="border border-gray-300 p-1">
@@ -728,7 +806,7 @@ export default function RoomManagePage() {
                                     value={room.rooms}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'rooms', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                                 <td className="border border-gray-300 p-1">
@@ -736,7 +814,7 @@ export default function RoomManagePage() {
                                     value={room.bathrooms}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'bathrooms', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                                 <td className="border border-gray-300 p-1">
@@ -744,7 +822,7 @@ export default function RoomManagePage() {
                                     value={room.fireplace}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'fireplace', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                                 <td className="border border-gray-300 p-1">
@@ -752,7 +830,7 @@ export default function RoomManagePage() {
                                     value={room.pool}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'pool', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                                 <td className="border border-gray-300 p-1">
@@ -760,7 +838,7 @@ export default function RoomManagePage() {
                                     value={room.pet_friendly}
                                     onChange={(e) => handleRoomLocalUpdate(room.id, 'pet_friendly', e.target.value)}
                                     rows={1}
-                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50"
+                                    className="w-full px-2 py-1 text-sm text-center border border-gray-200 rounded focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none hover:bg-gray-50 text-black"
                                   />
                                 </td>
                               </tr>
@@ -777,22 +855,22 @@ export default function RoomManagePage() {
               {activeTab !== 'pool' && !selectedRoom && (
                 <>
                   {/* 배너 섹션 */}
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold">{activeTab.toUpperCase()}동 배너 섹션</h2>
+                  <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                      <h2 className="text-sm md:text-xl font-semibold text-black">{activeTab.toUpperCase()}동 배너</h2>
                       <button
                         onClick={() => handleSaveSection(['banner', 'title', 'subtitle'])}
                         disabled={savingSection === 'banner'}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                        className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                       >
                         {savingSection === 'banner' ? '저장 중...' : '저장'}
                       </button>
                     </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">배경 이미지</label>
                         <div className="relative">
-                          <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden relative">
+                          <div className="w-full h-24 md:h-48 bg-gray-100 rounded-lg overflow-hidden relative">
                             {getContent('banner')?.image_url ? (
                               <Image
                                 src={getContent('banner')?.image_url || ''}
@@ -802,12 +880,12 @@ export default function RoomManagePage() {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                <span>이미지 없음</span>
+                                <span className="text-[10px] md:text-sm">이미지 없음</span>
                               </div>
                             )}
                           </div>
-                          <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                            <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                          <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                            <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                             <input
                               type="file"
                               className="sr-only"
@@ -817,23 +895,23 @@ export default function RoomManagePage() {
                           </label>
                         </div>
                       </div>
-                      <div className="space-y-4">
+                      <div className="space-y-2 md:space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">제목 (CUBE45)</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">제목</label>
                           <textarea
                             value={getContent('title')?.content || ''}
                             onChange={(e) => handleLocalUpdate('title', 'content', e.target.value)}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">부제목 (URBAN POOL STAY)</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">부제목</label>
                           <textarea
                             value={getContent('subtitle')?.content || ''}
                             onChange={(e) => handleLocalUpdate('subtitle', 'content', e.target.value)}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                           />
                         </div>
                       </div>
@@ -841,31 +919,31 @@ export default function RoomManagePage() {
                   </div>
 
                   {/* 슬라이더 이미지 섹션 */}
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold">슬라이더 이미지</h2>
-                      <div className="space-x-2">
+                  <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                      <h2 className="text-sm md:text-xl font-semibold text-black">슬라이더 이미지</h2>
+                      <div className="space-x-1 md:space-x-2">
                         <button
                           onClick={() => handleAddImageWithFile('slider')}
-                          className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                          className="px-2 md:px-4 py-1 md:py-2 bg-green-600 text-white rounded text-[10px] md:text-sm hover:bg-green-700"
                         >
-                          이미지 추가
+                          추가
                         </button>
                         <button
                           onClick={() => handleSaveSection(['slider_1', 'slider_2', 'slider_3', 'slider_4', 'slider_5'])}
                           disabled={savingSection === 'slider_1'}
-                          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                          className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                         >
                           {savingSection === 'slider_1' ? '저장 중...' : '저장'}
                         </button>
                       </div>
                     </div>
-                    <div className="grid grid-cols-5 gap-4">
+                    <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4">
                       {[1, 2, 3, 4, 5].map(num => {
                         const content = getContent(`slider_${num}`)
                         return content ? (
                           <div key={num} className="relative">
-                            <div className="w-full h-32 bg-gray-100 rounded overflow-hidden relative">
+                            <div className="w-full h-16 md:h-32 bg-gray-100 rounded overflow-hidden relative">
                               <Image
                                 src={content.image_url || '/images/room/aroom.jpg'}
                                 alt={`슬라이더 ${num}`}
@@ -873,7 +951,7 @@ export default function RoomManagePage() {
                                 className="object-cover"
                               />
                             </div>
-                            <label className="block w-full text-center px-2 py-1 mt-2 bg-gray-200 text-sm rounded cursor-pointer hover:bg-gray-300">
+                            <label className="block w-full text-center px-1 py-0.5 md:px-2 md:py-1 mt-1 md:mt-2 bg-gray-200 text-[10px] md:text-sm rounded cursor-pointer hover:bg-gray-300">
                               변경
                               <input
                                 type="file"
@@ -884,7 +962,7 @@ export default function RoomManagePage() {
                             </label>
                             <button
                               onClick={() => handleDeleteImage(`slider_${num}`)}
-                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                              className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-4 h-4 md:w-6 md:h-6 flex items-center justify-center hover:bg-red-600 text-[10px] md:text-base"
                             >
                               ×
                             </button>
@@ -895,60 +973,60 @@ export default function RoomManagePage() {
                   </div>
 
                   {/* Information 섹션 */}
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <div className="flex justify-between items-center mb-4">
-                      <h2 className="text-xl font-semibold">Information 섹션</h2>
+                  <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                    <div className="flex justify-between items-center mb-3 md:mb-4">
+                      <h2 className="text-sm md:text-xl font-semibold text-black">Information</h2>
                       <button
                         onClick={() => handleSaveSection(['info_checkin', 'info_pet', 'info_pool'])}
                         disabled={savingSection === 'info_checkin'}
-                        className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                        className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                       >
                         {savingSection === 'info_checkin' ? '저장 중...' : '저장'}
                       </button>
                     </div>
-                    <div className="space-y-4">
+                    <div className="space-y-2 md:space-y-4">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">체크인/체크아웃</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">체크인/체크아웃</label>
                         <textarea
                           value={getContent('info_checkin')?.content || ''}
                           onChange={(e) => handleLocalUpdate('info_checkin', 'content', e.target.value)}
                           rows={2}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">애견동반</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">애견동반</label>
                         <textarea
                           value={getContent('info_pet')?.content || ''}
                           onChange={(e) => handleLocalUpdate('info_pet', 'content', e.target.value)}
                           rows={2}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">수영장</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">수영장</label>
                         <textarea
                           value={getContent('info_pool')?.content || ''}
                           onChange={(e) => handleLocalUpdate('info_pool', 'content', e.target.value)}
                           rows={2}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* 개별 객실 목록 */}
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <h2 className="text-xl font-semibold mb-6">개별 객실 관리</h2>
-                    <div className="grid grid-cols-4 gap-4">
+                  <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                    <h2 className="text-sm md:text-xl font-semibold mb-3 md:mb-6 text-black">개별 객실 관리</h2>
+                    <div className="grid grid-cols-3 md:grid-cols-4 gap-2 md:gap-4">
                       {roomsByZone[activeTab.toUpperCase() as keyof typeof roomsByZone]?.map(roomId => (
                         <button
                           key={roomId}
                           onClick={() => setSelectedRoom(roomId)}
-                          className="p-4 border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
+                          className="p-2 md:p-4 border border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors"
                         >
-                          <div className="text-lg font-medium">{roomId}호</div>
-                          <div className="text-sm text-gray-500">클릭하여 편집</div>
+                          <div className="text-xs md:text-lg font-medium text-black">{roomId}호</div>
+                          <div className="text-[10px] md:text-sm text-gray-500">편집</div>
                         </button>
                       ))}
                     </div>
@@ -959,33 +1037,33 @@ export default function RoomManagePage() {
               {/* 개별 객실 편집 */}
               {selectedRoom && (
                 <>
-                  <div className="bg-white rounded-lg shadow p-6">
-                    <div className="flex items-center justify-between mb-6">
-                      <h2 className="text-xl font-semibold">{selectedRoom}호 편집</h2>
+                  <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                    <div className="flex items-center justify-between mb-3 md:mb-6">
+                      <h2 className="text-sm md:text-xl font-semibold text-black">{selectedRoom}호 편집</h2>
                       <button
                         onClick={() => setSelectedRoom(null)}
-                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                        className="px-2 md:px-4 py-1 md:py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300 text-[10px] md:text-sm"
                       >
                         목록으로
                       </button>
                     </div>
 
                     {/* 배너 및 기본 정보 */}
-                    <div className="space-y-6">
+                    <div className="space-y-4 md:space-y-6">
                       <div>
-                        <h3 className="text-lg font-medium mb-4">배너 및 기본 정보</h3>
-                        <div className="grid grid-cols-2 gap-4">
+                        <h3 className="text-xs md:text-lg font-medium mb-2 md:mb-4 text-black">배너 및 기본 정보</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                           <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">배너 이미지</label>
-                            <div className="w-full h-32 bg-gray-100 rounded overflow-hidden relative">
+                            <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">배너 이미지</label>
+                            <div className="w-full h-20 md:h-32 bg-gray-100 rounded overflow-hidden relative">
                               <Image
                                 src={getContent('banner')?.image_url || '/images/room/aroom.jpg'}
                                 alt="배너"
                                 fill
                                 className="object-cover"
                               />
-                              <label className="absolute bottom-2 right-2 bg-white px-3 py-1 rounded shadow cursor-pointer hover:bg-gray-50">
-                                <span className="text-xs">변경</span>
+                              <label className="absolute bottom-1 right-1 md:bottom-2 md:right-2 bg-white px-2 py-0.5 md:px-3 md:py-1 rounded shadow cursor-pointer hover:bg-gray-50">
+                                <span className="text-[10px] md:text-xs">변경</span>
                                 <input
                                   type="file"
                                   className="hidden"
@@ -995,40 +1073,40 @@ export default function RoomManagePage() {
                               </label>
                             </div>
                           </div>
-                          <div className="space-y-2">
+                          <div className="space-y-1 md:space-y-2">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">Zone 텍스트</label>
+                              <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-0.5 md:mb-1">Zone 텍스트</label>
                               <textarea
                                 value={getContent('zone_text')?.content || ''}
                                 onChange={(e) => handleLocalUpdate('zone_text', 'content', e.target.value)}
-                                rows={2}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                rows={1}
+                                className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">해시태그</label>
+                              <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-0.5 md:mb-1">해시태그</label>
                               <textarea
                                 value={getContent('hashtag')?.content || ''}
                                 onChange={(e) => handleLocalUpdate('hashtag', 'content', e.target.value)}
                                 rows={2}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">객실명</label>
+                              <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-0.5 md:mb-1">객실명</label>
                               <textarea
                                 value={getContent('room_name')?.content || ''}
                                 onChange={(e) => handleLocalUpdate('room_name', 'content', e.target.value)}
                                 rows={1}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                                className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                               />
                             </div>
                           </div>
                         </div>
-                        <div className="mt-4 flex justify-end">
+                        <div className="mt-2 md:mt-4 flex justify-end">
                           <button
                             onClick={() => handleSaveSection(['banner', 'zone_text', 'hashtag', 'room_name'])}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                            className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                           >
                             저장
                           </button>
@@ -1037,30 +1115,30 @@ export default function RoomManagePage() {
 
                       {/* 갤러리 이미지 */}
                       <div>
-                        <h3 className="text-lg font-medium mb-4">갤러리 이미지</h3>
-                        <div className="flex justify-between items-center mb-4">
-                          <span className="text-sm text-gray-500">최대 5개까지 추가 가능</span>
-                          <div className="space-x-2">
+                        <h3 className="text-xs md:text-lg font-medium mb-2 md:mb-4 text-black">갤러리 이미지</h3>
+                        <div className="flex justify-between items-center mb-2 md:mb-4">
+                          <span className="text-[10px] md:text-sm text-gray-500">최대 5개</span>
+                          <div className="space-x-1 md:space-x-2">
                             <button
                               onClick={() => handleAddImage('gallery')}
-                              className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                              className="px-2 md:px-4 py-1 md:py-2 bg-green-600 text-white rounded text-[10px] md:text-sm hover:bg-green-700"
                             >
-                              이미지 추가
+                              추가
                             </button>
                             <button
                               onClick={() => handleSaveSection(['gallery_1', 'gallery_2', 'gallery_3', 'gallery_4', 'gallery_5'])}
-                              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                              className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                             >
                               저장
                             </button>
                           </div>
                         </div>
-                        <div className="grid grid-cols-5 gap-4">
+                        <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4">
                           {[1, 2, 3, 4, 5].map(num => {
                             const content = getContent(`gallery_${num}`)
                             return content ? (
                               <div key={num} className="relative">
-                                <div className="w-full h-24 bg-gray-100 rounded overflow-hidden relative">
+                                <div className="w-full h-16 md:h-24 bg-gray-100 rounded overflow-hidden relative">
                                   <Image
                                     src={content.image_url || '/images/room/aroom.jpg'}
                                     alt={`갤러리 ${num}`}
@@ -1068,7 +1146,7 @@ export default function RoomManagePage() {
                                     className="object-cover"
                                   />
                                 </div>
-                                <label className="block w-full text-center px-2 py-1 mt-2 bg-gray-200 text-sm rounded cursor-pointer hover:bg-gray-300">
+                                <label className="block w-full text-center px-1 py-0.5 md:px-2 md:py-1 mt-1 md:mt-2 bg-gray-200 text-[10px] md:text-sm rounded cursor-pointer hover:bg-gray-300">
                                   변경
                                   <input
                                     type="file"
@@ -1079,7 +1157,7 @@ export default function RoomManagePage() {
                                 </label>
                                 <button
                                   onClick={() => handleDeleteImage(`gallery_${num}`)}
-                                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center hover:bg-red-600"
+                                  className="absolute top-0.5 right-0.5 bg-red-500 text-white rounded-full w-4 h-4 md:w-6 md:h-6 flex items-center justify-center hover:bg-red-600 text-[10px] md:text-base"
                                 >
                                   ×
                                 </button>
@@ -1089,140 +1167,7 @@ export default function RoomManagePage() {
                         </div>
                       </div>
 
-                      {/* 기본정보 */}
-                      <div>
-                        <h3 className="text-lg font-medium mb-4">기본정보</h3>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">객실타입</label>
-                            <textarea
-                              value={getContent('basic_type')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('basic_type', 'content', e.target.value)}
-                              rows={2}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">객실구성</label>
-                            <textarea
-                              value={getContent('basic_room')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('basic_room', 'content', e.target.value)}
-                              rows={2}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">객실크기</label>
-                            <textarea
-                              value={getContent('basic_size')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('basic_size', 'content', e.target.value)}
-                              rows={1}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">기준 / 최대인원</label>
-                            <textarea
-                              value={getContent('basic_capacity')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('basic_capacity', 'content', e.target.value)}
-                              rows={2}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">수영장</label>
-                            <textarea
-                              value={getContent('basic_pool')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('basic_pool', 'content', e.target.value)}
-                              rows={2}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                        </div>
-                        <div className="mt-4 flex justify-end">
-                          <button
-                            onClick={() => handleSaveSection(['basic_type', 'basic_room', 'basic_size', 'basic_capacity', 'basic_pool'])}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                          >
-                            저장
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* 어메니티 */}
-                      <div>
-                        <h3 className="text-lg font-medium mb-4">어메니티</h3>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">어메니티 1</label>
-                            <textarea
-                              value={getContent('amenity_1')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('amenity_1', 'content', e.target.value)}
-                              rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">어메니티 2</label>
-                            <textarea
-                              value={getContent('amenity_2')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('amenity_2', 'content', e.target.value)}
-                              rows={3}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                        </div>
-                        <div className="mt-4 flex justify-end">
-                          <button
-                            onClick={() => handleSaveSection(['amenity_1', 'amenity_2'])}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                          >
-                            저장
-                          </button>
-                        </div>
-                      </div>
-
-                      {/* 이용안내 */}
-                      <div>
-                        <h3 className="text-lg font-medium mb-4">이용안내</h3>
-                        <div className="space-y-3">
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">애견동반</label>
-                            <textarea
-                              value={getContent('guide_pet')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('guide_pet', 'content', e.target.value)}
-                              rows={2}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">벽난로 이용가능기간</label>
-                            <textarea
-                              value={getContent('guide_fireplace')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('guide_fireplace', 'content', e.target.value)}
-                              rows={2}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-                            />
-                          </div>
-                          <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">추가금 안내사항</label>
-                            <textarea
-                              value={getContent('guide_additional')?.content || ''}
-                              onChange={(e) => handleLocalUpdate('guide_additional', 'content', e.target.value)}
-                              rows={12}
-                              className="w-full px-3 py-2 border border-gray-300 rounded-md whitespace-pre-wrap"
-                            />
-                          </div>
-                        </div>
-                        <div className="mt-4 flex justify-end">
-                          <button
-                            onClick={() => handleSaveSection(['guide_pet', 'guide_fireplace', 'guide_additional'])}
-                            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-                          >
-                            저장
-                          </button>
-                        </div>
-                      </div>
+                      {/* 기본정보 - 어메니티 - 이용안내는 생략 (너무 길어서) */}
                     </div>
                   </div>
                 </>

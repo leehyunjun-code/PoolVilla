@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase'
 import AdminNavigation from '@/components/admin/navigation'
 import Image from 'next/image'
 
-// TypeScript 타입 정의
 interface ExtraData {
   tag?: string
   description?: string
@@ -79,7 +78,6 @@ export default function PageContentsManage() {
       setContents(data || [])
       setEditedContents(data || [])
       
-      // Tour 페이지인 경우 카페 데이터 별도 처리
       if (activeTab === 'tour') {
         const cafeData = data?.filter(item => item.content_type === 'card').map(item => ({
           id: item.id,
@@ -141,7 +139,6 @@ export default function PageContentsManage() {
     )
   }
 
-  // 섹션별 저장
   const handleSaveSection = async (sectionNames: string[]) => {
     setSavingSection(sectionNames[0])
     try {
@@ -303,7 +300,7 @@ export default function PageContentsManage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-gray-600">로딩 중...</span>
+          <span className="text-gray-600 text-black">로딩 중...</span>
         </div>
       </div>
     )
@@ -315,81 +312,81 @@ export default function PageContentsManage() {
       
       {/* 토스트 메시지 */}
       {toast.show && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all transform ${
+        <div className={`fixed top-4 right-4 z-50 px-3 md:px-6 py-2 md:py-3 rounded-lg shadow-lg transition-all transform ${
           toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        } text-white`}>
+        } text-white text-xs md:text-base`}>
           {toast.message}
         </div>
       )}
 
-      <main className="flex-1">
+      <main className="flex-1 mt-14 md:mt-0 md:ml-48">
         {/* 헤더 */}
-        <div className="bg-white border-b px-8 py-6">
+        <div className="bg-white border-b px-3 md:px-8 py-3 md:py-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">CUBE45 관리</h1>
-              <p className="mt-1 text-sm text-gray-500">CUBE45, 배치도, 관광정보 페이지의 콘텐츠를 관리합니다</p>
+              <h1 className="text-base md:text-2xl font-bold text-gray-900">CUBE45 관리</h1>
+              <p className="mt-0.5 text-[10px] md:text-sm text-gray-500">CUBE45, 배치도, 관광정보 페이지 콘텐츠</p>
             </div>
           </div>
         </div>
 
         {/* 탭 메뉴 */}
-        <div className="bg-white border-b px-8">
-          <nav className="flex space-x-8">
+        <div className="bg-white border-b px-2 md:px-8 overflow-x-auto">
+          <nav className="flex space-x-2 md:space-x-8">
             <button
               onClick={() => setActiveTab('intro')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 md:py-4 px-1 border-b-2 font-medium text-[10px] md:text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'intro'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              CUBE45 페이지
+              CUBE45
             </button>
             <button
               onClick={() => setActiveTab('location')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 md:py-4 px-1 border-b-2 font-medium text-[10px] md:text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'location'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              배치도 페이지
+              배치도
             </button>
             <button
               onClick={() => setActiveTab('tour')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 md:py-4 px-1 border-b-2 font-medium text-[10px] md:text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'tour'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
               }`}
             >
-              관광정보 페이지
+              관광정보
             </button>
           </nav>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-2 md:p-8 space-y-3 md:space-y-8">
           {/* INTRO 탭 콘텐츠 */}
           {activeTab === 'intro' && (
             <>
               {/* 배너 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">배너 섹션</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">배너 섹션</h2>
                   <button
                     onClick={() => handleSaveSection(['banner'])}
                     disabled={savingSection === 'banner'}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                   >
                     {savingSection === 'banner' ? '저장 중...' : '저장'}
                   </button>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">배경 이미지</label>
                     <div className="relative">
-                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden relative">
+                      <div className="w-full h-24 md:h-48 bg-gray-100 rounded-lg overflow-hidden relative">
                         {getContent('banner')?.image_url ? (
                           <Image
                             src={getContent('banner')?.image_url || ''}
@@ -399,12 +396,12 @@ export default function PageContentsManage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span>이미지 없음</span>
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
                           </div>
                         )}
                       </div>
-                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                         <input
                           type="file"
                           className="sr-only"
@@ -414,23 +411,23 @@ export default function PageContentsManage() {
                       </label>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-2 md:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">메인 타이틀</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">메인 타이틀</label>
                       <textarea
                         value={getContent('banner')?.title || ''}
                         onChange={(e) => handleLocalUpdate('banner', 'title', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">서브 타이틀</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">서브 타이틀</label>
                       <textarea
                         value={getContent('banner')?.subtitle || ''}
                         onChange={(e) => handleLocalUpdate('banner', 'subtitle', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                   </div>
@@ -438,52 +435,52 @@ export default function PageContentsManage() {
               </div>
 
               {/* Exclusive Cube 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Exclusive Cube of Joy 섹션</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">Exclusive Cube</h2>
                   <button
                     onClick={() => handleSaveSection(['exclusive_cube', 'exclusive_cube_image'])}
                     disabled={savingSection === 'exclusive_cube'}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                   >
                     {savingSection === 'exclusive_cube' ? '저장 중...' : '저장'}
                   </button>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
+                  <div className="space-y-2 md:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">제목</label>
                       <textarea
                         value={getContent('exclusive_cube')?.title || ''}
                         onChange={(e) => handleLocalUpdate('exclusive_cube', 'title', e.target.value)}
                         rows={3}
                         placeholder="Exclusive&#10;Cube of Joy"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">부제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">부제목</label>
                       <textarea
                         value={getContent('exclusive_cube')?.subtitle || ''}
                         onChange={(e) => handleLocalUpdate('exclusive_cube', 'subtitle', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">설명</label>
                       <textarea
                         value={getContent('exclusive_cube')?.description || ''}
                         onChange={(e) => handleLocalUpdate('exclusive_cube', 'description', e.target.value)}
-                        rows={6}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        rows={4}
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">이미지</label>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">이미지</label>
                     <div className="relative">
-                      <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden relative">
+                      <div className="w-full h-32 md:h-64 bg-gray-100 rounded-lg overflow-hidden relative">
                         {getContent('exclusive_cube_image')?.image_url ? (
                           <Image
                             src={getContent('exclusive_cube_image')?.image_url || ''}
@@ -493,12 +490,12 @@ export default function PageContentsManage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span>이미지 없음</span>
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
                           </div>
                         )}
                       </div>
-                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                         <input
                           type="file"
                           className="sr-only"
@@ -512,52 +509,52 @@ export default function PageContentsManage() {
               </div>
 
               {/* Exceptional Retreat 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">An Exceptional Retreat 섹션</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">Exceptional Retreat</h2>
                   <button
                     onClick={() => handleSaveSection(['exceptional_retreat', 'exceptional_retreat_image'])}
                     disabled={savingSection === 'exceptional_retreat'}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                   >
                     {savingSection === 'exceptional_retreat' ? '저장 중...' : '저장'}
                   </button>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
+                  <div className="space-y-2 md:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">제목</label>
                       <textarea
                         value={getContent('exceptional_retreat')?.title || ''}
                         onChange={(e) => handleLocalUpdate('exceptional_retreat', 'title', e.target.value)}
-                        rows={4}
-                        placeholder="An Exceptional&#10;Retreat&#10;in the&#10;Grandest Villa"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        rows={3}
+                        placeholder="An Exceptional&#10;Retreat"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">부제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">부제목</label>
                       <textarea
                         value={getContent('exceptional_retreat')?.subtitle || ''}
                         onChange={(e) => handleLocalUpdate('exceptional_retreat', 'subtitle', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">설명</label>
                       <textarea
                         value={getContent('exceptional_retreat')?.description || ''}
                         onChange={(e) => handleLocalUpdate('exceptional_retreat', 'description', e.target.value)}
-                        rows={6}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        rows={4}
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">이미지</label>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">이미지</label>
                     <div className="relative">
-                      <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden relative">
+                      <div className="w-full h-32 md:h-64 bg-gray-100 rounded-lg overflow-hidden relative">
                         {getContent('exceptional_retreat_image')?.image_url ? (
                           <Image
                             src={getContent('exceptional_retreat_image')?.image_url || ''}
@@ -567,12 +564,12 @@ export default function PageContentsManage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span>이미지 없음</span>
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
                           </div>
                         )}
                       </div>
-                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                         <input
                           type="file"
                           className="sr-only"
@@ -591,22 +588,22 @@ export default function PageContentsManage() {
           {activeTab === 'location' && (
             <>
               {/* 배너 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">배너 섹션</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">배너 섹션</h2>
                   <button
                     onClick={() => handleSaveSection(['banner'])}
                     disabled={savingSection === 'banner'}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                   >
                     {savingSection === 'banner' ? '저장 중...' : '저장'}
                   </button>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">배경 이미지</label>
                     <div className="relative">
-                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden relative">
+                      <div className="w-full h-24 md:h-48 bg-gray-100 rounded-lg overflow-hidden relative">
                         {getContent('banner')?.image_url ? (
                           <Image
                             src={getContent('banner')?.image_url || ''}
@@ -616,12 +613,12 @@ export default function PageContentsManage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span>이미지 없음</span>
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
                           </div>
                         )}
                       </div>
-                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                         <input
                           type="file"
                           className="sr-only"
@@ -631,23 +628,23 @@ export default function PageContentsManage() {
                       </label>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-2 md:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">메인 타이틀</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">메인 타이틀</label>
                       <textarea
                         value={getContent('banner')?.title || ''}
                         onChange={(e) => handleLocalUpdate('banner', 'title', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">서브 타이틀</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">서브 타이틀</label>
                       <textarea
                         value={getContent('banner')?.subtitle || ''}
                         onChange={(e) => handleLocalUpdate('banner', 'subtitle', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                   </div>
@@ -655,52 +652,52 @@ export default function PageContentsManage() {
               </div>
 
               {/* Layout 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">Layout 섹션</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">Layout 섹션</h2>
                   <button
                     onClick={() => handleSaveSection(['layout_text', 'layout_image'])}
                     disabled={savingSection === 'layout_text'}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                   >
                     {savingSection === 'layout_text' ? '저장 중...' : '저장'}
                   </button>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <div className="space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
+                  <div className="space-y-2 md:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">제목</label>
                       <textarea
                         value={getContent('layout_text')?.title || ''}
                         onChange={(e) => handleLocalUpdate('layout_text', 'title', e.target.value)}
                         rows={3}
                         placeholder="CUBE 45&#10;LAYOUT"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">부제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">부제목</label>
                       <textarea
                         value={getContent('layout_text')?.subtitle || ''}
                         onChange={(e) => handleLocalUpdate('layout_text', 'subtitle', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">설명</label>
                       <textarea
                         value={getContent('layout_text')?.description || ''}
                         onChange={(e) => handleLocalUpdate('layout_text', 'description', e.target.value)}
-                        rows={6}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        rows={4}
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">배치도 이미지</label>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">배치도 이미지</label>
                     <div className="relative">
-                      <div className="w-full h-64 bg-gray-100 rounded-lg overflow-hidden relative">
+                      <div className="w-full h-32 md:h-64 bg-gray-100 rounded-lg overflow-hidden relative">
                         {getContent('layout_image')?.image_url ? (
                           <Image
                             src={getContent('layout_image')?.image_url || ''}
@@ -710,12 +707,12 @@ export default function PageContentsManage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span>이미지 없음</span>
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
                           </div>
                         )}
                       </div>
-                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                         <input
                           type="file"
                           className="sr-only"
@@ -734,22 +731,22 @@ export default function PageContentsManage() {
           {activeTab === 'tour' && (
             <>
               {/* 배너 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">배너 섹션</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">배너 섹션</h2>
                   <button
                     onClick={() => handleSaveSection(['banner'])}
                     disabled={savingSection === 'banner'}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                   >
                     {savingSection === 'banner' ? '저장 중...' : '저장'}
                   </button>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">배경 이미지</label>
                     <div className="relative">
-                      <div className="w-full h-48 bg-gray-100 rounded-lg overflow-hidden relative">
+                      <div className="w-full h-24 md:h-48 bg-gray-100 rounded-lg overflow-hidden relative">
                         {getContent('banner')?.image_url ? (
                           <Image
                             src={getContent('banner')?.image_url || ''}
@@ -759,12 +756,12 @@ export default function PageContentsManage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span>이미지 없음</span>
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
                           </div>
                         )}
                       </div>
-                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                         <input
                           type="file"
                           className="sr-only"
@@ -774,23 +771,23 @@ export default function PageContentsManage() {
                       </label>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-2 md:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">메인 타이틀</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">메인 타이틀</label>
                       <textarea
                         value={getContent('banner')?.title || ''}
                         onChange={(e) => handleLocalUpdate('banner', 'title', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">서브 타이틀</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">서브 타이틀</label>
                       <textarea
                         value={getContent('banner')?.subtitle || ''}
                         onChange={(e) => handleLocalUpdate('banner', 'subtitle', e.target.value)}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                   </div>
@@ -798,56 +795,56 @@ export default function PageContentsManage() {
               </div>
 
               {/* Tour 소개 텍스트 */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">소개 섹션</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">소개 섹션</h2>
                   <button
                     onClick={() => handleSaveSection(['tour_intro'])}
                     disabled={savingSection === 'tour_intro'}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                   >
                     {savingSection === 'tour_intro' ? '저장 중...' : '저장'}
                   </button>
                 </div>
-                <div className="space-y-4">
+                <div className="space-y-2 md:space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">제목</label>
                     <textarea
                       value={getContent('tour_intro')?.title || ''}
                       onChange={(e) => handleLocalUpdate('tour_intro', 'title', e.target.value)}
                       rows={3}
                       placeholder="Exclusive&#10;Cube of Joy"
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                      className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">부제목</label>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">부제목</label>
                     <textarea
                       value={getContent('tour_intro')?.subtitle || ''}
                       onChange={(e) => handleLocalUpdate('tour_intro', 'subtitle', e.target.value)}
                       rows={2}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                      className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">설명</label>
                     <textarea
                       value={getContent('tour_intro')?.description || ''}
                       onChange={(e) => handleLocalUpdate('tour_intro', 'description', e.target.value)}
                       rows={4}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                      className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
                     />
                   </div>
                 </div>
               </div>
 
               {/* 카페 목록 */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">목록</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">목록</h2>
                   <button
                     onClick={() => setAddingCafe(true)}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-green-600 text-white rounded text-[10px] md:text-sm hover:bg-green-700"
                   >
                     추가
                   </button>
@@ -855,11 +852,11 @@ export default function PageContentsManage() {
                 
                 {/* 새 카페 추가 폼 */}
                 {addingCafe && (
-                  <div className="border rounded-lg p-4 mb-4 bg-gray-50">
-                    <h3 className="font-semibold mb-3">새 카페 추가</h3>
-                    <div className="space-y-3">
+                  <div className="border rounded-lg p-3 md:p-4 mb-3 md:mb-4 bg-gray-50">
+                    <h3 className="font-semibold mb-2 md:mb-3 text-xs md:text-base text-black">새 카페 추가</h3>
+                    <div className="space-y-2 md:space-y-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">이미지</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">이미지</label>
                         <input
                           type="file"
                           accept="image/*"
@@ -877,10 +874,10 @@ export default function PageContentsManage() {
                               }
                             }
                           }}
-                          className="w-full px-3 py-2 border rounded"
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-sm text-black"
                         />
                         {newCafe.image_url && (
-                          <div className="mt-2 w-32 h-24 relative rounded overflow-hidden">
+                          <div className="mt-2 w-20 h-16 md:w-32 md:h-24 relative rounded overflow-hidden">
                             <Image
                               src={newCafe.image_url}
                               alt="미리보기"
@@ -895,26 +892,26 @@ export default function PageContentsManage() {
                         value={newCafe.title}
                         onChange={(e) => setNewCafe({...newCafe, title: e.target.value})}
                         placeholder="카페 이름"
-                        className="w-full px-3 py-2 border rounded"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-sm text-black"
                       />
                       <input
                         type="text"
                         value={newCafe.tag}
                         onChange={(e) => setNewCafe({...newCafe, tag: e.target.value})}
-                        placeholder="태그 (예: #Premium Artisan Bakery Café)"
-                        className="w-full px-3 py-2 border rounded"
+                        placeholder="태그 (예: #Cafe)"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-sm text-black"
                       />
                       <textarea
                         value={newCafe.description}
                         onChange={(e) => setNewCafe({...newCafe, description: e.target.value})}
                         placeholder="설명"
-                        rows={3}
-                        className="w-full px-3 py-2 border rounded"
+                        rows={2}
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-sm text-black"
                       />
                       <div className="flex gap-2">
                         <button
                           onClick={handleAddCafe}
-                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          className="px-3 py-1 md:px-4 md:py-2 bg-blue-600 text-white rounded hover:bg-blue-700 text-[10px] md:text-sm"
                         >
                           추가
                         </button>
@@ -931,7 +928,7 @@ export default function PageContentsManage() {
                               display_order: 0
                             })
                           }}
-                          className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                          className="px-3 py-1 md:px-4 md:py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 text-[10px] md:text-sm"
                         >
                           취소
                         </button>
@@ -940,12 +937,12 @@ export default function PageContentsManage() {
                   </div>
                 )}
                 
-                <div className="space-y-4">
+                <div className="space-y-3 md:space-y-4">
                   {cafes.map((cafe) => (
-                    <div key={cafe.section_name} className="border rounded-lg p-4">
-                      <div className="flex gap-4">
+                    <div key={cafe.section_name} className="border rounded-lg p-3 md:p-4">
+                      <div className="flex gap-3 md:gap-4">
                         {/* 이미지 */}
-                        <div className="w-32 h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0 relative">
+                        <div className="w-20 h-16 md:w-32 md:h-24 bg-gray-100 rounded overflow-hidden flex-shrink-0 relative">
                           {cafe.image_url && cafe.image_url !== '' ? (
                             <Image
                               src={cafe.image_url}
@@ -955,7 +952,7 @@ export default function PageContentsManage() {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-400">
-                              <span className="text-xs">이미지 없음</span>
+                              <span className="text-[10px] md:text-xs">이미지 없음</span>
                             </div>
                           )}
                         </div>
@@ -963,7 +960,7 @@ export default function PageContentsManage() {
                         {/* 편집 영역 */}
                         <div className="flex-1">
                           {editingCafe === cafe.section_name ? (
-                            <div className="space-y-3">
+                            <div className="space-y-2 md:space-y-3">
                               <input
                                 type="text"
                                 value={cafe.title}
@@ -976,7 +973,7 @@ export default function PageContentsManage() {
                                   setCafes(newCafes)
                                 }}
                                 placeholder="카페 이름"
-                                className="w-full px-2 py-1 border rounded text-sm"
+                                className="w-full px-2 py-1 border rounded text-[11px] md:text-sm text-black"
                               />
                               <input
                                 type="text"
@@ -989,8 +986,8 @@ export default function PageContentsManage() {
                                   )
                                   setCafes(newCafes)
                                 }}
-                                placeholder="태그 (예: #Premium Artisan Bakery Café)"
-                                className="w-full px-2 py-1 border rounded text-sm"
+                                placeholder="태그"
+                                className="w-full px-2 py-1 border rounded text-[11px] md:text-sm text-black"
                               />
                               <textarea
                                 value={cafe.description}
@@ -1003,10 +1000,10 @@ export default function PageContentsManage() {
                                   setCafes(newCafes)
                                 }}
                                 placeholder="설명"
-                                rows={3}
-                                className="w-full px-2 py-1 border rounded text-sm"
+                                rows={2}
+                                className="w-full px-2 py-1 border rounded text-[11px] md:text-sm text-black"
                               />
-                              <div className="flex gap-2">
+                              <div className="flex gap-1 md:gap-2">
                                 <button
                                   onClick={() => {
                                     const updatedCafe = cafes.find(c => c.section_name === cafe.section_name)
@@ -1019,7 +1016,7 @@ export default function PageContentsManage() {
                                     }
                                     setEditingCafe(null)
                                   }}
-                                  className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                                  className="px-2 py-0.5 md:px-3 md:py-1 bg-blue-500 text-white rounded text-[10px] md:text-sm hover:bg-blue-600"
                                 >
                                   저장
                                 </button>
@@ -1028,12 +1025,12 @@ export default function PageContentsManage() {
                                     setEditingCafe(null)
                                     fetchContents()
                                   }}
-                                  className="px-3 py-1 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400"
+                                  className="px-2 py-0.5 md:px-3 md:py-1 bg-gray-300 text-gray-700 rounded text-[10px] md:text-sm hover:bg-gray-400"
                                 >
                                   취소
                                 </button>
-                                <label className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600 cursor-pointer">
-                                  이미지 변경
+                                <label className="px-2 py-0.5 md:px-3 md:py-1 bg-green-500 text-white rounded text-[10px] md:text-sm hover:bg-green-600 cursor-pointer">
+                                  이미지
                                   <input
                                     type="file"
                                     className="sr-only"
@@ -1045,19 +1042,19 @@ export default function PageContentsManage() {
                             </div>
                           ) : (
                             <div>
-                              <h3 className="font-semibold">{cafe.title}</h3>
-                              <p className="text-sm text-gray-500">{cafe.tag}</p>
-                              <p className="text-sm text-gray-700 mt-1">{cafe.description}</p>
-                              <div className="mt-2 flex gap-2">
+                              <h3 className="font-semibold text-xs md:text-base text-black">{cafe.title}</h3>
+                              <p className="text-[10px] md:text-sm text-gray-500">{cafe.tag}</p>
+                              <p className="text-[10px] md:text-sm text-gray-700 mt-0.5 md:mt-1">{cafe.description}</p>
+                              <div className="mt-2 flex gap-1 md:gap-2">
                                 <button
                                   onClick={() => setEditingCafe(cafe.section_name)}
-                                  className="px-3 py-1 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                                  className="px-2 py-0.5 md:px-3 md:py-1 bg-blue-500 text-white rounded text-[10px] md:text-sm hover:bg-blue-600"
                                 >
                                   수정
                                 </button>
                                 <button
                                   onClick={() => handleDeleteCafe(cafe.section_name)}
-                                  className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                                  className="px-2 py-0.5 md:px-3 md:py-1 bg-red-500 text-white rounded text-[10px] md:text-sm hover:bg-red-600"
                                 >
                                   삭제
                                 </button>

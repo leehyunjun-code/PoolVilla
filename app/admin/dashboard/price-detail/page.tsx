@@ -356,7 +356,7 @@ export default function PriceDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">데이터 로딩중...</div>
+        <div className="text-base md:text-lg text-black">데이터 로딩중...</div>
       </div>
     )
   }
@@ -366,17 +366,17 @@ export default function PriceDetail() {
       <AdminNavigation />
 
       {/* 메인 콘텐츠 */}
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-3 md:p-6 mt-14 md:mt-16 md:ml-48">
         <div className="max-w-7xl mx-auto">
-          <div className="mb-6">
+          <div className="hidden md:block mb-6">
             <h1 className="text-2xl font-bold text-gray-800">상세 요금 관리</h1>
           </div>
 
           {/* 뷰 전환 탭 */}
-          <div className="mb-4 flex space-x-2">
+          <div className="mb-3 md:mb-4 flex space-x-2">
             <button
               onClick={() => setActiveView('table')}
-              className={`px-4 py-2 rounded ${
+              className={`px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-base rounded ${
                 activeView === 'table' 
                   ? 'bg-blue-500 text-white' 
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -386,7 +386,7 @@ export default function PriceDetail() {
             </button>
             <button
               onClick={() => setActiveView('calendar')}
-              className={`px-4 py-2 rounded ${
+              className={`px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-base rounded ${
                 activeView === 'calendar' 
                   ? 'bg-blue-500 text-white' 
                   : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
@@ -398,95 +398,105 @@ export default function PriceDetail() {
 
           {/* 테이블 뷰 */}
           {activeView === 'table' && (
-            <div className="bg-white rounded shadow-sm overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="bg-white rounded shadow-sm overflow-x-auto">
+              <table className="w-full text-xs md:text-sm">
                 <thead className="bg-gray-50 border-b">
                   <tr>
-                    <th className="text-left px-4 py-3 font-medium text-gray-700">구분</th>
-                    <th className="text-center px-4 py-3 font-medium text-gray-700">주중 (일~목)</th>
-                    <th className="text-center px-4 py-3 font-medium text-gray-700">금요일</th>
-                    <th className="text-center px-4 py-3 font-medium text-gray-700">토요일</th>
-                    <th className="text-center px-4 py-3 font-medium text-gray-700">작업</th>
+                    <th className="text-left px-2 md:px-4 py-2 md:py-3 font-medium text-gray-700">구분</th>
+                    <th className="text-center px-2 md:px-4 py-2 md:py-3 font-medium text-gray-700">
+                      <span className="md:hidden">주중</span>
+                      <span className="hidden md:inline">주중 (일~목)</span>
+                    </th>
+                    <th className="text-center px-2 md:px-4 py-2 md:py-3 font-medium text-gray-700">
+                      <span className="md:hidden">금</span>
+                      <span className="hidden md:inline">금요일</span>
+                    </th>
+                    <th className="text-center px-2 md:px-4 py-2 md:py-3 font-medium text-gray-700">
+                      <span className="md:hidden">토</span>
+                      <span className="hidden md:inline">토요일</span>
+                    </th>
+                    <th className="text-center px-2 md:px-4 py-2 md:py-3 font-medium text-gray-700">작업</th>
                   </tr>
                 </thead>
                 <tbody>
                   {zoneData.map((zone) => (
                     <React.Fragment key={zone.zone}>
                       <tr className="bg-blue-50 border-b hover:bg-blue-100">
-                        <td className="px-4 py-3">
+                        <td className="px-2 md:px-4 py-2 md:py-3">
                           <button
                             onClick={() => toggleZoneExpand(zone.zone)}
-                            className="flex items-center font-medium text-gray-800"
+                            className="flex items-center font-medium text-gray-800 text-xs md:text-sm"
                           >
-                            <span className="mr-2">{expandedZones.has(zone.zone) ? '▼' : '▶'}</span>
+                            <span className="mr-1 md:mr-2">{expandedZones.has(zone.zone) ? '▼' : '▶'}</span>
                             <span>{zone.zone}동 ({zone.rooms.length})</span>
                           </button>
                         </td>
-                        <td className="text-center px-4 py-3">
+                        <td className="text-center px-1 md:px-4 py-2 md:py-3">
                           <input
                             type="text"
                             value={priceInputs[`zone_${zone.zone}`]?.weekday?.toLocaleString() || ''}
                             onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'weekday', e.target.value)}
-                            className="w-28 px-2 py-1 border rounded text-center"
+                            className="w-16 md:w-28 px-1 md:px-2 py-1 border rounded text-center text-xs md:text-sm"
                           />
                         </td>
-                        <td className="text-center px-4 py-3">
+                        <td className="text-center px-1 md:px-4 py-2 md:py-3">
                           <input
                             type="text"
                             value={priceInputs[`zone_${zone.zone}`]?.friday?.toLocaleString() || ''}
                             onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'friday', e.target.value)}
-                            className="w-28 px-2 py-1 border rounded text-center"
+                            className="w-16 md:w-28 px-1 md:px-2 py-1 border rounded text-center text-xs md:text-sm"
                           />
                         </td>
-                        <td className="text-center px-4 py-3">
+                        <td className="text-center px-1 md:px-4 py-2 md:py-3">
                           <input
                             type="text"
                             value={priceInputs[`zone_${zone.zone}`]?.saturday?.toLocaleString() || ''}
                             onChange={(e) => handleInputChange(`zone_${zone.zone}`, 'saturday', e.target.value)}
-                            className="w-28 px-2 py-1 border rounded text-center"
+                            className="w-16 md:w-28 px-1 md:px-2 py-1 border rounded text-center text-xs md:text-sm"
                           />
                         </td>
-                        <td className="text-center px-4 py-3">
+                        <td className="text-center px-1 md:px-4 py-2 md:py-3">
                           <button
                             onClick={() => handleZonePriceApply(zone.zone)}
-                            className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                            className="px-2 md:px-3 py-1 bg-blue-500 text-white text-[10px] md:text-xs rounded hover:bg-blue-600"
                           >
-                            일괄적용
+                            <span className="md:hidden">적용</span>
+                            <span className="hidden md:inline">일괄적용</span>
                           </button>
                         </td>
                       </tr>
                       
                       {expandedZones.has(zone.zone) && zone.rooms.map((room, index) => (
                         <tr key={room.room_id} className={index % 2 === 0 ? "bg-white" : "bg-gray-200"}>
-                          <td className="px-4 py-2 pl-10 text-gray-600">{room.room_name}</td>
-                          <td className="text-center px-4 py-2">
+                          <td className="px-2 md:px-4 py-1.5 md:py-2 pl-6 md:pl-10 text-gray-600 text-xs md:text-sm">{room.room_name}</td>
+                          <td className="text-center px-1 md:px-4 py-1.5 md:py-2">
                             <input
                               type="text"
                               value={priceInputs[room.room_id]?.weekday?.toLocaleString() || ''}
                               onChange={(e) => handleInputChange(room.room_id, 'weekday', e.target.value.replace(/,/g, ''))}
-                              className="w-28 px-2 py-1 border rounded text-center"
+                              className="w-16 md:w-28 px-1 md:px-2 py-1 border rounded text-center text-xs md:text-sm"
                             />
                           </td>
-                          <td className="text-center px-4 py-2">
+                          <td className="text-center px-1 md:px-4 py-1.5 md:py-2">
                             <input
                               type="text"
                               value={priceInputs[room.room_id]?.friday?.toLocaleString() || ''}
                               onChange={(e) => handleInputChange(room.room_id, 'friday', e.target.value.replace(/,/g, ''))}
-                              className="w-28 px-2 py-1 border rounded text-center"
+                              className="w-16 md:w-28 px-1 md:px-2 py-1 border rounded text-center text-xs md:text-sm"
                             />
                           </td>
-                          <td className="text-center px-4 py-2">
+                          <td className="text-center px-1 md:px-4 py-1.5 md:py-2">
                             <input
                               type="text"
                               value={priceInputs[room.room_id]?.saturday?.toLocaleString() || ''}
                               onChange={(e) => handleInputChange(room.room_id, 'saturday', e.target.value.replace(/,/g, ''))}
-                              className="w-28 px-2 py-1 border rounded text-center"
+                              className="w-16 md:w-28 px-1 md:px-2 py-1 border rounded text-center text-xs md:text-sm"
                             />
                           </td>
-                          <td className="text-center px-4 py-2">
+                          <td className="text-center px-1 md:px-4 py-1.5 md:py-2">
                             <button
                               onClick={() => handleRoomPriceSave(room.room_id)}
-                              className="px-3 py-1 bg-blue-500 text-white text-xs rounded hover:bg-blue-600"
+                              className="px-2 md:px-3 py-1 bg-blue-500 text-white text-[10px] md:text-xs rounded hover:bg-blue-600"
                             >
                               저장
                             </button>
@@ -502,36 +512,36 @@ export default function PriceDetail() {
 
           {/* 달력 뷰 */}
           {activeView === 'calendar' && (
-            <div className="bg-white rounded shadow-sm p-6">
-              <div className="mb-4 flex items-center justify-between">
-                <div className="flex items-center space-x-4">
+            <div className="bg-white rounded shadow-sm p-3 md:p-6">
+              <div className="mb-3 md:mb-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                <div className="flex items-center justify-center md:justify-start space-x-2 md:space-x-4">
                   <button
                     onClick={() => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1))}
-                    className="p-2 hover:bg-gray-100 rounded"
+                    className="p-1 md:p-2 hover:bg-gray-100 rounded"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                     </svg>
                   </button>
-                  <h2 className="text-lg font-medium">
+                  <h2 className="text-sm md:text-lg font-medium text-black">
                     {selectedMonth.getFullYear()}년 {selectedMonth.getMonth() + 1}월
                   </h2>
                   <button
                     onClick={() => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1))}
-                    className="p-2 hover:bg-gray-100 rounded"
+                    className="p-1 md:p-2 hover:bg-gray-100 rounded"
                   >
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                     </svg>
                   </button>
                 </div>
                 
-                <div className="flex items-center space-x-2">
-                  <label className="text-sm font-medium text-gray-700">객실 선택:</label>
+                <div className="flex items-center justify-center md:justify-end space-x-2">
+                  <label className="text-xs md:text-sm font-medium text-gray-700">객실:</label>
                   <select
                     value={selectedRoom}
                     onChange={(e) => setSelectedRoom(e.target.value)}
-                    className="px-3 py-1 border rounded"
+                    className="px-2 md:px-3 py-1 border rounded text-xs md:text-sm"
                   >
                     {zoneData.flatMap(zone => 
                       zone.rooms.map(room => (
@@ -542,9 +552,9 @@ export default function PriceDetail() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-7 gap-1 mb-4">
+              <div className="grid grid-cols-7 gap-0.5 md:gap-1 mb-3 md:mb-4 overflow-x-auto min-w-[280px]">
                 {['일', '월', '화', '수', '목', '금', '토'].map(day => (
-                  <div key={day} className="text-center py-2 text-sm font-medium text-gray-700">
+                  <div key={day} className="text-center py-1 md:py-2 text-xs md:text-sm font-medium text-gray-700">
                     {day}
                   </div>
                 ))}
@@ -560,25 +570,26 @@ export default function PriceDetail() {
                   const price = getPriceForDate(date)
                   const isSelected = selectedDate?.getDate() === day && 
                                    selectedDate?.getMonth() === selectedMonth.getMonth()
+                  const dateStr = `${selectedMonth.getFullYear()}-${(selectedMonth.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`
                   
                   return (
                     <button
                       key={day}
                       onClick={() => handleDateClick(day)}
                       className={`
-                        p-2 border rounded text-sm
+                        p-1 md:p-2 border rounded text-xs md:text-sm
                         ${dayOfWeek === 0 ? 'text-red-500' : ''}
                         ${dayOfWeek === 6 ? 'text-blue-500' : ''}
                         ${isSelected ? 'bg-blue-100 border-blue-500' : 'hover:bg-gray-50'}
                       `}
                     >
-                      <div className="font-medium">{day}</div>
-                      <div className={`text-xs mt-1 ${
-                        specialPrices[`${selectedMonth.getFullYear()}-${(selectedMonth.getMonth() + 1).toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`] 
+                      <div className="font-medium text-xs md:text-sm">{day}</div>
+                      <div className={`text-[9px] md:text-xs mt-0.5 md:mt-1 ${
+                        specialPrices[dateStr] 
                           ? 'text-red-500 font-bold' 
-                          : ''
+                          : 'text-black'
                       }`}>
-                        {price.toLocaleString()}
+                        {price >= 100000 ? `${Math.round(price/1000)}k` : price.toLocaleString()}
                       </div>
                     </button>
                   )
@@ -586,11 +597,11 @@ export default function PriceDetail() {
               </div>
 
               {selectedDate && (
-                <div className="border-t pt-4">
-                  <div className="flex items-center justify-between">
-                    <div className="text-sm">
+                <div className="border-t pt-3 md:pt-4">
+                  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+                    <div className="text-xs md:text-sm">
                       <span className="font-medium">선택된 날짜: </span>
-                      {selectedDate.toLocaleDateString()} ({['일', '월', '화', '수', '목', '금', '토'][selectedDate.getDay()]}요일)
+                      <span className="text-black">{selectedDate.toLocaleDateString()} ({['일', '월', '화', '수', '목', '금', '토'][selectedDate.getDay()]}요일)</span>
                     </div>
                     <div className="flex items-center space-x-2">
                       <input
@@ -601,11 +612,11 @@ export default function PriceDetail() {
                           'price',
                           e.target.value
                         )}
-                        className="w-32 px-2 py-1 border rounded text-center"
+                        className="w-24 md:w-32 px-2 py-1 border rounded text-center text-xs md:text-sm"
                       />
                       <button
                         onClick={handleCalendarPriceSave}
-                        className="px-4 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+                        className="px-3 md:px-4 py-1 bg-blue-500 text-white text-xs md:text-sm rounded hover:bg-blue-600"
                       >
                         저장
                       </button>

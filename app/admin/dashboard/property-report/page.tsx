@@ -162,8 +162,8 @@ export default function PropertyReportDetail() {
       
       // 체크인 예약과 숙박 중인 예약을 구분하여 표시
       const allReservations = [
-        ...(checkInData || []).map(r => ({ ...r, type: 'check_in' })),
-        ...(stayingData || []).map(r => ({ ...r, type: 'staying' }))
+        ...(checkInData || []).map(r => ({ ...r, type: 'check_in' as const })),
+        ...(stayingData || []).map(r => ({ ...r, type: 'staying' as const }))
       ]
       
       // 중복 제거 (체크인 날짜와 숙박 중이 겹치는 경우 체크인으로 표시)
@@ -223,7 +223,7 @@ export default function PropertyReportDetail() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-lg">데이터 로딩중...</div>
+        <div className="text-base md:text-lg text-black">데이터 로딩중...</div>
       </div>
     )
   }
@@ -232,79 +232,79 @@ export default function PropertyReportDetail() {
     <div className="min-h-screen bg-gray-100 flex">
       <AdminNavigation />
 
-      <main className="flex-1 p-6">
+      <main className="flex-1 p-3 md:p-6 mt-14 md:mt-16 md:ml-48">
         <div className="max-w-7xl mx-auto">
-          {/* 헤더 */}
-          <div className="mb-6">
+          {/* 헤더 - 모바일에서는 숨김 */}
+          <div className="hidden md:block mb-6">
             <h1 className="text-2xl font-bold text-gray-800">숙소리포트 상세</h1>
           </div>
 
           {/* 월 네비게이션 */}
-          <div className="bg-white rounded shadow-sm p-4 mb-6">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
+          <div className="bg-white rounded shadow-sm p-3 md:p-4 mb-4 md:mb-6">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-center md:justify-start space-x-2 md:space-x-4">
                 <button
                   onClick={() => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() - 1))}
-                  className="p-2 hover:bg-gray-100 rounded"
+                  className="p-1 md:p-2 hover:bg-gray-100 rounded"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
-                <h2 className="text-xl font-semibold">
+                <h2 className="text-base md:text-xl font-semibold text-black">
                   {selectedMonth.getFullYear()}년 {selectedMonth.getMonth() + 1}월
                 </h2>
                 <button
                   onClick={() => setSelectedMonth(new Date(selectedMonth.getFullYear(), selectedMonth.getMonth() + 1))}
-                  className="p-2 hover:bg-gray-100 rounded"
+                  className="p-1 md:p-2 hover:bg-gray-100 rounded"
                 >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
               </div>
               
-              {/* 월 합계 */}
-              <div className="flex space-x-4 text-sm">
+              {/* 월 합계 - 모바일에서는 2열 그리드 */}
+              <div className="grid grid-cols-2 md:flex gap-2 md:gap-4 text-[10px] md:text-sm">
                 <div>
-                  <span className="text-gray-600">월 평균 ADR:</span>
-                  <span className="ml-2 font-semibold">{monthlyTotal.avgAdr.toLocaleString()}원</span>
+                  <span className="text-gray-600">평균ADR:</span>
+                  <span className="ml-1 font-semibold text-black">{monthlyTotal.avgAdr.toLocaleString()}</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">월 평균 OCC:</span>
-                  <span className="ml-2 font-semibold">{monthlyTotal.avgOcc}%</span>
+                  <span className="text-gray-600">평균OCC:</span>
+                  <span className="ml-1 font-semibold text-black">{monthlyTotal.avgOcc}%</span>
                 </div>
                 <div>
-                  <span className="text-gray-600">월 총 REV:</span>
-                  <span className="ml-2 font-semibold">{monthlyTotal.totalRev.toLocaleString()}원</span>
+                  <span className="text-gray-600">총REV:</span>
+                  <span className="ml-1 font-semibold text-black">{formatNumber(monthlyTotal.totalRev)}</span>
                 </div>
-                <div>
+                <div className="hidden md:block">
                   <span className="text-gray-600">월 총 BOOK:</span>
-                  <span className="ml-2 font-semibold">
+                  <span className="ml-2 font-semibold text-black">
                     {monthlyTotal.totalBookings}/{totalRooms * daysInMonth - totalOccupiedDays}/{totalRooms * daysInMonth}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-600">월 총 예약:</span>
-                  <span className="ml-2 font-semibold">{monthlyTotal.totalBookings}건</span>
+                  <span className="text-gray-600">총예약:</span>
+                  <span className="ml-1 font-semibold text-black">{monthlyTotal.totalBookings}건</span>
                 </div>
               </div>
             </div>
           </div>
 
           {/* 달력 */}
-          <div className="bg-white rounded shadow-sm p-6 mb-6">
-            <div className="grid grid-cols-7 gap-1">
+          <div className="bg-white rounded shadow-sm p-2 md:p-6 mb-4 md:mb-6 overflow-x-auto">
+            <div className="grid grid-cols-7 gap-0.5 md:gap-1 min-w-[350px]">
               {/* 요일 헤더 */}
               {['일', '월', '화', '수', '목', '금', '토'].map(day => (
-                <div key={day} className="text-center py-2 text-sm font-semibold text-gray-700 border-b">
+                <div key={day} className="text-center py-1 md:py-2 text-xs md:text-sm font-semibold text-gray-700 border-b">
                   {day}
                 </div>
               ))}
               
               {/* 빈 칸 */}
               {Array.from({ length: getFirstDayOfMonth(selectedMonth) }).map((_, index) => (
-                <div key={`empty-${index}`} className="h-20" />
+                <div key={`empty-${index}`} className="h-16 md:h-20" />
               ))}
               
               {/* 날짜 칸 */}
@@ -322,22 +322,25 @@ export default function PropertyReportDetail() {
                     key={day}
                     onClick={() => handleDateClick(day)}
                     className={`
-                      h-20 p-1.5 border rounded text-xs hover:bg-gray-50 transition-colors
+                      h-16 md:h-20 p-0.5 md:p-1.5 border rounded text-xs hover:bg-gray-50 transition-colors
                       ${dayOfWeek === 0 ? 'bg-red-50' : ''}
                       ${dayOfWeek === 6 ? 'bg-blue-50' : ''}
-                      ${isSelected ? 'ring-2 ring-blue-500 bg-blue-100' : ''}
+                      ${isSelected ? 'ring-1 md:ring-2 ring-blue-500 bg-blue-100' : ''}
                     `}
                   >
-                    <div className={`font-semibold text-sm mb-1 ${
+                    <div className={`font-semibold text-[10px] md:text-sm mb-0.5 md:mb-1 ${
                       dayOfWeek === 0 ? 'text-red-600' : 
                       dayOfWeek === 6 ? 'text-blue-600' : 'text-gray-800'
                     }`}>
                       {day}
                     </div>
                     
-                    <div className="space-y-0.5 text-right text-xs">
+                    <div className="space-y-0 text-right text-[9px] md:text-xs">
                       <div className="text-gray-700">
-                        {formatNumber(dayData?.adr || 0)}/{dayData?.occ || 0}%/{formatNumber(dayData?.rev || 0)}
+                        {formatNumber(dayData?.adr || 0)}/{dayData?.occ || 0}%
+                      </div>
+                      <div className="text-gray-700">
+                        /{formatNumber(dayData?.rev || 0)}
                       </div>
                       <div className="text-gray-600">
                         {dayData?.bookings || 0}/<span className="text-red-500">{dayData?.remaining || 0}</span>/{dayData?.total || 0}
@@ -351,43 +354,56 @@ export default function PropertyReportDetail() {
 
           {/* 선택한 날짜 상세 정보 */}
           {selectedDate && (
-            <div className="bg-white rounded shadow-sm p-6">
-              <h3 className="text-lg font-semibold mb-4">
+            <div className="bg-white rounded shadow-sm p-3 md:p-6">
+              <h3 className="text-sm md:text-lg font-semibold mb-3 md:mb-4 text-black">
                 {selectedDate.toLocaleDateString()} 예약 내역
               </h3>
               
               {detailReservations.length > 0 ? (
                 <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
+                  <table className="w-full text-xs md:text-sm">
                     <thead className="bg-gray-50">
                       <tr>
-                        <th className="text-left px-4 py-2">예약번호</th>
-                        <th className="text-left px-4 py-2">객실</th>
-                        <th className="text-left px-4 py-2">투숙객</th>
-                        <th className="text-center px-4 py-2">체크인</th>
-                        <th className="text-center px-4 py-2">체크아웃</th>
-                        <th className="text-center px-4 py-2">숙박일</th>
-                        <th className="text-right px-4 py-2">금액</th>
-                        <th className="text-center px-4 py-2">상태</th>
+                        <th className="text-left px-2 md:px-4 py-1 md:py-2">
+                          <span className="md:hidden">예약</span>
+                          <span className="hidden md:inline">예약번호</span>
+                        </th>
+                        <th className="text-left px-2 md:px-4 py-1 md:py-2">객실</th>
+                        <th className="text-left px-2 md:px-4 py-1 md:py-2 hidden md:table-cell">투숙객</th>
+                        <th className="text-center px-2 md:px-4 py-1 md:py-2 hidden md:table-cell">체크인</th>
+                        <th className="text-center px-2 md:px-4 py-1 md:py-2 hidden md:table-cell">체크아웃</th>
+                        <th className="text-center px-2 md:px-4 py-1 md:py-2">
+                          <span className="md:hidden">박</span>
+                          <span className="hidden md:inline">숙박일</span>
+                        </th>
+                        <th className="text-right px-2 md:px-4 py-1 md:py-2">금액</th>
+                        <th className="text-center px-2 md:px-4 py-1 md:py-2">상태</th>
                       </tr>
                     </thead>
                     <tbody>
                       {detailReservations.map((res, idx) => (
                         <tr key={res.id} className={idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}>
-                          <td className="px-4 py-2">{res.reservation_number}</td>
-                          <td className="px-4 py-2">{res.room_name}</td>
-                          <td className="px-4 py-2">{res.guest_name || res.booker_name}</td>
-                          <td className="text-center px-4 py-2">{res.check_in_date}</td>
-                          <td className="text-center px-4 py-2">{res.check_out_date}</td>
-                          <td className="text-center px-4 py-2">{res.nights}박</td>
-                          <td className="text-right px-4 py-2">{res.total_amount.toLocaleString()}원</td>
-                          <td className="text-center px-4 py-2">
-                            <span className={`px-2 py-1 rounded text-xs ${
+                          <td className="px-2 md:px-4 py-1 md:py-2 text-black text-[10px] md:text-sm">
+                            <span className="md:hidden">{res.reservation_number.slice(-6)}</span>
+                            <span className="hidden md:inline">{res.reservation_number}</span>
+                          </td>
+                          <td className="px-2 md:px-4 py-1 md:py-2 text-black text-[10px] md:text-sm">{res.room_name}</td>
+                          <td className="px-2 md:px-4 py-1 md:py-2 hidden md:table-cell text-black">{res.guest_name || res.booker_name}</td>
+                          <td className="text-center px-2 md:px-4 py-1 md:py-2 hidden md:table-cell text-black">{res.check_in_date}</td>
+                          <td className="text-center px-2 md:px-4 py-1 md:py-2 hidden md:table-cell text-black">{res.check_out_date}</td>
+                          <td className="text-center px-2 md:px-4 py-1 md:py-2 text-black text-[10px] md:text-sm">{res.nights}<span className="hidden md:inline">박</span></td>
+                          <td className="text-right px-2 md:px-4 py-1 md:py-2 text-black text-[10px] md:text-sm">
+                            <span className="md:hidden">{res.total_amount >= 100000 ? `${Math.round(res.total_amount/1000)}k` : `${Math.round(res.total_amount/1000)}k`}</span>
+                            <span className="hidden md:inline">{formatNumber(res.total_amount)}</span>
+                          </td>
+                          <td className="text-center px-2 md:px-4 py-1 md:py-2">
+                            <span className={`px-1 md:px-2 py-0.5 md:py-1 rounded text-[10px] md:text-xs ${
                               res.type === 'check_in' 
                                 ? 'bg-green-100 text-green-800' 
                                 : 'bg-blue-100 text-blue-800'
                             }`}>
-                              {res.type === 'check_in' ? '체크인' : '숙박중'}
+                              <span className="md:hidden">{res.type === 'check_in' ? '체크인' : '숙박'}</span>
+                              <span className="hidden md:inline">{res.type === 'check_in' ? '체크인' : '숙박중'}</span>
                             </span>
                           </td>
                         </tr>
@@ -396,7 +412,7 @@ export default function PropertyReportDetail() {
                   </table>
                 </div>
               ) : (
-                <p className="text-gray-500 text-center py-4">해당 날짜에 예약이 없습니다.</p>
+                <p className="text-gray-500 text-center py-4 text-xs md:text-base">해당 날짜에 예약이 없습니다.</p>
               )}
             </div>
           )}

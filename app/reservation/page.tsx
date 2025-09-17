@@ -854,9 +854,9 @@ export default function LocationPage() {
       
       {/* 메인 콘텐츠 */}
       <div className="pt-28">
-        {/* CUBE 45 헤더 섹션 */}
+        {/* CUBE 45 헤더 섹션 - 반응형 추가 */}
         <div className="relative">
-          <div className="h-[500px] relative overflow-hidden">
+          <div className="h-[300px] md:h-[500px] relative overflow-hidden">
             <Image 
               src="/images/cube45/background2.jpg"
               alt="CUBE 45" 
@@ -871,14 +871,14 @@ export default function LocationPage() {
         </div>
 
         {/* Section 1: Urban Cube Pool */}
-        <section className="py-32 px-4 bg-gray-50">
+        <section className="py-16 md:py-32 px-4 bg-gray-50">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-light mb-6 text-black">RESERVATION</h2>
+            <div className="text-center mb-6 md:mb-10">
+              <h2 className="text-2xl md:text-3xl font-light mb-4 md:mb-6 text-black">RESERVATION</h2>
               
-              {/* 단계별 탭 - 수정된 버전 */}
-              <div className="flex justify-center mb-6">
-                <div className="flex bg-gray-200 overflow-hidden">
+              {/* 단계별 탭 - 반응형 수정 */}
+              <div className="flex justify-center mb-4 md:mb-6">
+                <div className="flex bg-gray-200 overflow-hidden w-full max-w-4xl">
                   {/* 01 객실선택 */}
                   <button
                     onClick={(e) => {
@@ -888,7 +888,7 @@ export default function LocationPage() {
                       }
                       setActiveStep(1);
                     }}
-                    className={`w-80 py-3 text-sm font-medium transition-colors duration-200 ${
+                    className={`flex-1 md:w-80 py-2 md:py-3 text-xs md:text-sm font-medium transition-colors duration-200 ${
                       activeStep === 1
                         ? 'bg-black text-white'
                         : activeStep === 3
@@ -908,7 +908,7 @@ export default function LocationPage() {
                         alert('먼저 객실을 선택해주세요.')
                       }
                     }}
-                    className={`w-80 py-3 text-sm font-medium transition-colors duration-200 ${
+                    className={`flex-1 md:w-80 py-2 md:py-3 text-xs md:text-sm font-medium transition-colors duration-200 ${
                       activeStep === 2
                         ? 'bg-black text-white'
                         : activeStep === 3
@@ -927,7 +927,7 @@ export default function LocationPage() {
                     onClick={() => {
                       alert('결제 완료 후 이용 가능합니다.')
                     }}
-                    className="w-80 py-3 text-sm font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
+                    className="flex-1 md:w-80 py-2 md:py-3 text-xs md:text-sm font-medium bg-gray-100 text-gray-400 cursor-not-allowed"
                     disabled={true}
                   >
                     03 예약완료
@@ -938,8 +938,8 @@ export default function LocationPage() {
               {/* 객실선택 단계 - 예약 정보 입력 폼 */}
               {activeStep === 1 && (
                 <div className="flex justify-center mb-6">
-                  <div className="w-[960px] flex justify-start">
-                    <div className="w-80 bg-white p-4 shadow-sm">
+                  <div className="w-full max-w-[960px] flex flex-col md:flex-row justify-start px-4 md:px-0">
+                    <div className="w-full md:w-80 bg-white p-4 shadow-sm mb-4 md:mb-0">
                       
                       {/* 달력 섹션 */}
                       <div className="mb-4 p-3 bg-gray-50">
@@ -953,7 +953,7 @@ export default function LocationPage() {
                         {/* 달력 헤더 */}
                         <div className="flex justify-between items-center mb-3">
                           <button 
-                            className="text-gray-600 hover:text-gray-800 text-sm"
+                            className="text-gray-600 hover:text-gray-800 text-sm p-1"
                             onClick={handlePreviousMonth}
                           >
                             &lt;
@@ -962,7 +962,7 @@ export default function LocationPage() {
                             {currentYear} {monthNames[currentMonth - 1]}
                           </span>
                           <button 
-                            className="text-gray-600 hover:text-gray-800 text-sm"
+                            className="text-gray-600 hover:text-gray-800 text-sm p-1"
                             onClick={handleNextMonth}
                           >
                             &gt;
@@ -1001,7 +1001,7 @@ export default function LocationPage() {
                                     return selectedDate < today
                                   })()
                                     ? 'text-gray-300 cursor-not-allowed' 
-                                    : 'cursor-pointer hover:bg-gray-200'
+                                    : 'cursor-pointer hover:bg-gray-200 text-black'
                                 } ${
                                   isDateSelected(date) ? 'bg-blue-500 text-white rounded-full' : 
                                   isDateInRange(date) ? 'bg-blue-200' : ''
@@ -1113,10 +1113,10 @@ export default function LocationPage() {
                     
                     {/* 객실 검색 결과 */}
                     {showRoomResults && (
-                      <div className="w-[640px] ml-4 h-[600px]">
+                      <div className="w-full md:w-[640px] md:ml-4 h-auto md:h-[600px]">
                         {/* 동 선택 필터 */}
                         <div className="flex justify-center mb-4">
-                          <div className="flex bg-gray-200 overflow-hidden">
+                          <div className="flex bg-gray-200 overflow-hidden w-full md:w-auto">
                             {['전체', 'A동', 'B동', 'C동', 'D동'].map(building => (
                               <button
                                 key={building}
@@ -1129,7 +1129,7 @@ export default function LocationPage() {
                                   setFilteredRooms(rooms)
                                 }}
 
-                                className={`px-6 py-2 text-sm font-medium transition-colors duration-200 ${
+                                className={`flex-1 md:flex-none px-3 md:px-6 py-2 text-xs md:text-sm font-medium transition-colors duration-200 ${
                                   selectedBuilding === building
                                     ? 'bg-black text-white'
                                     : 'bg-gray-200 text-gray-600 hover:bg-gray-300'
@@ -1146,7 +1146,7 @@ export default function LocationPage() {
                             <div className="text-center py-12">
                               <p className="text-gray-500 mb-4">검색된 객실이 없습니다</p>
                               <button 
-                                className="px-6 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium text-sm transition-colors duration-200"
+                                className="px-4 md:px-6 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium text-xs md:text-sm transition-colors duration-200"
                                 onClick={async () => {
                                   setAdults(2)
                                   setChildren(0)
@@ -1164,9 +1164,9 @@ export default function LocationPage() {
                           ) : (
                             <>
                               {filteredRooms.slice(0, visibleRooms).map((room) => (
-                                <div key={room.id} className="bg-white p-6 shadow-sm mb-4">
-                                  <div className="flex">
-                                    <div className="w-48 h-32 mr-6">
+                                <div key={room.id} className="bg-white p-4 md:p-6 shadow-sm mb-4">
+                                  <div className="flex flex-col md:flex-row">
+                                    <div className="w-full md:w-48 h-32 mb-4 md:mb-0 md:mr-6">
                                       <Image 
                                         src="/images/reservation/roomex.jpg"
                                         alt={room.name}
@@ -1175,19 +1175,19 @@ export default function LocationPage() {
                                         className="object-cover w-full h-full"
                                       />
                                     </div>
-                                    <div className="flex-1 flex justify-between">
-                                      <div className="text-left">
-                                        <h3 className="text-base font-medium mb-3 text-gray-800">{room.name}</h3>
-                                        <div className="text-sm text-gray-600">
+                                    <div className="flex-1 flex flex-col md:flex-row justify-between">
+                                      <div className="text-left mb-4 md:mb-0">
+                                        <h3 className="text-sm md:text-base font-medium mb-2 md:mb-3 text-gray-800">{room.name}</h3>
+                                        <div className="text-xs md:text-sm text-gray-600">
                                           <div>침대룸 {room.rooms}개, 화장실 {room.bathrooms}개</div>
                                           <div>기준인원 : {room.minGuests}명 최대인원 : {room.maxGuests}명</div>
                                           <div>객실크기 : {room.size}평</div>
                                           <div>애견동반 {room.petFriendly ? '가능' : '불가능'}</div>
                                         </div>
                                       </div>
-                                      <div className="flex flex-col items-end justify-end">
-                                        <div className="text-base font-bold mb-2">₩{room.price.toLocaleString()} <span className="text-xs text-gray-500 font-normal">VAT포함</span></div>
-                                        <button className="px-8 py-2 text-white font-medium text-sm" style={{backgroundColor: '#134C59'}} onClick={() => {
+                                      <div className="flex flex-row md:flex-col items-start md:items-end justify-between md:justify-end">
+                                        <div className="text-sm md:text-base font-bold mb-0 md:mb-2 text-black">₩{room.price.toLocaleString()} <span className="text-xs text-gray-500 font-normal">VAT포함</span></div>
+                                        <button className="px-6 md:px-8 py-2 text-white font-medium text-xs md:text-sm" style={{backgroundColor: '#134C59'}} onClick={() => {
                                           setSelectedRoom(room)
                                           setActiveStep(2)
                                         }}>객실예약</button>
@@ -1202,7 +1202,7 @@ export default function LocationPage() {
                                 <div className="flex justify-center mt-4">
                                   <button
                                     onClick={() => setVisibleRooms(visibleRooms + 3)}
-                                    className="px-6 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium text-sm transition-colors duration-200"
+                                    className="px-4 md:px-6 py-2 bg-gray-200 text-gray-700 hover:bg-gray-300 font-medium text-xs md:text-sm transition-colors duration-200"
                                   >
                                     더보기 ({filteredRooms.length - visibleRooms}개 더)
                                   </button>
@@ -1221,9 +1221,9 @@ export default function LocationPage() {
               <div className="mt-6">
                 {activeStep === 2 && (
                   <div className="flex justify-center mb-6">
-                    <div className="w-[960px] flex gap-4">
+                    <div className="w-full px-4 md:px-0 md:w-[960px] flex flex-col md:flex-row md:gap-4">
                       {/* 왼쪽 - 예약정보 요약 */}
-                      <div className="w-80 bg-white p-4 shadow-sm">
+                      <div className="w-full md:w-80 bg-white p-4 shadow-sm mb-4 md:mb-0">
                         {/* 객실 이미지 */}
                         <div className="w-full h-48 mb-4">
                           <Image 
@@ -1238,48 +1238,50 @@ export default function LocationPage() {
                         {/* 취소규정 */}
                         <div className="mb-4">
                           <h5 className="text-sm font-medium mb-2 text-gray-800 text-left">취소규정</h5>
-                          <table className="w-full text-xs border border-gray-300">
-                            <thead>
-                              <tr className="bg-gray-50">
-                                <th className="border-r border-gray-300 px-3 py-2 text-center font-medium">취소일기준</th>
-                                <th className="px-3 py-2 text-center font-medium">취소수수료</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              <tr className="border-t border-gray-300">
-                                <td className="border-r border-gray-300 px-3 py-2 text-center text-red-500">기본 취소 수수료</td>
-                                <td className="px-3 py-2 text-center">0%</td>
-                              </tr>
-                              <tr className="border-t border-gray-300">
-                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 6일 전</td>
-                                <td className="px-3 py-2 text-center">0%</td>
-                              </tr>
-                              <tr className="border-t border-gray-300">
-                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 5일 전</td>
-                                <td className="px-3 py-2 text-center">10%</td>
-                              </tr>
-                              <tr className="border-t border-gray-300">
-                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 4일 전</td>
-                                <td className="px-3 py-2 text-center">20%</td>
-                              </tr>
-                              <tr className="border-t border-gray-300">
-                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 3일 전</td>
-                                <td className="px-3 py-2 text-center">30%</td>
-                              </tr>
-                              <tr className="border-t border-gray-300">
-                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 2일 전</td>
-                                <td className="px-3 py-2 text-center">50%</td>
-                              </tr>
-                              <tr className="border-t border-gray-300">
-                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용 1일 전</td>
-                                <td className="px-3 py-2 text-center">70%</td>
-                              </tr>
-                              <tr className="border-t border-gray-300">
-                                <td className="border-r border-gray-300 px-3 py-2 text-center">이용일 당일</td>
-                                <td className="px-3 py-2 text-center">100% <span className="text-red-500">(환불불가)</span></td>
-                              </tr>
-                            </tbody>
-                          </table>
+                          <div className="overflow-x-auto">
+                            <table className="w-full text-xs border border-gray-300">
+                              <thead>
+                                <tr className="bg-gray-50">
+                                  <th className="border-r border-gray-300 px-2 md:px-3 py-2 text-center font-medium text-black">취소일기준</th>
+                                  <th className="px-2 md:px-3 py-2 text-center font-medium text-black">취소수수료</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                <tr className="border-t border-gray-300">
+                                  <td className="border-r border-gray-300 px-2 md:px-3 py-2 text-center text-red-500">기본 취소 수수료</td>
+                                  <td className="px-2 md:px-3 py-2 text-center text-black">0%</td>
+                                </tr>
+                                <tr className="border-t border-gray-300">
+                                  <td className="border-r border-gray-300 px-2 md:px-3 py-2 text-center text-black">이용 6일 전</td>
+                                  <td className="px-2 md:px-3 py-2 text-center text-black">0%</td>
+                                </tr>
+                                <tr className="border-t border-gray-300">
+                                  <td className="border-r border-gray-300 px-2 md:px-3 py-2 text-center text-black">이용 5일 전</td>
+                                  <td className="px-2 md:px-3 py-2 text-center text-black">10%</td>
+                                </tr>
+                                <tr className="border-t border-gray-300">
+                                  <td className="border-r border-gray-300 px-2 md:px-3 py-2 text-center text-black">이용 4일 전</td>
+                                  <td className="px-2 md:px-3 py-2 text-center text-black">20%</td>
+                                </tr>
+                                <tr className="border-t border-gray-300">
+                                  <td className="border-r border-gray-300 px-2 md:px-3 py-2 text-center text-black">이용 3일 전</td>
+                                  <td className="px-2 md:px-3 py-2 text-center text-black">30%</td>
+                                </tr>
+                                <tr className="border-t border-gray-300">
+                                  <td className="border-r border-gray-300 px-2 md:px-3 py-2 text-center text-black">이용 2일 전</td>
+                                  <td className="px-2 md:px-3 py-2 text-center text-black">50%</td>
+                                </tr>
+                                <tr className="border-t border-gray-300">
+                                  <td className="border-r border-gray-300 px-2 md:px-3 py-2 text-center text-black">이용 1일 전</td>
+                                  <td className="px-2 md:px-3 py-2 text-center text-black">70%</td>
+                                </tr>
+                                <tr className="border-t border-gray-300">
+                                  <td className="border-r border-gray-300 px-2 md:px-3 py-2 text-center text-black">이용일 당일</td>
+                                  <td className="px-2 md:px-3 py-2 text-center text-black">100% <span className="text-red-500">(환불불가)</span></td>
+                                </tr>
+                              </tbody>
+                            </table>
+                          </div>
                         </div>
                         
                         {/* 예약정보 */}
@@ -1299,7 +1301,8 @@ export default function LocationPage() {
                         {/* 예약 유의사항 */}
                         <div className="mb-4">
                           <h5 className="text-sm font-medium mb-2 text-gray-800 text-left">예약 유의사항</h5>
-                          <div className="h-150 overflow-y-auto text-xs text-gray-600 leading-relaxed text-left">
+                          <div className="h-48 md:h-64 overflow-y-scroll text-xs text-gray-600 leading-relaxed text-left p-3 bg-gray-50 mobile-scrollbar">
+
                             패밀리트윈 객실은 인원추가 시 11,000원/인이 추가됩니다. 스위트는 인원추가 시 22,000원/인이 추가되며 침구류가 제공됩니다.<br/><br/>
                             
                             <strong>[성수기 취소규정]</strong><br/>
@@ -1310,7 +1313,7 @@ export default function LocationPage() {
                             
                             <strong>[비성수기 취소규정]</strong><br/>
                             - 체크인 기준 3일전 : 무료취소 가능<br/>
-                            - 체크인 기준 2일전 : 전체예약에대해 50% 수수료 발생<br/>
+                            - 체크인ㄴ 기준 2일전 : 전체예약에대해 50% 수수료 발생<br/>
                             - 체크인 기준 1일전 및 당일취소, NO SHOW : 전체 예약에 대해 100% 수수료 발생<br/><br/>
                             
                             - 기준 인원 초과 시 추가 비용이 발생하게 됩니다. (모든 영,유아는 투숙 인원에 포함이 됩니다.)<br/>
@@ -1334,11 +1337,11 @@ export default function LocationPage() {
                       </div>
                       
                       {/* 오른쪽 - 예약자 정보 입력 폼 */}
-                      <div className="flex-1 bg-white p-6 shadow-sm">
+                      <div className="w-full md:flex-1 bg-white p-4 md:p-6 shadow-sm">
                         {/* 헤더 영역 - 제목과 체크박스를 flex로 배치 */}
                         <div className="flex justify-between items-center mb-6">
                           <h3 className="text-sm font-medium text-gray-800 text-left">예약자 정보</h3>
-                          <label className="flex items-center text-sm text-gray-600">
+                          <label className="flex items-center text-xs md:text-sm text-gray-600">
                             <input 
                               type="checkbox" 
                               className="mr-2" 
@@ -1349,12 +1352,12 @@ export default function LocationPage() {
                         </div>
                         
                         {/* 예약자 정보 */}
-                        <div className="grid grid-cols-3 gap-4 mb-6">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                           <div>
                             <label className="block text-xs text-gray-600 mb-1">예약자 이름</label>
                             <input 
                               type="text" 
-                              className="w-full p-2 border border-gray-300 text-sm" 
+                              className="w-full p-2 border border-gray-300 text-sm text-black" 
                               placeholder="홍길동"
                               value={bookerInfo.name}
                               onChange={(e) => {
@@ -1369,7 +1372,7 @@ export default function LocationPage() {
                             <label className="block text-xs text-gray-600 mb-1">예약자 이메일</label>
                             <input 
                               type="email" 
-                              className="w-full p-2 border border-gray-300 text-sm" 
+                              className="w-full p-2 border border-gray-300 text-sm text-black" 
                               placeholder="example@email.com"
                               value={bookerInfo.email}
                               onKeyDown={(e) => {
@@ -1384,7 +1387,7 @@ export default function LocationPage() {
                             <label className="block text-xs text-gray-600 mb-1">예약자 연락처</label>
                             <input 
                               type="text" 
-                              className="w-full p-2 border border-gray-300 text-sm" 
+                              className="w-full p-2 border border-gray-300 text-sm text-black" 
                               placeholder="010-1234-5678"
                               value={bookerInfo.phone}
                               onChange={(e) => {
@@ -1399,12 +1402,12 @@ export default function LocationPage() {
                         {isDifferentGuest && (
                           <>
                             <h3 className="text-sm font-medium text-gray-800 text-left mb-6">투숙자 정보</h3>
-                            <div className="grid grid-cols-3 gap-4 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
                               <div>
                                 <label className="block text-xs text-gray-600 mb-1">투숙자 이름</label>
                                 <input 
                                   type="text" 
-                                  className="w-full p-2 border border-gray-300 text-sm" 
+                                  className="w-full p-2 border border-gray-300 text-sm text-black" 
                                   placeholder="홍길동"
                                   value={guestInfo.name}
                                   onChange={(e) => {
@@ -1417,7 +1420,7 @@ export default function LocationPage() {
                                 <label className="block text-xs text-gray-600 mb-1">투숙자 이메일</label>
                                 <input 
                                   type="email" 
-                                  className="w-full p-2 border border-gray-300 text-sm" 
+                                  className="w-full p-2 border border-gray-300 text-sm text-black" 
                                   placeholder="example@email.com"
                                   value={guestInfo.email}
                                   onKeyDown={(e) => {
@@ -1432,7 +1435,7 @@ export default function LocationPage() {
                                 <label className="block text-xs text-gray-600 mb-1">투숙자 연락처</label>
                                 <input 
                                   type="text" 
-                                  className="w-full p-2 border border-gray-300 text-sm" 
+                                  className="w-full p-2 border border-gray-300 text-sm text-black" 
                                   placeholder="010-1234-5678"
                                   value={guestInfo.phone}
                                   onChange={(e) => {
@@ -1448,7 +1451,7 @@ export default function LocationPage() {
                         {/* 인원 선택 */}
                         <div className="mb-6">
                           <h4 className="text-sm font-medium mb-3 text-gray-800 text-left">투숙인원</h4>
-                          <div className="grid grid-cols-4 gap-4">
+                          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                             <div>
                               <label className="block text-sm text-gray-600 mb-1">성인</label>
                               <input 
@@ -1457,7 +1460,7 @@ export default function LocationPage() {
                                 value={adultCount}
                                 onChange={(e) => setAdultCount(parseInt(e.target.value) || 0)}
                                 onBlur={(e) => e.target.value = adultCount.toString()}
-                                className="w-full p-2 border border-gray-300 text-sm" 
+                                className="w-full p-2 border border-gray-300 text-sm text-black" 
                                 placeholder="0" 
                               />
                             </div>
@@ -1469,7 +1472,7 @@ export default function LocationPage() {
                                 value={studentCount}
                                 onChange={(e) => setStudentCount(parseInt(e.target.value) || 0)}
                                 onBlur={(e) => e.target.value = studentCount.toString()}
-                                className="w-full p-2 border border-gray-300 text-sm" 
+                                className="w-full p-2 border border-gray-300 text-sm text-black" 
                                 placeholder="0" 
                               />
                             </div>
@@ -1481,7 +1484,7 @@ export default function LocationPage() {
                                 value={childCount}
                                 onChange={(e) => setChildCount(parseInt(e.target.value) || 0)}
                                 onBlur={(e) => e.target.value = childCount.toString()}
-                                className="w-full p-2 border border-gray-300 text-sm" 
+                                className="w-full p-2 border border-gray-300 text-sm text-black" 
                                 placeholder="0" 
                               />
                             </div>
@@ -1493,7 +1496,7 @@ export default function LocationPage() {
                                 value={infantCount}
                                 onChange={(e) => setInfantCount(parseInt(e.target.value) || 0)}
                                 onBlur={(e) => e.target.value = infantCount.toString()}
-                                className="w-full p-2 border border-gray-300 text-sm" 
+                                className="w-full p-2 border border-gray-300 text-sm text-black" 
                                 placeholder="0" 
                               />
                             </div>
@@ -1510,9 +1513,9 @@ export default function LocationPage() {
                         {/* 추가옵션 */}
                         <div className="mb-6">
                           <h4 className="text-sm font-medium mb-3 text-gray-800 text-left">추가옵션</h4>
-                          <div className="grid grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <label className="flex items-center text-sm">
+                              <label className="flex items-center text-sm text-black">
                                 <input 
                                   type="checkbox" 
                                   className="mr-2"
@@ -1521,7 +1524,7 @@ export default function LocationPage() {
                                 />
                                 BBQ 숯&그릴 4인용 : 3만원
                               </label>
-                              <label className="flex items-center text-sm">
+                              <label className="flex items-center text-sm text-black">
                                 <input 
                                   type="checkbox" 
                                   className="mr-2"
@@ -1530,7 +1533,7 @@ export default function LocationPage() {
                                 />
                                 BBQ 숯&그릴 4인 이상 : 5만원
                               </label>
-                              <label className="flex items-center text-sm">
+                              <label className="flex items-center text-sm text-black">
                                 <input 
                                   type="checkbox" 
                                   className="mr-2"
@@ -1541,7 +1544,7 @@ export default function LocationPage() {
                               </label>
                             </div>
                             <div className="space-y-2">
-                              <label className="flex items-center text-sm">
+                              <label className="flex items-center text-sm text-black">
                                 <input 
                                   type="checkbox" 
                                   className="mr-2"
@@ -1550,7 +1553,7 @@ export default function LocationPage() {
                                 />
                                 미온수(6/1~10/31) : 5만원
                               </label>
-                              <label className="flex items-center text-sm">
+                              <label className="flex items-center text-sm text-black">
                                 <input 
                                   type="checkbox" 
                                   className="mr-2"
@@ -1571,7 +1574,7 @@ export default function LocationPage() {
                         <div className="mb-6">
                           <h4 className="text-sm font-medium mb-2 text-gray-800 text-left">고객요청사항</h4>
                           <textarea 
-                            className="w-full p-3 border border-gray-300 text-sm h-24 resize-none" 
+                            className="w-full p-3 border border-gray-300 text-sm text-black h-24 resize-none" 
                             placeholder="요청사항을 입력해주세요"
                             value={customerRequest}
                             onChange={(e) => setCustomerRequest(e.target.value)}
@@ -1667,14 +1670,14 @@ export default function LocationPage() {
                           <h4 className="text-sm font-medium mb-2 text-gray-800">총 결제 금액</h4>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">객실요금</span>
-                            <span className="text-sm">₩{totalRoomPrice.toLocaleString()}</span>
+                            <span className="text-sm text-black">₩{totalRoomPrice.toLocaleString()}</span>
                           </div>
                           
                           {/* 추가인원요금이 있을 때만 표시 */}
                           {calculateAdditionalFee() > 0 && (
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-gray-600">추가인원요금</span>
-                              <span className="text-sm">₩{calculateAdditionalFee().toLocaleString()}</span>
+                              <span className="text-sm text-black">₩{calculateAdditionalFee().toLocaleString()}</span>
                             </div>
                           )}
                           
@@ -1682,18 +1685,19 @@ export default function LocationPage() {
                           {calculateOptionsFee() > 0 && (
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-gray-600">추가옵션요금</span>
-                              <span className="text-sm">₩{calculateOptionsFee().toLocaleString()}</span>
+                              <span className="text-sm text-black">₩{calculateOptionsFee().toLocaleString()}</span>
                             </div>
                           )}
                           
                           <hr className="my-2 border-gray-300" />
                           
                           <div className="flex justify-between items-center">
-                            <span className="text-lg font-medium">총 결제금액</span>
+                            <span className="text-lg font-medium text-black">총 결제금액</span>
                             <span className="text-lg font-bold text-red-500">
                               ₩{(totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
                             </span>
                           </div>
+                        </div>
                         
                         {/* 버튼 */}
                         <div className="flex gap-4">
@@ -1746,38 +1750,39 @@ export default function LocationPage() {
                             {getFirstErrorMessage()}
                           </div>
                         )}
-						{/* 팝업 모달 */}
+                        
+                        {/* 팝업 모달 */}
                         {showTermsPopup.isOpen && showTermsPopup.type && (
                           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                            <div className="bg-white rounded-lg max-w-2xl w-full mx-4 max-h-[80vh] overflow-hidden">
-                              <div className="p-6 border-b">
-                                <h2 className="text-xl font-bold">
+                            <div className="bg-white rounded-lg w-full max-w-2xl mx-4 max-h-[80vh] overflow-hidden">
+                              <div className="p-4 md:p-6 border-b">
+                                <h2 className="text-lg md:text-xl font-bold text-black">
                                   {showTermsPopup.type === 'terms1' && '예약 유의사항 및 취소규정 동의'}
                                   {showTermsPopup.type === 'terms2' && '개인정보 수집 이용 동의'}
                                   {showTermsPopup.type === 'terms3' && '제 3자에 대한 개인정보 제공'}
                                   {showTermsPopup.type === 'marketing' && '마케팅 정보 수신 동의'}
                                 </h2>
                               </div>
-                              <div className="p-6 overflow-y-auto max-h-[60vh] text-sm text-gray-700 text-left">
+                              <div className="p-4 md:p-6 overflow-y-auto max-h-[60vh] text-xs md:text-sm text-gray-700 text-left">
                                 {showTermsPopup.type === 'terms1' && (
                                   <div>
-                                    <h5 className="font-bold mb-2">[예약 유의사항 및 취소규정 동의]</h5>
+                                    <h5 className="font-bold mb-2 text-black">[예약 유의사항 및 취소규정 동의]</h5>
                                     <p className="mb-2">예약정보 하단에 기재된 취소 규정 및 예약 유의사항을 확인하였고, 이에 동의합니다.</p>
                                     <p className="mb-2">- 예약 및 결제 완료 후 해당 숙소의 취소규정이 적용됩니다.</p>
                                     <p className="mb-4">- 예약 유의사항에 동의하지 않을 경우 예약이 불가하며, 예약 취소 및 입실이 거절될 수 있습니다.</p>
                                     
-                                    <h5 className="font-bold mb-2">[아동,청소년 보호법에 대한 동의]</h5>
+                                    <h5 className="font-bold mb-2 text-black">[아동,청소년 보호법에 대한 동의]</h5>
                                     <p className="mb-2">예약자(투숙자) 본인을 포함하여 가족 이외의 미성년자 동반 입실 시 모든 법적 책임은 당사자에게 있습니다.</p>
                                     <p className="mb-2">또한, 이로 인해 영업정지, 과태료 등 당 사업장의 피해 발생 시 예약자(투숙자)에게 모든 손해배상 의무가 있음을 동의합니다.</p>
                                   </div>
                                 )}
                                 {showTermsPopup.type === 'terms2' && (
                                   <div>
-                                    <h5 className="font-bold mb-2">[개인정보 수집 이용 동의]</h5>
+                                    <h5 className="font-bold mb-2 text-black">[개인정보 수집 이용 동의]</h5>
                                     <p className="mb-2">큐브45 (이하 &apos;회사&apos;는) 개인정보보호법에 따라 이용자의 개인정보 보호 및 권익을 보호하고 개인정보와 관련한 이용자의 고충을 원활하게 처리할 수 있도록 다음과 같은 처리방침을 두고 있습니다. 회사는 개인정보취급방침을 개정하는 경우 웹사이트 공지사항(또는 개별공지)을 통하여 공지할 것입니다.</p>
                                     <p className="mb-4">ο 본 방침은 : 2017 년 3 월 01일 부터 시행됩니다.</p>
                                     
-                                    <h5 className="font-bold mb-2">개인정보 수집항목</h5>
+                                    <h5 className="font-bold mb-2 text-black">개인정보 수집항목</h5>
                                     <p className="mb-2">1. 수집하는 개인정보 항목 및 수집방법</p>
                                     <p className="mb-2">가. 수집하는 개인정보의 항목</p>
                                     <p className="mb-2">1) 회사는 원활한 고객상담, 각종 서비스 제공을 위해 상품구매시 아래와 같은 최소한의 개인정보를 수집하고 있습니다.</p>
@@ -1788,7 +1793,7 @@ export default function LocationPage() {
                                     <p className="mb-2">ο 홈페이지를 통한 구매, 게시판작성</p>
                                     <p className="mb-4">ο 제휴사로부터의 제공</p>
                                     
-                                    <h5 className="font-bold mb-2">개인정보의 수집 및 이용목적</h5>
+                                    <h5 className="font-bold mb-2 text-black">개인정보의 수집 및 이용목적</h5>
                                     <p className="mb-2">2. 개인정보의 수집 및 이용목적</p>
                                     <p className="mb-2">회사는 수집한 개인정보를 아래의 목적을 위해 활용합니다.</p>
                                     <p className="mb-2">- 이름:서비스 이용에 따른 본인확인, 개인식별, 불량회원의 부정 이용 방지와 비인가사용 방지 등 고객센터의 운영을 위하여 사용됩니다.</p>
@@ -1796,7 +1801,7 @@ export default function LocationPage() {
                                     <p className="mb-2">- 이용자의 IP주소, 방문 일시 : 불량회원의 부정 이용방지와 비인가 사용방지, 서비스 이용에 대한 통계학적 분석에 사용됩니다.</p>
                                     <p className="mb-4">-그외의 선택항목 :개인맞춤서비스를 제공하기 위하여 사용됩니다.</p>
                                     
-                                    <h5 className="font-bold mb-2">개인정보의 보유 및 이용기간</h5>
+                                    <h5 className="font-bold mb-2 text-black">개인정보의 보유 및 이용기간</h5>
                                     <p className="mb-2">3. 개인정보의 보유 및 이용기간</p>
                                     <p className="mb-2">회사는 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를 원칙적으로 지체없이 파기합니다.</p>
                                     <p className="mb-2">다만, 아래의 정보에 대해서는 아래의 이유로 명시한 기간 동안 보존합니다.</p>
@@ -1812,7 +1817,7 @@ export default function LocationPage() {
                                 )}
                                 {showTermsPopup.type === 'terms3' && (
                                   <div>
-                                    <h5 className="font-bold mb-2">[제 3자에 대한 개인정보 제공]</h5>
+                                    <h5 className="font-bold mb-2 text-black">[제 3자에 대한 개인정보 제공]</h5>
                                     <p className="mb-2">큐브45는(은) 공정거래위원회 인증 전자상거래 표준약관을 준수하고 있으며, 이용하시려면 아래 개인정보의 수집 및 제공에 동의하셔야 합니다.</p>
                                     <p className="mb-2">제공받는자 : (주)브래드포럼</p>
                                     <p className="mb-2">개인정보 이용목적 : 본인확인 및 숙소 확인</p>
@@ -1822,26 +1827,26 @@ export default function LocationPage() {
                                 )}
                                 {showTermsPopup.type === 'marketing' && (
                                   <div>
-                                    <h5 className="font-bold mb-2">마케팅 정보 수신 동의</h5>
+                                    <h5 className="font-bold mb-2 text-black">마케팅 정보 수신 동의</h5>
                                     <p className="mb-4">큐브45 풀빌라에서 제공하는 이벤트/혜택 등 다양한 정보를 휴대전화(문자), 이메일로 받아보실 수 있습니다.</p>
                                     
-                                    <h5 className="font-bold mb-2">수신 정보</h5>
+                                    <h5 className="font-bold mb-2 text-black">수신 정보</h5>
                                     <p className="mb-2">• 할인 쿠폰 및 프로모션 안내</p>
                                     <p className="mb-2">• 신규 시설 및 서비스 안내</p>
                                     <p className="mb-2">• 이벤트 및 행사 정보</p>
                                     <p className="mb-4">• 계절별 특별 패키지 안내</p>
                                     
-                                    <h5 className="font-bold mb-2">수신 방법</h5>
+                                    <h5 className="font-bold mb-2 text-black">수신 방법</h5>
                                     <p className="mb-2">• SMS/MMS</p>
                                     <p className="mb-4">• 이메일</p>
                                     
-                                    <h5 className="font-bold mb-2">동의 철회</h5>
+                                    <h5 className="font-bold mb-2 text-black">동의 철회</h5>
                                     <p className="mb-2">마케팅 정보 수신 동의는 언제든지 철회할 수 있습니다.</p>
                                     <p className="mb-2">고객센터 또는 수신된 메시지의 수신거부 링크를 통해 철회 가능합니다.</p>
                                   </div>
                                 )}
                               </div>
-                              <div className="p-6 border-t">
+                              <div className="p-4 md:p-6 border-t">
                                 <button
                                   className="w-full py-2 bg-gray-800 text-white rounded hover:bg-gray-700"
                                   onClick={() => setShowTermsPopup({ isOpen: false, type: null })}
@@ -1855,110 +1860,111 @@ export default function LocationPage() {
                       </div>
                     </div>
                   </div>
-                </div>
-              )}
-              {activeStep === 3 && (
+                )}
+                {activeStep === 3 && (
                   <div className="flex justify-center mb-6">
-                    <div className="w-[750px] bg-gray-50 p-8">
-                      <div className="text-center mb-8">
-                        <h2 className="text-2xl font-medium mb-2">예약완료</h2>
-                        <p className="text-gray-600">구매해 주셔서 감사합니다.</p>
+                    <div className="w-full px-4 md:px-0 md:w-[750px] bg-gray-50 p-4 md:p-8">
+                      <div className="text-center mb-6 md:mb-8">
+                        <h2 className="text-xl md:text-2xl font-medium mb-2 text-black">예약완료</h2>
+                        <p className="text-sm md:text-base text-gray-600">구매해 주셔서 감사합니다.</p>
                       </div>
                       
-                      {/* 예약 정보 표 */}
-                      <div className="mb-8">
-                        <div className="grid border-b border-gray-300 border-t-2 border-t-black" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left">예약번호</div>
-                          <div className="p-3 text-left pl-8">{reservationNumber}</div>
-                        </div>
-                        <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left">객실명</div>
-                          <div className="p-3 text-left pl-8">{selectedRoom?.name || '--'}</div>
-                        </div>
-                        <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left flex items-center">추가옵션</div>
-                          <div className="p-3 flex items-center text-left pl-8">
-                            {selectedOptions.length > 0 ? 
-                              selectedOptions.map(option => {
-                                const optionNames = {
-                                  'bbq4': 'BBQ 숯&그릴 4인용',
-                                  'bbq4plus': 'BBQ 숯&그릴 4인 이상',
-                                  'hotwater1': '미온수(11/1~5/31)',
-                                  'hotwater2': '미온수(6/1~10/31)',
-                                  'fireplace': '벽난로(20pcs)'
-                                }
-                                return optionNames[option as keyof typeof optionNames]
-                              }).join(', ') : '없음'
-                            }
+                      {/* 예약 정보 표 - 모바일 반응형 */}
+                      <div className="mb-6 md:mb-8 overflow-x-auto">
+                        <div className="min-w-[300px]">
+                          <div className="grid border-b border-gray-300 border-t-2 border-t-black" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">예약번호</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{reservationNumber}</div>
                           </div>
-                        </div>
-                        <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left">객실수</div>
-                          <div className="p-3 text-left pl-8">1</div>
-                        </div>
-                        <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left">체크인</div>
-                          <div className="p-3 text-left pl-8">{checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : '--'}</div>
-                        </div>
-                        <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left">체크아웃</div>
-                          <div className="p-3 text-left pl-8">{checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : '--'}</div>
-                        </div>
-                        <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left">구매자</div>
-                          <div className="p-3 text-left pl-8">{bookerInfo.name || '--'}</div>
-                        </div>
-                        <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left">구매자 연락처</div>
-                          <div className="p-3 text-left pl-8">{bookerInfo.phone || '--'}</div>
-                        </div>
-                        <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left">구매자 이메일</div>
-                          <div className="p-3 text-left pl-8">{bookerInfo.email || '--'}</div>
-                        </div>
-                        
-                        {/* 투숙자 정보는 체크박스 체크했을 때만 표시 */}
-                        {isDifferentGuest && (
-                          <>
-                            <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                              <div className="bg-gray-100 p-3 pl-6 font-medium text-left">투숙자</div>
-                              <div className="p-3 text-left pl-8">{guestInfo.name || '--'}</div>
+                          <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">객실명</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{selectedRoom?.name || '--'}</div>
+                          </div>
+                          <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left flex items-center text-xs md:text-sm text-black">추가옵션</div>
+                            <div className="p-2 md:p-3 flex items-center text-left pl-3 md:pl-8 text-xs md:text-sm text-black">
+                              {selectedOptions.length > 0 ? 
+                                selectedOptions.map(option => {
+                                  const optionNames = {
+                                    'bbq4': 'BBQ 숯&그릴 4인용',
+                                    'bbq4plus': 'BBQ 숯&그릴 4인 이상',
+                                    'hotwater1': '미온수(11/1~5/31)',
+                                    'hotwater2': '미온수(6/1~10/31)',
+                                    'fireplace': '벽난로(20pcs)'
+                                  }
+                                  return optionNames[option as keyof typeof optionNames]
+                                }).join(', ') : '없음'
+                              }
                             </div>
-                            <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                              <div className="bg-gray-100 p-3 pl-6 font-medium text-left">투숙자 연락처</div>
-                              <div className="p-3 text-left pl-8">{guestInfo.phone || '--'}</div>
-                            </div>
-                            <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-                              <div className="bg-gray-100 p-3 pl-6 font-medium text-left">투숙자 이메일</div>
-                              <div className="p-3 text-left pl-8">{guestInfo.email || '--'}</div>
-                            </div>
-                          </>
-                        )}
+                          </div>
+                          <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">객실수</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">1</div>
+                          </div>
+                          <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">체크인</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : '--'}</div>
+                          </div>
+                          <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">체크아웃</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : '--'}</div>
+                          </div>
+                          <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">구매자</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{bookerInfo.name || '--'}</div>
+                          </div>
+                          <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">구매자 연락처</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{bookerInfo.phone || '--'}</div>
+                          </div>
+                          <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">구매자 이메일</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{bookerInfo.email || '--'}</div>
+                          </div>
+                          
+                          {/* 투숙자 정보는 체크박스 체크했을 때만 표시 */}
+                          {isDifferentGuest && (
+                            <>
+                              <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                                <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">투숙자</div>
+                                <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{guestInfo.name || '--'}</div>
+                              </div>
+                              <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                                <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">투숙자 연락처</div>
+                                <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{guestInfo.phone || '--'}</div>
+                              </div>
+                              <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                                <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">투숙자 이메일</div>
+                                <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{guestInfo.email || '--'}</div>
+                              </div>
+                            </>
+                          )}
 						  
-						{/* 고객요청사항 - 새로 추가 */}
-						<div className="grid border-b border-gray-300" style={{gridTemplateColumns: '30% 70%'}}>
-						  <div className="bg-gray-100 p-3 pl-6 font-medium text-left">고객요청사항</div>
-						  <div className="p-3 text-left pl-8">{customerRequest || '없음'}</div>
-						</div>  
-                        
-                        <div className="grid" style={{gridTemplateColumns: '30% 70%'}}>
-                          <div className="bg-gray-100 p-3 pl-6 font-medium text-left">결제금액</div>
-                          <div className="p-3 text-red-500 font-bold text-left pl-8">
-                            ₩{(totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
+                          {/* 고객요청사항 - 새로 추가 */}
+                          <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">고객요청사항</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{customerRequest || '없음'}</div>
+                          </div>  
+                          
+                          <div className="grid" style={{gridTemplateColumns: '35% 65%'}}>
+                            <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">결제금액</div>
+                            <div className="p-2 md:p-3 text-red-500 font-bold text-left pl-3 md:pl-8 text-xs md:text-sm">
+                              ₩{(totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
+                            </div>
                           </div>
                         </div>
                       </div>
                       
                       {/* 하단 버튼 */}
-                      <div className="flex gap-4 justify-center">
+                      <div className="flex flex-col md:flex-row gap-4 justify-center">
                         <button 
-                          className="px-8 py-3 bg-gray-500 text-white font-medium"
+                          className="px-6 md:px-8 py-3 bg-gray-500 text-white font-medium text-sm md:text-base"
                           onClick={() => window.location.href = '/'}
                         >
                           메인으로
                         </button>
                         <button 
-                          className="px-8 py-3 text-white font-medium"
+                          className="px-6 md:px-8 py-3 text-white font-medium text-sm md:text-base"
                           style={{backgroundColor: '#134C59'}}
                           onClick={() => {
                             if (confirm('정말 예약을 취소하시겠습니까?')) {

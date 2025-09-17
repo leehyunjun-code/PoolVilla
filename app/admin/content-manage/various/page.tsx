@@ -409,7 +409,7 @@ export default function VariousContentsManage() {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex items-center space-x-2">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
-          <span className="text-gray-600">로딩 중...</span>
+          <span className="text-gray-600 text-black">로딩 중...</span>
         </div>
       </div>
     )
@@ -421,30 +421,30 @@ export default function VariousContentsManage() {
       
       {/* 토스트 메시지 */}
       {toast.show && (
-        <div className={`fixed top-4 right-4 z-50 px-6 py-3 rounded-lg shadow-lg transition-all transform ${
+        <div className={`fixed top-4 right-4 z-50 px-3 md:px-6 py-2 md:py-3 rounded-lg shadow-lg transition-all transform ${
           toast.type === 'success' ? 'bg-green-500' : 'bg-red-500'
-        } text-white`}>
+        } text-white text-xs md:text-base`}>
           {toast.message}
         </div>
       )}
 
-      <main className="flex-1">
+      <main className="flex-1 mt-14 md:mt-0 md:ml-48">
         {/* 헤더 */}
-        <div className="bg-white border-b px-8 py-6">
+        <div className="bg-white border-b px-3 md:px-8 py-3 md:py-6">
           <div className="flex justify-between items-center">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">콘텐츠 관리</h1>
-              <p className="mt-1 text-sm text-gray-500">부대시설, 이용안내, 스페셜 오퍼 페이지의 콘텐츠를 관리합니다</p>
+              <h1 className="text-base md:text-2xl font-bold text-gray-900">콘텐츠 관리</h1>
+              <p className="mt-0.5 text-[10px] md:text-sm text-gray-500">부대시설, 이용안내, 스페셜 오퍼 페이지의 콘텐츠를 관리합니다</p>
             </div>
           </div>
         </div>
 
         {/* 탭 메뉴 */}
-        <div className="bg-white border-b px-8">
-          <nav className="flex space-x-8">
+        <div className="bg-white border-b px-2 md:px-8 overflow-x-auto">
+          <nav className="flex space-x-2 md:space-x-8">
             <button
               onClick={() => setActiveTab('facilities')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 md:py-4 px-1 border-b-2 font-medium text-[10px] md:text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'facilities'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -454,7 +454,7 @@ export default function VariousContentsManage() {
             </button>
             <button
               onClick={() => setActiveTab('guide')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 md:py-4 px-1 border-b-2 font-medium text-[10px] md:text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'guide'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -464,7 +464,7 @@ export default function VariousContentsManage() {
             </button>
             <button
               onClick={() => setActiveTab('special')}
-              className={`py-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+              className={`py-2 md:py-4 px-1 border-b-2 font-medium text-[10px] md:text-sm transition-colors whitespace-nowrap ${
                 activeTab === 'special'
                   ? 'border-blue-500 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
@@ -475,23 +475,23 @@ export default function VariousContentsManage() {
           </nav>
         </div>
 
-        <div className="p-8 space-y-8">
+        <div className="p-2 md:p-8 space-y-3 md:space-y-8">
           {/* 부대시설 탭 */}
           {activeTab === 'facilities' && (
             <>
               {/* 배너 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6 mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">배너 이미지</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6 mb-3 md:mb-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">배너 이미지</h2>
                   <button
                     onClick={handleSaveBanner}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded-md text-[10px] md:text-sm hover:bg-blue-700"
                   >
                     저장
                   </button>
                 </div>
                 <div className="w-full">
-                  <div className="relative h-64 bg-gray-100 rounded-lg overflow-hidden">
+                  <div className="relative h-32 md:h-64 bg-gray-100 rounded-lg overflow-hidden">
                     {bannerData.facilities.image_url ? (
                       <Image
                         src={bannerData.facilities.image_url}
@@ -501,11 +501,11 @@ export default function VariousContentsManage() {
                       />
                     ) : (
                       <div className="h-full flex items-center justify-center text-gray-400">
-                        <span>이미지를 업로드해주세요</span>
+                        <span className="text-[10px] md:text-sm">이미지를 업로드해주세요</span>
                       </div>
                     )}
-                    <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                      <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                    <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                      <span className="text-[10px] md:text-sm font-medium text-gray-700">이미지 변경</span>
                       <input
                         type="file"
                         className="hidden"
@@ -532,7 +532,7 @@ export default function VariousContentsManage() {
               <div className="flex justify-end">
                 <button
                   onClick={() => setAddingSection(true)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  className="px-2 md:px-4 py-1 md:py-2 bg-green-600 text-white rounded-md text-[10px] md:text-sm hover:bg-green-700"
                 >
                   새 섹션 추가
                 </button>
@@ -540,43 +540,43 @@ export default function VariousContentsManage() {
 
               {/* 섹션 추가 폼 */}
               {addingSection && (
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h3 className="text-lg font-semibold mb-4">새 섹션 추가</h3>
-                  <div className="space-y-4">
+                <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                  <h3 className="text-sm md:text-lg font-semibold mb-3 md:mb-4 text-black">새 섹션 추가</h3>
+                  <div className="space-y-3 md:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">제목</label>
                       <textarea
                         value={newSection.title}
                         onChange={(e) => setNewSection({...newSection, title: e.target.value})}
                         rows={2}
                         placeholder="섹션 제목"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-md resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">부제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">부제목</label>
                       <textarea
                         value={newSection.subtitle}
                         onChange={(e) => setNewSection({...newSection, subtitle: e.target.value})}
                         rows={2}
                         placeholder="섹션 부제목"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-md resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">설명</label>
                       <textarea
                         value={newSection.description}
                         onChange={(e) => setNewSection({...newSection, description: e.target.value})}
                         rows={4}
                         placeholder="섹션 설명"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-md text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={handleAddSection}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                       >
                         추가
                       </button>
@@ -585,7 +585,7 @@ export default function VariousContentsManage() {
                           setAddingSection(false)
                           setNewSection({ title: '', subtitle: '', description: '', image_url: '' })
                         }}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                        className="px-2 md:px-4 py-1 md:py-2 bg-gray-300 text-gray-700 rounded text-[10px] md:text-sm hover:bg-gray-400"
                       >
                         취소
                       </button>
@@ -596,26 +596,26 @@ export default function VariousContentsManage() {
 
               {/* 섹션 목록 */}
               {sectionGroups.map((group) => (
-                <div key={group.section.id} className="bg-white rounded-lg shadow p-6">
+                <div key={group.section.id} className="bg-white rounded-lg shadow p-3 md:p-6">
                   {/* 섹션 헤더 */}
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-xl font-semibold">{group.section.title}</h2>
-                    <div className="flex gap-2">
+                  <div className="flex justify-between items-center mb-3 md:mb-4">
+                    <h2 className="text-sm md:text-xl font-semibold text-black">{group.section.title}</h2>
+                    <div className="flex gap-1 md:gap-2">
                       <button
                         onClick={() => setAddingCard(group.section.section_name)}
-                        className="px-3 py-1.5 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                        className="px-2 md:px-3 py-1 md:py-1.5 bg-green-600 text-white rounded text-[10px] md:text-sm hover:bg-green-700"
                       >
                         카드 추가
                       </button>
                       <button
                         onClick={() => handleUpdateSection(group.section)}
-                        className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                        className="px-2 md:px-3 py-1 md:py-1.5 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                       >
                         섹션 저장
                       </button>
                       <button
                         onClick={() => handleDeleteSection(group.section.id, group.section.section_name)}
-                        className="px-3 py-1.5 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+                        className="px-2 md:px-3 py-1 md:py-1.5 bg-red-600 text-white rounded text-[10px] md:text-sm hover:bg-red-700"
                       >
                         섹션 삭제
                       </button>
@@ -623,11 +623,11 @@ export default function VariousContentsManage() {
                   </div>
 
                   {/* 섹션 편집 폼 - 항상 표시 */}
-                  <div className="mb-6">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                      <div className="space-y-4">
+                  <div className="mb-3 md:mb-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
+                      <div className="space-y-3 md:space-y-4">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">제목</label>
                           <textarea
                             value={group.section.title}
                             onChange={(e) => {
@@ -639,11 +639,11 @@ export default function VariousContentsManage() {
                               setSectionGroups(updated)
                             }}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-md resize-none text-[11px] md:text-base text-black"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-2">부제목</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">부제목</label>
                           <textarea
                             value={group.section.subtitle}
                             onChange={(e) => {
@@ -655,12 +655,12 @@ export default function VariousContentsManage() {
                               setSectionGroups(updated)
                             }}
                             rows={2}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-md resize-none text-[11px] md:text-base text-black"
                           />
                         </div>
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-2">설명</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">설명</label>
                         <textarea
                           value={group.section.description}
                           onChange={(e) => {
@@ -672,7 +672,7 @@ export default function VariousContentsManage() {
                             setSectionGroups(updated)
                           }}
                           rows={6}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-md text-[11px] md:text-base text-black"
                         />
                       </div>
                     </div>
@@ -680,31 +680,31 @@ export default function VariousContentsManage() {
 
                   {/* 카드 추가 폼 */}
                   {addingCard === group.section.section_name && (
-                    <div className="p-4 mb-4 bg-blue-50 rounded-lg">
-                      <h3 className="font-semibold mb-3">새 카드 추가</h3>
-                      <div className="space-y-3">
+                    <div className="p-3 md:p-4 mb-3 md:mb-4 bg-blue-50 rounded-lg">
+                      <h3 className="font-semibold mb-2 md:mb-3 text-xs md:text-base text-black">새 카드 추가</h3>
+                      <div className="space-y-2 md:space-y-3">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">제목</label>
                           <textarea
                             value={newCard.title}
                             onChange={(e) => setNewCard({...newCard, title: e.target.value})}
                             rows={2}
                             placeholder="카드 제목"
-                            className="w-full px-3 py-2 border rounded resize-none"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border rounded resize-none text-[11px] md:text-base text-black"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">부제목</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">부제목</label>
                           <textarea
                             value={newCard.subtitle}
                             onChange={(e) => setNewCard({...newCard, subtitle: e.target.value})}
                             rows={2}
                             placeholder="카드 부제목"
-                            className="w-full px-3 py-2 border rounded resize-none"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border rounded resize-none text-[11px] md:text-base text-black"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">이미지</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">이미지</label>
                           <input
                             type="file"
                             accept="image/*"
@@ -718,13 +718,13 @@ export default function VariousContentsManage() {
                                 }
                               }
                             }}
-                            className="w-full px-3 py-2 border rounded"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-sm text-black"
                           />
                         </div>
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleAddCard(group.section.section_name)}
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                           >
                             추가
                           </button>
@@ -733,7 +733,7 @@ export default function VariousContentsManage() {
                               setAddingCard(null)
                               setNewCard({ title: '', subtitle: '', description: '', image_url: '' })
                             }}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                            className="px-2 md:px-4 py-1 md:py-2 bg-gray-300 text-gray-700 rounded text-[10px] md:text-sm hover:bg-gray-400"
                           >
                             취소
                           </button>
@@ -743,10 +743,10 @@ export default function VariousContentsManage() {
                   )}
 
                   {/* 카드 목록 */}
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
                     {group.cards.map((card) => (
                       <div key={card.id} className="rounded-lg overflow-hidden shadow">
-                        <div className="h-40 bg-gray-100 relative">
+                        <div className="h-24 md:h-40 bg-gray-100 relative">
                           {card.image_url ? (
                             <Image
                               src={card.image_url}
@@ -756,14 +756,14 @@ export default function VariousContentsManage() {
                             />
                           ) : (
                             <div className="w-full h-full flex items-center justify-center text-gray-400">
-                              <span>이미지 없음</span>
+                              <span className="text-[10px] md:text-sm">이미지 없음</span>
                             </div>
                           )}
                         </div>
                         
-                        <div className="p-4">
+                        <div className="p-2 md:p-4">
                           {editingCard === card.id ? (
-                            <div className="space-y-2">
+                            <div className="space-y-1 md:space-y-2">
                               <textarea
                                 value={card.title}
                                 onChange={(e) => {
@@ -776,7 +776,7 @@ export default function VariousContentsManage() {
                                   setSectionGroups(updatedGroups)
                                 }}
                                 rows={2}
-                                className="w-full px-2 py-1 border rounded text-sm resize-none"
+                                className="w-full px-1 py-0.5 md:px-2 md:py-1 border rounded text-[10px] md:text-sm resize-none text-black"
                                 placeholder="제목"
                               />
                               <textarea
@@ -791,11 +791,11 @@ export default function VariousContentsManage() {
                                   setSectionGroups(updatedGroups)
                                 }}
                                 rows={2}
-                                className="w-full px-2 py-1 border rounded text-sm resize-none"
+                                className="w-full px-1 py-0.5 md:px-2 md:py-1 border rounded text-[10px] md:text-sm resize-none text-black"
                                 placeholder="부제목"
                               />
                               <label className="block">
-                                <span className="text-xs text-gray-500">이미지 변경</span>
+                                <span className="text-[10px] md:text-xs text-gray-500">이미지 변경</span>
                                 <input
                                   type="file"
                                   accept="image/*"
@@ -815,7 +815,7 @@ export default function VariousContentsManage() {
                                       }
                                     }
                                   }}
-                                  className="w-full text-xs"
+                                  className="w-full text-[10px] md:text-xs"
                                 />
                               </label>
                               <div className="flex gap-1">
@@ -826,7 +826,7 @@ export default function VariousContentsManage() {
                                       .find(c => c.id === card.id)
                                     if (updatedCard) handleUpdateCard(updatedCard)
                                   }}
-                                  className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                                  className="px-1.5 py-0.5 md:px-2 md:py-1 bg-blue-500 text-white rounded text-[10px] md:text-xs hover:bg-blue-600"
                                 >
                                   저장
                                 </button>
@@ -835,7 +835,7 @@ export default function VariousContentsManage() {
                                     setEditingCard(null)
                                     fetchContents()
                                   }}
-                                  className="px-2 py-1 bg-gray-300 text-gray-700 rounded text-xs hover:bg-gray-400"
+                                  className="px-1.5 py-0.5 md:px-2 md:py-1 bg-gray-300 text-gray-700 rounded text-[10px] md:text-xs hover:bg-gray-400"
                                 >
                                   취소
                                 </button>
@@ -843,18 +843,18 @@ export default function VariousContentsManage() {
                             </div>
                           ) : (
                             <>
-                              <h3 className="font-semibold text-sm mb-1">{card.title}</h3>
-                              <p className="text-xs text-gray-600 mb-2">{card.subtitle}</p>
+                              <h3 className="font-semibold text-[11px] md:text-sm mb-1 text-black">{card.title}</h3>
+                              <p className="text-[10px] md:text-xs text-gray-600 mb-2">{card.subtitle}</p>
                               <div className="flex gap-1">
                                 <button
                                   onClick={() => setEditingCard(card.id)}
-                                  className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                                  className="px-1.5 py-0.5 md:px-2 md:py-1 bg-blue-500 text-white rounded text-[10px] md:text-xs hover:bg-blue-600"
                                 >
                                   수정
                                 </button>
                                 <button
                                   onClick={() => handleDeleteCard(card.id)}
-                                  className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                                  className="px-1.5 py-0.5 md:px-2 md:py-1 bg-red-500 text-white rounded text-[10px] md:text-xs hover:bg-red-600"
                                 >
                                   삭제
                                 </button>
@@ -874,20 +874,20 @@ export default function VariousContentsManage() {
           {activeTab === 'guide' && (
             <>
               {/* 배너 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6 mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">배너 섹션</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6 mb-3 md:mb-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">배너 섹션</h2>
                   <button
                     onClick={handleSaveBanner}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded-md text-[10px] md:text-sm hover:bg-blue-700"
                   >
                     저장
                   </button>
                 </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">배경 이미지</label>
-                    <div className="relative h-48 bg-gray-100 rounded-lg overflow-hidden">
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">배경 이미지</label>
+                    <div className="relative h-24 md:h-48 bg-gray-100 rounded-lg overflow-hidden">
                       {bannerData.guide.image_url ? (
                         <Image
                           src={bannerData.guide.image_url}
@@ -897,11 +897,11 @@ export default function VariousContentsManage() {
                         />
                       ) : (
                         <div className="h-full flex items-center justify-center text-gray-400">
-                          <span>이미지 없음</span>
+                          <span className="text-[10px] md:text-sm">이미지 없음</span>
                         </div>
                       )}
-                      <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                        <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">이미지 변경</span>
                         <input
                           type="file"
                           className="hidden"
@@ -922,9 +922,9 @@ export default function VariousContentsManage() {
                       </label>
                     </div>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3 md:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">제목</label>
                       <textarea
                         value={bannerData.guide.title || ''}
                         onChange={(e) => setBannerData(prev => ({
@@ -932,11 +932,11 @@ export default function VariousContentsManage() {
                           guide: { ...prev.guide, title: e.target.value }
                         }))}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-md text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">부제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">부제목</label>
                       <textarea
                         value={bannerData.guide.subtitle || ''}
                         onChange={(e) => setBannerData(prev => ({
@@ -944,7 +944,7 @@ export default function VariousContentsManage() {
                           guide: { ...prev.guide, subtitle: e.target.value }
                         }))}
                         rows={2}
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-md text-[11px] md:text-base text-black"
                       />
                     </div>
                   </div>
@@ -955,7 +955,7 @@ export default function VariousContentsManage() {
               <div className="flex justify-end">
                 <button
                   onClick={() => setAddingSection(true)}
-                  className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                  className="px-2 md:px-4 py-1 md:py-2 bg-green-600 text-white rounded-md text-[10px] md:text-sm hover:bg-green-700"
                 >
                   새 섹션 추가
                 </button>
@@ -963,23 +963,23 @@ export default function VariousContentsManage() {
 
               {/* 섹션 추가 폼 */}
               {addingSection && (
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h3 className="text-lg font-semibold mb-4">새 섹션 추가</h3>
-                  <div className="space-y-4">
+                <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                  <h3 className="text-sm md:text-lg font-semibold mb-3 md:mb-4 text-black">새 섹션 추가</h3>
+                  <div className="space-y-3 md:space-y-4">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">섹션 제목</label>
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">섹션 제목</label>
                       <textarea
                         value={newSection.title}
                         onChange={(e) => setNewSection({...newSection, title: e.target.value})}
                         rows={2}
                         placeholder="예: 이용안내, 취소 환불규정"
-                        className="w-full px-3 py-2 border border-gray-300 rounded-md resize-none"
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded-md resize-none text-[11px] md:text-base text-black"
                       />
                     </div>
                     <div className="flex gap-2">
                       <button
                         onClick={handleAddSection}
-                        className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                        className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                       >
                         추가
                       </button>
@@ -988,7 +988,7 @@ export default function VariousContentsManage() {
                           setAddingSection(false)
                           setNewSection({ title: '', subtitle: '', description: '', image_url: '' })
                         }}
-                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                        className="px-2 md:px-4 py-1 md:py-2 bg-gray-300 text-gray-700 rounded text-[10px] md:text-sm hover:bg-gray-400"
                       >
                         취소
                       </button>
@@ -999,9 +999,9 @@ export default function VariousContentsManage() {
 
               {/* 섹션 목록 */}
               {sectionGroups.map((group) => (
-                <div key={group.section.id} className="bg-white rounded-lg shadow p-6">
+                <div key={group.section.id} className="bg-white rounded-lg shadow p-3 md:p-6">
                   {/* 섹션 헤더 */}
-                  <div className="flex justify-between items-center mb-4">
+                  <div className="flex justify-between items-center mb-3 md:mb-4">
                     {editingSection === group.section.id ? (
                       <textarea
                         value={group.section.title}
@@ -1014,15 +1014,15 @@ export default function VariousContentsManage() {
                           setSectionGroups(updated)
                         }}
                         rows={1}
-                        className="text-xl font-semibold px-2 py-1 border rounded resize-none"
+                        className="text-sm md:text-xl font-semibold px-2 py-1 border rounded resize-none text-black"
                       />
                     ) : (
-                      <h2 className="text-xl font-semibold">{group.section.title}</h2>
+                      <h2 className="text-sm md:text-xl font-semibold text-black">{group.section.title}</h2>
                     )}
-                    <div className="flex gap-2">
+                    <div className="flex gap-1 md:gap-2">
                       <button
                         onClick={() => setAddingCard(group.section.section_name)}
-                        className="px-3 py-1.5 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                        className="px-2 md:px-3 py-1 md:py-1.5 bg-green-600 text-white rounded text-[10px] md:text-sm hover:bg-green-700"
                       >
                         항목 추가
                       </button>
@@ -1030,7 +1030,7 @@ export default function VariousContentsManage() {
                         <>
                           <button
                             onClick={() => handleUpdateSection(group.section)}
-                            className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                            className="px-2 md:px-3 py-1 md:py-1.5 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                           >
                             저장
                           </button>
@@ -1039,7 +1039,7 @@ export default function VariousContentsManage() {
                               setEditingSection(null)
                               fetchContents()
                             }}
-                            className="px-3 py-1.5 bg-gray-500 text-white rounded text-sm hover:bg-gray-600"
+                            className="px-2 md:px-3 py-1 md:py-1.5 bg-gray-500 text-white rounded text-[10px] md:text-sm hover:bg-gray-600"
                           >
                             취소
                           </button>
@@ -1048,13 +1048,13 @@ export default function VariousContentsManage() {
                         <>
                           <button
                             onClick={() => setEditingSection(group.section.id)}
-                            className="px-3 py-1.5 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+                            className="px-2 md:px-3 py-1 md:py-1.5 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                           >
                             섹션 수정
                           </button>
                           <button
                             onClick={() => handleDeleteSection(group.section.id, group.section.section_name)}
-                            className="px-3 py-1.5 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+                            className="px-2 md:px-3 py-1 md:py-1.5 bg-red-600 text-white rounded text-[10px] md:text-sm hover:bg-red-700"
                           >
                             섹션 삭제
                           </button>
@@ -1065,33 +1065,33 @@ export default function VariousContentsManage() {
 
                   {/* 항목 추가 폼 */}
                   {addingCard === group.section.section_name && (
-                    <div className="border rounded-lg p-4 mb-4 bg-blue-50">
-                      <h3 className="font-semibold mb-3">새 항목 추가</h3>
-                      <div className="space-y-3">
+                    <div className="border rounded-lg p-3 md:p-4 mb-3 md:mb-4 bg-blue-50">
+                      <h3 className="font-semibold mb-2 md:mb-3 text-xs md:text-base text-black">새 항목 추가</h3>
+                      <div className="space-y-2 md:space-y-3">
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">제목</label>
                           <textarea
                             value={newCard.title}
                             onChange={(e) => setNewCard({...newCard, title: e.target.value})}
                             rows={2}
                             placeholder="예: 애견입실, 수영장"
-                            className="w-full px-3 py-2 border rounded resize-none"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border rounded resize-none text-[11px] md:text-base text-black"
                           />
                         </div>
                         <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">내용</label>
+                          <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">내용</label>
                           <textarea
                             value={newCard.description}
                             onChange={(e) => setNewCard({...newCard, description: e.target.value})}
                             rows={6}
                             placeholder="내용을 입력하세요 (엔터로 줄바꿈)"
-                            className="w-full px-3 py-2 border rounded"
+                            className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-base text-black"
                           />
                         </div>
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleAddCard(group.section.section_name)}
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                           >
                             추가
                           </button>
@@ -1100,7 +1100,7 @@ export default function VariousContentsManage() {
                               setAddingCard(null)
                               setNewCard({ title: '', subtitle: '', description: '', image_url: '' })
                             }}
-                            className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                            className="px-2 md:px-4 py-1 md:py-2 bg-gray-300 text-gray-700 rounded text-[10px] md:text-sm hover:bg-gray-400"
                           >
                             취소
                           </button>
@@ -1110,13 +1110,13 @@ export default function VariousContentsManage() {
                   )}
 
                   {/* 항목 목록 */}
-                  <div className="space-y-4">
+                  <div className="space-y-3 md:space-y-4">
                     {group.cards.map((card) => (
-                      <div key={card.id} className="p-4 bg-white rounded-lg shadow">
+                      <div key={card.id} className="p-3 md:p-4 bg-white rounded-lg shadow">
                         {editingCard === card.id ? (
-                          <div className="space-y-3">
+                          <div className="space-y-2 md:space-y-3">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
+                              <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">제목</label>
                               <textarea
                                 value={card.title}
                                 onChange={(e) => {
@@ -1129,11 +1129,11 @@ export default function VariousContentsManage() {
                                   setSectionGroups(updatedGroups)
                                 }}
                                 rows={2}
-                                className="w-full px-3 py-2 border rounded resize-none"
+                                className="w-full px-2 py-1 md:px-3 md:py-2 border rounded resize-none text-[11px] md:text-base text-black"
                               />
                             </div>
                             <div>
-                              <label className="block text-sm font-medium text-gray-700 mb-1">내용</label>
+                              <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">내용</label>
                               <textarea
                                 value={card.description}
                                 onChange={(e) => {
@@ -1146,7 +1146,7 @@ export default function VariousContentsManage() {
                                   setSectionGroups(updatedGroups)
                                 }}
                                 rows={8}
-                                className="w-full px-3 py-2 border rounded"
+                                className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-base text-black"
                               />
                             </div>
                             <div className="flex gap-2">
@@ -1157,7 +1157,7 @@ export default function VariousContentsManage() {
                                     .find(c => c.id === card.id)
                                   if (updatedCard) handleUpdateCard(updatedCard)
                                 }}
-                                className="px-3 py-1.5 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                                className="px-2 md:px-3 py-1 md:py-1.5 bg-blue-500 text-white rounded text-[10px] md:text-sm hover:bg-blue-600"
                               >
                                 저장
                               </button>
@@ -1166,7 +1166,7 @@ export default function VariousContentsManage() {
                                   setEditingCard(null)
                                   fetchContents()
                                 }}
-                                className="px-3 py-1.5 bg-gray-300 text-gray-700 rounded text-sm hover:bg-gray-400"
+                                className="px-2 md:px-3 py-1 md:py-1.5 bg-gray-300 text-gray-700 rounded text-[10px] md:text-sm hover:bg-gray-400"
                               >
                                 취소
                               </button>
@@ -1174,18 +1174,18 @@ export default function VariousContentsManage() {
                           </div>
                         ) : (
                           <>
-                            <h3 className="font-semibold text-lg mb-2">{card.title}</h3>
-                            <p className="text-gray-700 whitespace-pre-wrap mb-3">{card.description}</p>
+                            <h3 className="font-semibold text-sm md:text-lg mb-1 md:mb-2 text-black">{card.title}</h3>
+                            <p className="text-gray-700 whitespace-pre-wrap mb-2 md:mb-3 text-[11px] md:text-base">{card.description}</p>
                             <div className="flex gap-2">
                               <button
                                 onClick={() => setEditingCard(card.id)}
-                                className="px-3 py-1.5 bg-blue-500 text-white rounded text-sm hover:bg-blue-600"
+                                className="px-2 md:px-3 py-1 md:py-1.5 bg-blue-500 text-white rounded text-[10px] md:text-sm hover:bg-blue-600"
                               >
                                 수정
                               </button>
                               <button
                                 onClick={() => handleDeleteCard(card.id)}
-                                className="px-3 py-1.5 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+                                className="px-2 md:px-3 py-1 md:py-1.5 bg-red-500 text-white rounded text-[10px] md:text-sm hover:bg-red-600"
                               >
                                 삭제
                               </button>
@@ -1204,18 +1204,18 @@ export default function VariousContentsManage() {
           {activeTab === 'special' && (
             <>
               {/* 배너 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6 mb-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">배너 이미지</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6 mb-3 md:mb-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">배너 이미지</h2>
                   <button
                     onClick={handleSaveBanner}
-                    className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded-md text-[10px] md:text-sm hover:bg-blue-700"
                   >
                     저장
                   </button>
                 </div>
                 <div className="w-full">
-                  <div className="relative h-64 bg-gray-100 rounded-lg overflow-hidden">
+                  <div className="relative h-32 md:h-64 bg-gray-100 rounded-lg overflow-hidden">
                     {bannerData.special.image_url ? (
                       <Image
                         src={bannerData.special.image_url}
@@ -1225,11 +1225,11 @@ export default function VariousContentsManage() {
                       />
                     ) : (
                       <div className="h-full flex items-center justify-center text-gray-400">
-                        <span>이미지를 업로드해주세요</span>
+                        <span className="text-[10px] md:text-sm">이미지를 업로드해주세요</span>
                       </div>
                     )}
-                    <label className="absolute bottom-4 right-4 bg-white px-4 py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
-                      <span className="text-sm font-medium text-gray-700">이미지 변경</span>
+                    <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded-md shadow-lg cursor-pointer hover:bg-gray-50">
+                      <span className="text-[10px] md:text-sm font-medium text-gray-700">이미지 변경</span>
                       <input
                         type="file"
                         className="hidden"
@@ -1253,12 +1253,12 @@ export default function VariousContentsManage() {
               </div>
           
               {/* 기존 오퍼 관리 섹션 */}
-              <div className="bg-white rounded-lg shadow p-6">
-                <div className="flex justify-between items-center mb-4">
-                  <h2 className="text-xl font-semibold">스페셜 오퍼 (OFFERS)</h2>
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">스페셜 오퍼 (OFFERS)</h2>
                   <button
                     onClick={() => setAddingCard('offers')}
-                    className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+                    className="px-2 md:px-4 py-1 md:py-2 bg-green-600 text-white rounded-md text-[10px] md:text-sm hover:bg-green-700"
                   >
                     오퍼 추가
                   </button>
@@ -1266,41 +1266,41 @@ export default function VariousContentsManage() {
 
                 {/* 오퍼 추가 폼 */}
                 {addingCard === 'offers' && (
-                  <div className="border rounded-lg p-4 mb-4 bg-blue-50">
-                    <h3 className="font-semibold mb-3">새 오퍼 추가</h3>
-                    <div className="space-y-3">
+                  <div className="border rounded-lg p-3 md:p-4 mb-3 md:mb-4 bg-blue-50">
+                    <h3 className="font-semibold mb-2 md:mb-3 text-xs md:text-base text-black">새 오퍼 추가</h3>
+                    <div className="space-y-2 md:space-y-3">
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">영문 제목</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">영문 제목</label>
                         <textarea
                           value={newCard.title}
                           onChange={(e) => setNewCard({...newCard, title: e.target.value})}
                           rows={2}
                           placeholder="예: Special Package"
-                          className="w-full px-3 py-2 border rounded resize-none"
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border rounded resize-none text-[11px] md:text-base text-black"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">한글 제목</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">한글 제목</label>
                         <textarea
                           value={newCard.subtitle}
                           onChange={(e) => setNewCard({...newCard, subtitle: e.target.value})}
                           rows={2}
                           placeholder="예: 스페셜 패키지"
-                          className="w-full px-3 py-2 border rounded resize-none"
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border rounded resize-none text-[11px] md:text-base text-black"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">설명</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">설명</label>
                         <textarea
                           value={newCard.description}
                           onChange={(e) => setNewCard({...newCard, description: e.target.value})}
                           rows={3}
                           placeholder="오퍼 설명"
-                          className="w-full px-3 py-2 border rounded"
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-base text-black"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">이미지</label>
+                        <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1">이미지</label>
                         <input
                           type="file"
                           accept="image/*"
@@ -1314,7 +1314,7 @@ export default function VariousContentsManage() {
                               }
                             }
                           }}
-                          className="w-full px-3 py-2 border rounded"
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-sm text-black"
                         />
                       </div>
                       <div className="flex gap-2">
@@ -1348,7 +1348,7 @@ export default function VariousContentsManage() {
                               showToast('추가에 실패했습니다.', 'error')
                             }
                           }}
-                          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                          className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
                         >
                           추가
                         </button>
@@ -1357,7 +1357,7 @@ export default function VariousContentsManage() {
                             setAddingCard(null)
                             setNewCard({ title: '', subtitle: '', description: '', image_url: '' })
                           }}
-                          className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+                          className="px-2 md:px-4 py-1 md:py-2 bg-gray-300 text-gray-700 rounded text-[10px] md:text-sm hover:bg-gray-400"
                         >
                           취소
                         </button>
@@ -1367,12 +1367,12 @@ export default function VariousContentsManage() {
                 )}
 
                 {/* 오퍼 목록 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
                   {contents
                     .filter(item => item.content_type === 'offer')  // 배너 제외하고 오퍼만 필터링
                     .map((offer, index) => (
                     <div key={offer.id} className="rounded-lg overflow-hidden shadow">
-                      <div className="h-48 bg-gray-100 relative">
+                      <div className="h-24 md:h-48 bg-gray-100 relative">
                         {offer.image_url ? (
                           <Image
                             src={offer.image_url}
@@ -1382,14 +1382,14 @@ export default function VariousContentsManage() {
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span>이미지 없음</span>
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
                           </div>
                         )}
                       </div>
                       
-                      <div className="p-4">
+                      <div className="p-2 md:p-4">
                         {editingCard === offer.id ? (
-                          <div className="space-y-2">
+                          <div className="space-y-1 md:space-y-2">
                             <textarea
                               value={offer.title}
                               onChange={(e) => {
@@ -1399,7 +1399,7 @@ export default function VariousContentsManage() {
                                 setContents(updated)
                               }}
                               rows={2}
-                              className="w-full px-2 py-1 border rounded text-sm resize-none"
+                              className="w-full px-1 py-0.5 md:px-2 md:py-1 border rounded text-[10px] md:text-sm resize-none text-black"
                               placeholder="메인 타이틀 (예: CUBE 45 Private Pool Villa)"
                             />
                             <textarea
@@ -1411,7 +1411,7 @@ export default function VariousContentsManage() {
                                 setContents(updated)
                               }}
                               rows={2}
-                              className="w-full px-2 py-1 border rounded text-sm resize-none"
+                              className="w-full px-1 py-0.5 md:px-2 md:py-1 border rounded text-[10px] md:text-sm resize-none text-black"
                               placeholder="영문 제목 (예: Special Package)"
                             />
                             <textarea
@@ -1430,11 +1430,11 @@ export default function VariousContentsManage() {
                                 setContents(updated)
                               }}
                               rows={2}
-                              className="w-full px-2 py-1 border rounded text-sm resize-none"
+                              className="w-full px-1 py-0.5 md:px-2 md:py-1 border rounded text-[10px] md:text-sm resize-none text-black"
                               placeholder="한글 제목 (예: 스페셜 패키지)"
                             />
                             <label className="block">
-                              <span className="text-xs text-gray-500">이미지 변경</span>
+                              <span className="text-[10px] md:text-xs text-gray-500">이미지 변경</span>
                               <input
                                 type="file"
                                 accept="image/*"
@@ -1451,7 +1451,7 @@ export default function VariousContentsManage() {
                                     }
                                   }
                                 }}
-                                className="w-full text-xs"
+                                className="w-full text-[10px] md:text-xs"
                               />
                             </label>
                             <div className="flex gap-1">
@@ -1460,7 +1460,7 @@ export default function VariousContentsManage() {
                                   const updatedOffer = contents.find(c => c.id === offer.id)
                                   if (updatedOffer) handleUpdateCard(updatedOffer)
                                 }}
-                                className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                                className="px-1.5 py-0.5 md:px-2 md:py-1 bg-blue-500 text-white rounded text-[10px] md:text-xs hover:bg-blue-600"
                               >
                                 저장
                               </button>
@@ -1469,7 +1469,7 @@ export default function VariousContentsManage() {
                                   setEditingCard(null)
                                   fetchContents()
                                 }}
-                                className="px-2 py-1 bg-gray-300 text-gray-700 rounded text-xs hover:bg-gray-400"
+                                className="px-1.5 py-0.5 md:px-2 md:py-1 bg-gray-300 text-gray-700 rounded text-[10px] md:text-xs hover:bg-gray-400"
                               >
                                 취소
                               </button>
@@ -1477,20 +1477,20 @@ export default function VariousContentsManage() {
                           </div>
                         ) : (
                           <>
-                            <div className="text-xs text-gray-500 mb-1">{offer.extra_data?.number || `#${String(index + 1).padStart(2, '0')}`}</div>
-                            <h3 className="font-semibold text-sm mb-1">{offer.title}</h3>
-                            <p className="text-xs text-gray-600 mb-1">{offer.subtitle}</p>
-                            <p className="text-xs text-gray-500 mb-2">{offer.extra_data?.koreanTitle}</p>
+                            <div className="text-[10px] md:text-xs text-gray-500 mb-1">{offer.extra_data?.number || `#${String(index + 1).padStart(2, '0')}`}</div>
+                            <h3 className="font-semibold text-[11px] md:text-sm mb-1 text-black">{offer.title}</h3>
+                            <p className="text-[10px] md:text-xs text-gray-600 mb-1">{offer.subtitle}</p>
+                            <p className="text-[10px] md:text-xs text-gray-500 mb-2">{offer.extra_data?.koreanTitle}</p>
                             <div className="flex gap-1">
                               <button
                                 onClick={() => setEditingCard(offer.id)}
-                                className="px-2 py-1 bg-blue-500 text-white rounded text-xs hover:bg-blue-600"
+                                className="px-1.5 py-0.5 md:px-2 md:py-1 bg-blue-500 text-white rounded text-[10px] md:text-xs hover:bg-blue-600"
                               >
                                 수정
                               </button>
                               <button
                                 onClick={() => handleDeleteCard(offer.id)}
-                                className="px-2 py-1 bg-red-500 text-white rounded text-xs hover:bg-red-600"
+                                className="px-1.5 py-0.5 md:px-2 md:py-1 bg-red-500 text-white rounded text-[10px] md:text-xs hover:bg-red-600"
                               >
                                 삭제
                               </button>
