@@ -183,7 +183,7 @@ export default function C24Page() {
                   className="absolute left-2 md:left-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 md:p-3 transition-all"
                   aria-label="이전 이미지"
                 >
-                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 md:w-6 md:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
                   </svg>
                 </button>
@@ -194,7 +194,7 @@ export default function C24Page() {
                   className="absolute right-2 md:right-4 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 md:p-3 transition-all"
                   aria-label="다음 이미지"
                 >
-                  <svg className="w-5 h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5 md:w-6 md:h-6 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </button>
@@ -229,23 +229,23 @@ export default function C24Page() {
               {/* 기본정보 */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10 md:mb-16">
                 <div>
-                  <h3 className="text-lg font-medium mb-4 md:mb-0">기본정보</h3>
+                  <h3 className="text-lg font-medium mb-4 md:mb-0 text-black">기본정보</h3>
                 </div>
                 <div className="col-span-1 md:col-span-3 space-y-3">
                   {getContent('basic_type')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words">객실타입 : {getContent('basic_type')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">객실타입 : {getContent('basic_type')?.content}</div>
                   )}
                   {getContent('basic_room')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words">객실구성 : {getContent('basic_room')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">객실구성 : {getContent('basic_room')?.content}</div>
                   )}
                   {getContent('basic_size')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words">객실크기 : {getContent('basic_size')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">객실크기 : {getContent('basic_size')?.content}</div>
                   )}
                   {getContent('basic_capacity')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words">기준 / 최대인원 : {getContent('basic_capacity')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">기준 / 최대인원 : {getContent('basic_capacity')?.content}</div>
                   )}
                   {getContent('basic_pool')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words">수영장 : {getContent('basic_pool')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">수영장 : {getContent('basic_pool')?.content}</div>
                   )}
                 </div>
               </div>
@@ -258,14 +258,14 @@ export default function C24Page() {
               {/* 어메니티 */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10 md:mb-16">
                 <div>
-                  <h3 className="text-lg font-medium mb-4 md:mb-0">어메니티</h3>
+                  <h3 className="text-lg font-medium mb-4 md:mb-0 text-black">어메니티</h3>
                 </div>
                 <div className="col-span-1 md:col-span-3 space-y-3">
                   {getContent('amenity_1')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words">{getContent('amenity_1')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">{getContent('amenity_1')?.content}</div>
                   )}
                   {getContent('amenity_2')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words">{getContent('amenity_2')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">{getContent('amenity_2')?.content}</div>
                   )}
                 </div>
               </div>
@@ -273,17 +273,17 @@ export default function C24Page() {
               {/* 이용안내 */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10 md:mb-16">
                 <div>
-                  <h3 className="text-lg font-medium mb-4 md:mb-0">이용안내</h3>
+                  <h3 className="text-lg font-medium mb-4 md:mb-0 text-black">이용안내</h3>
                 </div>
                 <div className="col-span-1 md:col-span-3 space-y-3">
                   {getContent('guide_pet')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words">{getContent('guide_pet')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">{getContent('guide_pet')?.content}</div>
                   )}
                   {getContent('guide_fireplace')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words">{getContent('guide_fireplace')?.content}</div>
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">{getContent('guide_fireplace')?.content}</div>
                   )}
                   {getContent('guide_additional')?.content && (
-                    <div className="text-sm md:text-base">
+                    <div className="text-sm md:text-base text-black">
                       {getContent('guide_additional')?.content?.split('\n').map((line, index) => (
                         <div key={index} className={`${line.startsWith('•') ? 'py-1' : 'pb-2'} break-words`}>
                           {line}

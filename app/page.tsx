@@ -67,35 +67,35 @@ export default function Home() {
   const [adults, setAdults] = useState(2)
   const [children, setChildren] = useState(0)
 
-  // Supabase에서 가져올 데이터 상태
+  // Supabase에서 가져올 데이터 상태 - 기본값 제거
   const [zoneSummaries, setZoneSummaries] = useState<Record<string, ZoneSummary>>({})
   const [sliderData, setSliderData] = useState<SlideData[]>([])
   const [cube45Data, setCube45Data] = useState<Cube45Data>({
-    topText: 'Exclusive Cube of Joy',
-    mainTitle: 'CUBE 45',
-    bottomText: '큐브45에서만 누릴 수 있는 즐거움',
-    imageUrl: 'https://pds.joongang.co.kr//news/component/htmlphoto_mmdata/201712/29/593e01a7-940d-4de9-9f53-7e74528341ae.jpg'
+    topText: '',
+    mainTitle: '',
+    bottomText: '',
+    imageUrl: ''
   })
   const [villaImages, setVillaImages] = useState<VillaImage>({
-    A: '/images/main/villa.jpg',
-    B: '/images/main/villa.jpg',
-    C: '/images/main/villa.jpg',
-    D: '/images/main/villa.jpg'
+    A: '',
+    B: '',
+    C: '',
+    D: ''
   })
   const [indoorPoolData, setIndoorPoolData] = useState<IndoorPoolData>({
-    title: 'Premium Play Villa',
-    subtitle: '• 실내 수영장',
-    imageUrl: 'https://yaimg.yanolja.com/v5/2025/04/20/13/6804f4aae77766.07230332.jpg'
+    title: '',
+    subtitle: '',
+    imageUrl: ''
   })
   const [contactData, setContactData] = useState<ContactData>({
     reservation: {
-      phone: '070-5129-1667',
-      description: '이메일 : thebran@naver.com|상담시간 : 평일/휴일 오전 10시 ~ 오후 18시',
-      backgroundImage: '/images/main/left.jpg'
+      phone: '',
+      description: '',
+      backgroundImage: ''
     },
     onsite: {
-      phone: '070-5129-1667',
-      backgroundImage: '/images/main/right.jpg'
+      phone: '',
+      backgroundImage: ''
     }
   })
   const [loading, setLoading] = useState(true)
@@ -136,7 +136,7 @@ export default function Home() {
             topText: cube45Content.subtitle || '',
             mainTitle: cube45Content.title || '',
             bottomText: cube45Content.description || '',
-            imageUrl: cube45Content.image_url || 'https://pds.joongang.co.kr//news/component/htmlphoto_mmdata/201712/29/593e01a7-940d-4de9-9f53-7e74528341ae.jpg'
+            imageUrl: cube45Content.image_url || ''
           })
         }
 
@@ -147,19 +147,19 @@ export default function Home() {
         const villaD = mainContents?.find(item => item.section_type === 'villa_D')
         
         setVillaImages({
-          A: villaA?.image_url || '/images/main/villa.jpg',
-          B: villaB?.image_url || '/images/main/villa.jpg',
-          C: villaC?.image_url || '/images/main/villa.jpg',
-          D: villaD?.image_url || '/images/main/villa.jpg'
+          A: villaA?.image_url || '',
+          B: villaB?.image_url || '',
+          C: villaC?.image_url || '',
+          D: villaD?.image_url || ''
         })
 
         // 5. INDOOR POOL
         const indoorPool = mainContents?.find(item => item.section_type === 'indoor_pool')
         if (indoorPool) {
           setIndoorPoolData({
-            title: indoorPool.title || 'Premium Play Villa',
-            subtitle: indoorPool.subtitle || '• 실내 수영장',
-            imageUrl: indoorPool.image_url || 'https://yaimg.yanolja.com/v5/2025/04/20/13/6804f4aae77766.07230332.jpg'
+            title: indoorPool.title || '',
+            subtitle: indoorPool.subtitle || '',
+            imageUrl: indoorPool.image_url || ''
           })
         }
 
@@ -170,18 +170,18 @@ export default function Home() {
         if (contactReservation || contactOnsite) {
           setContactData({
             reservation: {
-              phone: contactReservation?.title || '070-5129-1667',
-              description: contactReservation?.description || '이메일 : thebran@naver.com|상담시간 : 평일/휴일 오전 10시 ~ 오후 18시',
-              backgroundImage: contactReservation?.image_url || '/images/main/left.jpg'
+              phone: contactReservation?.title || '',
+              description: contactReservation?.description || '',
+              backgroundImage: contactReservation?.image_url || ''
             },
             onsite: {
-              phone: contactOnsite?.title || '070-5129-1667',
-              backgroundImage: contactOnsite?.image_url || '/images/main/right.jpg'
+              phone: contactOnsite?.title || '',
+              backgroundImage: contactOnsite?.image_url || ''
             }
           })
         }
 
-        // 7. 동별 정보 가져오기 (기존 코드)
+        // 7. 동별 정보 가져오기
         const { data: rooms, error: roomsError } = await supabase
           .from('cube45_rooms')
           .select('zone, area, standard_capacity, max_capacity')
@@ -258,7 +258,7 @@ export default function Home() {
   // 동별 정보 표시 헬퍼 함수
   const getZoneDisplay = (zone: string) => {
     const summary = zoneSummaries[zone]
-    if (!summary) return { area: '로딩중...', capacity: '로딩중...' }
+    if (!summary) return { area: '', capacity: '' }
     
     const area = summary.minArea === summary.maxArea 
       ? `${summary.minArea}평` 
@@ -272,23 +272,23 @@ export default function Home() {
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-lg">로딩 중...</div>
+        <div className="text-lg text-black">로딩 중...</div>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-white pt-28">
+    <div className="min-h-screen bg-white pt-20 md:pt-28">
       {/* 네비게이션 */}
       <Navigation />
       
-      {/* 3분할 메인 슬라이더 */}
-      <div style={{ height: '600px', position: 'relative', overflow: 'hidden', marginTop: '50px' }}>
+      {/* 3분할 메인 슬라이더 - 높이만 반응형 */}
+      <div className="h-[400px] md:h-[600px] relative overflow-hidden mt-8 md:mt-[50px]">
         {sliderData.length > 0 ? (
           <Swiper
             modules={[SwiperNavigation, Autoplay]}
-            spaceBetween={40}
-            slidesPerView={1.7}
+            spaceBetween={20}
+            slidesPerView={1.2}
             centeredSlides={true}
             navigation={{
               nextEl: '.swiper-button-next-custom',
@@ -329,9 +329,9 @@ export default function Home() {
                     className="w-full h-full object-cover"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
-                  <div className="absolute bottom-0 left-0 right-0 p-12 text-white">
-                    {slide.title && <h3 className="text-3xl font-bold mb-2">{slide.title}</h3>}
-                    {slide.subtitle && <p className="text-lg">{slide.subtitle}</p>}
+                  <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12 text-white">
+                    {slide.title && <h3 className="text-xl md:text-3xl font-bold mb-1 md:mb-2">{slide.title}</h3>}
+                    {slide.subtitle && <p className="text-sm md:text-lg">{slide.subtitle}</p>}
                   </div>
                 </div>
               </SwiperSlide>
@@ -339,18 +339,18 @@ export default function Home() {
           </Swiper>
         ) : (
           <div className="h-full flex items-center justify-center">
-            <p>슬라이더 이미지가 없습니다.</p>
+            <p className="text-black">슬라이더 이미지가 없습니다.</p>
           </div>
         )}
 
         {/* 커스텀 네비게이션 버튼 */}
-        <button className="swiper-button-prev-custom absolute left-10 top-1/2 -translate-y-1/2 z-10 bg-white/20 backdrop-blur-sm text-white p-4 rounded-full hover:bg-white/30 transition-colors">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button className="swiper-button-prev-custom absolute left-4 md:left-10 top-1/2 -translate-y-1/2 z-10 bg-white/20 backdrop-blur-sm text-white p-2 md:p-4 rounded-full hover:bg-white/30 transition-colors">
+          <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
           </svg>
         </button>
-        <button className="swiper-button-next-custom absolute right-10 top-1/2 -translate-y-1/2 z-10 bg-white/20 backdrop-blur-sm text-white p-4 rounded-full hover:bg-white/30 transition-colors">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button className="swiper-button-next-custom absolute right-4 md:right-10 top-1/2 -translate-y-1/2 z-10 bg-white/20 backdrop-blur-sm text-white p-2 md:p-4 rounded-full hover:bg-white/30 transition-colors">
+          <svg className="w-4 h-4 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </button>
@@ -376,54 +376,54 @@ export default function Home() {
         `}</style>
       </div>
 
-      {/* 예약 검색 바 */}
-      <div className="container mx-auto px-4 py-8">
-        <div className="bg-white shadow-xl rounded-lg p-6 max-w-5xl mx-auto">
-          <div className="flex flex-wrap items-end justify-center gap-4">
-            <div className="flex items-end gap-2">
+      {/* 예약 검색 바 - 크기 축소 */}
+      <div className="container mx-auto px-2 md:px-4 py-4 md:py-8">
+        <div className="bg-white shadow-xl rounded-lg p-2 md:p-6 max-w-5xl mx-auto">
+          <div className="flex flex-wrap items-end justify-center gap-1 md:gap-4">
+            <div className="flex items-end gap-1 md:gap-2">
               <div>
-                <label className="block text-sm text-gray-600 mb-1">체크인</label>
+                <label className="block text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">체크인</label>
                 <input 
                   type="date" 
                   value={checkIn}
                   min={new Date().toISOString().split('T')[0]}
                   onChange={(e) => setCheckIn(e.target.value)}
-                  className="px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+                  className="px-1 md:px-3 py-1 md:py-2 text-xs md:text-base text-black border rounded-md focus:outline-none focus:border-blue-500"
                 />
               </div>
-              <div className="text-center px-3">
-                <div className="text-xl font-bold">{nights}박</div>
+              <div className="text-center px-1 md:px-3">
+                <div className="text-sm md:text-xl font-bold text-black">{nights}박</div>
               </div>
               <div>
-                <label className="block text-sm text-gray-600 mb-1">체크아웃</label>
+                <label className="block text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">체크아웃</label>
                 <input 
                   type="date" 
                   value={checkOut}
                   min={checkIn || new Date().toISOString().split('T')[0]}
                   onChange={(e) => setCheckOut(e.target.value)}
-                  className="px-3 py-2 border rounded-md focus:outline-none focus:border-blue-500"
+                  className="px-1 md:px-3 py-1 md:py-2 text-xs md:text-base text-black border rounded-md focus:outline-none focus:border-blue-500"
                 />
               </div>
             </div>
-            <div className="flex items-end gap-3">
+            <div className="flex items-end gap-1 md:gap-3">
               <div className="text-center">
-                <label className="block text-sm text-gray-600 mb-1">성인</label>
+                <label className="block text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">성인</label>
                 <input 
                   type="number" 
                   value={adults}
                   onChange={(e) => setAdults(parseInt(e.target.value) || 0)}
                   min="1"
-                  className="px-3 py-2 border rounded-md w-16 text-center"
+                  className="px-1 md:px-3 py-1 md:py-2 text-xs md:text-base text-black border rounded-md w-12 md:w-16 text-center"
                 />
               </div>
               <div className="text-center">
-                <label className="block text-sm text-gray-600 mb-1">소인</label>
+                <label className="block text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">소인</label>
                 <input 
                   type="number" 
                   value={children}
                   onChange={(e) => setChildren(parseInt(e.target.value) || 0)}
                   min="0"
-                  className="px-3 py-2 border rounded-md w-16 text-center"
+                  className="px-1 md:px-3 py-1 md:py-2 text-xs md:text-base text-black border rounded-md w-12 md:w-16 text-center"
                 />
               </div>
               <button 
@@ -436,7 +436,7 @@ export default function Home() {
                   })
                   window.location.href = `/reservation?${params.toString()}`
                 }}
-                className="bg-gray-800 text-white px-6 py-2.5 rounded-md hover:bg-gray-700 transition-colors"
+                className="bg-gray-800 text-white px-3 md:px-6 py-1 md:py-2.5 text-xs md:text-base rounded-md hover:bg-gray-700 transition-colors"
               >
                 검색
               </button>
@@ -445,63 +445,71 @@ export default function Home() {
         </div>
       </div>
 
-      {/* POOL VILLA 섹션 - DB 연동 */}
-      <main className="container mx-auto px-4 py-16">
-        <h2 className="text-4xl font-bold text-center mb-12">POOL VILLA</h2>
+      {/* POOL VILLA 섹션 - 4개 나란히 유지, 크기만 조정 */}
+      <main className="container mx-auto px-4 py-8 md:py-16">
+        <h2 className="text-2xl md:text-4xl font-bold text-center text-black mb-6 md:mb-12">POOL VILLA</h2>
         <div className="flex">
           {/* 풀빌라 A동 */}
           <div className="bg-white overflow-hidden cursor-pointer flex-1">
-            <div className="h-80 overflow-hidden">
-              <img 
-                src={villaImages.A}
-                alt="풀빌라 A동"
-                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-              />
+            <div className="h-32 sm:h-48 md:h-80 overflow-hidden">
+              {villaImages.A && (
+                <img 
+                  src={villaImages.A}
+                  alt="풀빌라 A동"
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                />
+              )}
             </div>
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-4">풀빌라 A동</h3>
+            <div className="p-2 md:p-4">
+              <h3 className="text-xs sm:text-sm md:text-xl font-semibold text-black mb-2 md:mb-4">풀빌라 A동</h3>
             </div>
           </div>
 
           {/* 풀빌라 B동 */}
           <div className="bg-white overflow-hidden cursor-pointer flex-1">
-            <div className="h-80 overflow-hidden">
-              <img 
-                src={villaImages.B}
-                alt="풀빌라 B동"
-                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-              />
+            <div className="h-32 sm:h-48 md:h-80 overflow-hidden">
+              {villaImages.B && (
+                <img 
+                  src={villaImages.B}
+                  alt="풀빌라 B동"
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                />
+              )}
             </div>
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-4">풀빌라 B동</h3>
+            <div className="p-2 md:p-4">
+              <h3 className="text-xs sm:text-sm md:text-xl font-semibold text-black mb-2 md:mb-4">풀빌라 B동</h3>
             </div>
           </div>
 
           {/* 풀빌라 C동 */}
           <div className="bg-white overflow-hidden cursor-pointer flex-1">
-            <div className="h-80 overflow-hidden">
-              <img 
-                src={villaImages.C}
-                alt="풀빌라 C동"
-                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-              />
+            <div className="h-32 sm:h-48 md:h-80 overflow-hidden">
+              {villaImages.C && (
+                <img 
+                  src={villaImages.C}
+                  alt="풀빌라 C동"
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                />
+              )}
             </div>
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-4">풀빌라 C동</h3>
+            <div className="p-2 md:p-4">
+              <h3 className="text-xs sm:text-sm md:text-xl font-semibold text-black mb-2 md:mb-4">풀빌라 C동</h3>
             </div>
           </div>
 
           {/* 풀빌라 D동 */}
           <div className="bg-white overflow-hidden cursor-pointer flex-1">
-            <div className="h-80 overflow-hidden">
-              <img 
-                src={villaImages.D}
-                alt="풀빌라 D동"
-                className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-              />
+            <div className="h-32 sm:h-48 md:h-80 overflow-hidden">
+              {villaImages.D && (
+                <img 
+                  src={villaImages.D}
+                  alt="풀빌라 D동"
+                  className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+                />
+              )}
             </div>
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-4">풀빌라 D동</h3>
+            <div className="p-2 md:p-4">
+              <h3 className="text-xs sm:text-sm md:text-xl font-semibold text-black mb-2 md:mb-4">풀빌라 D동</h3>
             </div>
           </div>
         </div>
@@ -509,11 +517,23 @@ export default function Home() {
         {/* 전체 가로줄 */}
         <div className="border-t border-gray-300"></div>
         
-        {/* 정보 영역 - Supabase 데이터 연동 */}
+        {/* 정보 영역 - 4개 나란히 유지, 크기만 조정 */}
         <div className="flex">
           {/* A동 정보 */}
-          <div className="pt-4 px-4 flex-1">
-            <div className="flex items-center">
+          <div className="pt-2 md:pt-4 px-2 md:px-4 flex-1">
+            {/* 모바일: 세로 2줄 */}
+            <div className="text-center sm:hidden">
+              <div>
+                <span className="inline-block bg-gray-100 px-2 py-1 rounded text-[10px] font-medium text-gray-600 mb-1">크기</span>
+                <p className="font-bold text-[10px] text-gray-800">{getZoneDisplay('A').area}</p>
+              </div>
+              <div className="mt-1">
+                <span className="inline-block bg-gray-100 px-2 py-1 rounded text-[10px] font-medium text-gray-600 mb-1">인원</span>
+                <p className="font-bold text-[10px] text-gray-800">{getZoneDisplay('A').capacity}</p>
+              </div>
+            </div>
+            {/* 데스크탑: 원래대로 */}
+            <div className="hidden sm:flex items-center">
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">크기</span>
                 <p className="font-bold text-xl text-gray-800">{getZoneDisplay('A').area}</p>
@@ -526,11 +546,23 @@ export default function Home() {
           </div>
 
           {/* 세로줄 */}
-          <div className="border-l border-gray-300 my-4"></div>
+          <div className="border-l border-gray-300 my-2 md:my-4"></div>
 
           {/* B동 정보 */}
-          <div className="pt-4 px-4 flex-1">
-            <div className="flex items-center">
+          <div className="pt-2 md:pt-4 px-2 md:px-4 flex-1">
+            {/* 모바일: 세로 2줄 */}
+            <div className="text-center sm:hidden">
+              <div>
+                <span className="inline-block bg-gray-100 px-2 py-1 rounded text-[10px] font-medium text-gray-600 mb-1">크기</span>
+                <p className="font-bold text-[10px] text-gray-800">{getZoneDisplay('B').area}</p>
+              </div>
+              <div className="mt-1">
+                <span className="inline-block bg-gray-100 px-2 py-1 rounded text-[10px] font-medium text-gray-600 mb-1">인원</span>
+                <p className="font-bold text-[10px] text-gray-800">{getZoneDisplay('B').capacity}</p>
+              </div>
+            </div>
+            {/* 데스크탑: 원래대로 */}
+            <div className="hidden sm:flex items-center">
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">크기</span>
                 <p className="font-bold text-xl text-gray-800">{getZoneDisplay('B').area}</p>
@@ -543,11 +575,23 @@ export default function Home() {
           </div>
 
           {/* 세로줄 */}
-          <div className="border-l border-gray-300 my-4"></div>
+          <div className="border-l border-gray-300 my-2 md:my-4"></div>
 
           {/* C동 정보 */}
-          <div className="pt-4 px-4 flex-1">
-            <div className="flex items-center">
+          <div className="pt-2 md:pt-4 px-2 md:px-4 flex-1">
+            {/* 모바일: 세로 2줄 */}
+            <div className="text-center sm:hidden">
+              <div>
+                <span className="inline-block bg-gray-100 px-2 py-1 rounded text-[10px] font-medium text-gray-600 mb-1">크기</span>
+                <p className="font-bold text-[10px] text-gray-800">{getZoneDisplay('C').area}</p>
+              </div>
+              <div className="mt-1">
+                <span className="inline-block bg-gray-100 px-2 py-1 rounded text-[10px] font-medium text-gray-600 mb-1">인원</span>
+                <p className="font-bold text-[10px] text-gray-800">{getZoneDisplay('C').capacity}</p>
+              </div>
+            </div>
+            {/* 데스크탑: 원래대로 */}
+            <div className="hidden sm:flex items-center">
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">크기</span>
                 <p className="font-bold text-xl text-gray-800">{getZoneDisplay('C').area}</p>
@@ -560,11 +604,23 @@ export default function Home() {
           </div>
 
           {/* 세로줄 */}
-          <div className="border-l border-gray-300 my-4"></div>
+          <div className="border-l border-gray-300 my-2 md:my-4"></div>
 
           {/* D동 정보 */}
-          <div className="pt-4 px-4 flex-1">
-            <div className="flex items-center">
+          <div className="pt-2 md:pt-4 px-2 md:px-4 flex-1">
+            {/* 모바일: 세로 2줄 */}
+            <div className="text-center sm:hidden">
+              <div>
+                <span className="inline-block bg-gray-100 px-2 py-1 rounded text-[10px] font-medium text-gray-600 mb-1">크기</span>
+                <p className="font-bold text-[10px] text-gray-800">{getZoneDisplay('D').area}</p>
+              </div>
+              <div className="mt-1">
+                <span className="inline-block bg-gray-100 px-2 py-1 rounded text-[10px] font-medium text-gray-600 mb-1">인원</span>
+                <p className="font-bold text-[10px] text-gray-800">{getZoneDisplay('D').capacity}</p>
+              </div>
+            </div>
+            {/* 데스크탑: 원래대로 */}
+            <div className="hidden sm:flex items-center">
               <div className="flex-1 text-center">
                 <span className="inline-block bg-gray-100 px-4 py-2 rounded text-base font-medium text-gray-600 mb-2">크기</span>
                 <p className="font-bold text-xl text-gray-800">{getZoneDisplay('D').area}</p>
@@ -577,31 +633,33 @@ export default function Home() {
           </div>
         </div>
         
-        {/* Exclusive Cube 섹션 - Supabase 데이터 연동 */}
-        <div ref={cube45Ref} className="mt-20 relative" style={{ height: '400px' }}>
-          <img 
-            src={cube45Data.imageUrl}
-            alt="CUBE 45 Pool"
-            className="w-full h-full object-cover"
-          />
+        {/* Exclusive Cube 섹션 - 폰트 크기만 조정 */}
+        <div ref={cube45Ref} className="mt-10 md:mt-20 relative h-[300px] md:h-[400px]">
+          {cube45Data.imageUrl && (
+            <img 
+              src={cube45Data.imageUrl}
+              alt="CUBE 45 Pool"
+              className="w-full h-full object-cover"
+            />
+          )}
           <div className="absolute inset-0">
             <div className="h-full flex items-center">
               <div className="container mx-auto px-4">
-                <div className="text-right text-white" style={{ marginRight: '100px' }}>
-                  <p className={`mb-2 whitespace-pre-line ${isVisible ? 'animate-fade-up' : ''}`} style={{ 
-                    fontSize: '2rem', 
-                    textShadow: '2px 2px 4px rgba(0,0,0,1)',
-                    color: 'white',
-                  }}>{cube45Data.topText}</p>
-                  <h2 className={`font-bold mb-6 whitespace-pre-line ${isVisible ? 'animate-fade-up-delay-1' : ''}`} style={{ 
-                    fontSize: '5rem', 
-                    textShadow: '2px 2px 3px rgba(0,0,0,0.8)',
-                  }}>{cube45Data.mainTitle}</h2>
-                  <p className={`whitespace-pre-line ${isVisible ? 'animate-fade-up-delay-2' : ''}`} style={{ 
-                    fontSize: '2rem', 
-                    textShadow: '2px 2px 4px rgba(0,0,0,1)',
-                    color: 'white',
-                  }}>{cube45Data.bottomText}</p>
+                <div className="text-right text-white" style={{ marginRight: '20px' }}>
+                  <p className={`mb-1 md:mb-2 whitespace-pre-line ${isVisible ? 'animate-fade-up' : ''} text-base sm:text-xl md:text-[2rem]`} 
+                    style={{ 
+                      textShadow: '2px 2px 4px rgba(0,0,0,1)',
+                      color: 'white',
+                    }}>{cube45Data.topText}</p>
+                  <h2 className={`font-bold mb-3 md:mb-6 whitespace-pre-line ${isVisible ? 'animate-fade-up-delay-1' : ''} text-2xl sm:text-3xl md:text-[5rem]`} 
+                    style={{ 
+                      textShadow: '2px 2px 3px rgba(0,0,0,0.8)',
+                    }}>{cube45Data.mainTitle}</h2>
+                  <p className={`whitespace-pre-line ${isVisible ? 'animate-fade-up-delay-2' : ''} text-base sm:text-xl md:text-[2rem]`} 
+                    style={{ 
+                      textShadow: '2px 2px 4px rgba(0,0,0,1)',
+                      color: 'white',
+                    }}>{cube45Data.bottomText}</p>
                 </div>
               </div>
             </div>
@@ -635,54 +693,56 @@ export default function Home() {
         {/* OFFERS 섹션 - 컴포넌트로 대체 */}
         <OffersSection />
 
-        {/* INDOOR POOL 섹션 - DB 연동 */}
-        <div className="pt-16">
-          <h2 className="text-3xl font-bold text-center mb-12">INDOOR POOL</h2>
+        {/* INDOOR POOL 섹션 - 텍스트 더 축소 */}
+        <div className="pt-8 md:pt-16">
+          <h2 className="text-2xl md:text-3xl font-bold text-center text-black mb-6 md:mb-12">INDOOR POOL</h2>
           <div className="flex">
             <div className="w-1/3 flex items-center justify-center" style={{ backgroundColor: '#f5e6d3' }}>
-              <div className="p-8">
-                <h3 className="text-2xl font-semibold mb-2 whitespace-pre-line">{indoorPoolData.title}</h3>
-                <div className="text-gray-600 mb-4 whitespace-pre-line">
+              <div className="p-4 md:p-8">
+                <h3 className="text-xs md:text-2xl font-semibold text-black mb-1 md:mb-2 whitespace-pre-line">{indoorPoolData.title}</h3>
+                <div className="text-[10px] md:text-base text-gray-600 mb-2 md:mb-4 whitespace-pre-line">
                   {indoorPoolData.subtitle}
                 </div>
                 <Link href="/reservation">
-                  <button className="border border-gray-800 text-gray-800 px-6 py-2 rounded-md hover:bg-gray-100 transition-colors">
+                  <button className="border border-gray-800 text-gray-800 px-2 md:px-6 py-1 md:py-2 text-[10px] md:text-base rounded-md hover:bg-gray-100 transition-colors">
                     예약하기
                   </button>
                 </Link>
               </div>
             </div>
             <div className="w-2/3">
-              <img 
-                src={indoorPoolData.imageUrl}
-                alt="Indoor Pool"
-                className="w-full h-96 object-cover"
-              />
+              {indoorPoolData.imageUrl && (
+                <img 
+                  src={indoorPoolData.imageUrl}
+                  alt="Indoor Pool"
+                  className="w-full h-48 md:h-96 object-cover"
+                />
+              )}
             </div>
           </div>
         </div>
       </main>
       
-      {/* 예약문의/현장문의 섹션 - DB 연동 */}
+      {/* 예약문의/현장문의 섹션 - 텍스트 더 축소 */}
       <div className="flex">
         {/* 예약문의 */}
-        <div className="w-1/2 relative h-96 bg-cover bg-center" style={{ backgroundImage: `url(${contactData.reservation.backgroundImage})` }}>
+        <div className="w-1/2 relative h-64 md:h-96 bg-cover bg-center" style={{ backgroundImage: contactData.reservation.backgroundImage ? `url(${contactData.reservation.backgroundImage})` : 'none' }}>
           <div className="absolute inset-0 bg-black/40"></div>
-          <div className="relative z-10 p-12 text-white h-full flex flex-col justify-center">
-            <h3 className="text-2xl mb-6 border-b border-white inline-block pb-2">예약문의</h3>
-            <p className="text-4xl font-bold mb-4">{contactData.reservation.phone}</p>
-            <div className="text-base whitespace-pre-line">
+          <div className="relative z-10 p-4 md:p-12 text-white h-full flex flex-col justify-center">
+            <h3 className="text-xs md:text-2xl mb-2 md:mb-6 border-b border-white inline-block pb-1 md:pb-2">예약문의</h3>
+            <p className="text-base md:text-4xl font-bold mb-1 md:mb-4">{contactData.reservation.phone}</p>
+            <div className="text-[9px] md:text-base whitespace-pre-line">
               {contactData.reservation.description.replace(/\|/g, '\n')}
             </div>
           </div>
         </div>
         
         {/* 현장문의 */}
-        <div className="w-1/2 relative h-96 bg-cover bg-center" style={{ backgroundImage: `url(${contactData.onsite.backgroundImage})` }}>
+        <div className="w-1/2 relative h-64 md:h-96 bg-cover bg-center" style={{ backgroundImage: contactData.onsite.backgroundImage ? `url(${contactData.onsite.backgroundImage})` : 'none' }}>
           <div className="absolute inset-0 bg-black/40"></div>
-          <div className="relative z-10 p-12 text-white h-full flex flex-col justify-center">
-            <h3 className="text-2xl mb-6 border-b border-white inline-block pb-2">현장문의</h3>
-            <p className="text-4xl font-bold">{contactData.onsite.phone}</p>
+          <div className="relative z-10 p-4 md:p-12 text-white h-full flex flex-col justify-center">
+            <h3 className="text-xs md:text-2xl mb-2 md:mb-6 border-b border-white inline-block pb-1 md:pb-2">현장문의</h3>
+            <p className="text-base md:text-4xl font-bold">{contactData.onsite.phone}</p>
           </div>
         </div>
       </div>

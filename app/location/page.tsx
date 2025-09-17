@@ -66,15 +66,15 @@ export default function LocationPage() {
   const layoutImageContent = getContent('layout_image')
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* 네비게이션 */}
       <Navigation />
       
       {/* 메인 콘텐츠 */}
-      <div className="pt-28">
+      <div className="pt-20 md:pt-28">
         {/* CUBE 45 헤더 섹션 */}
         <div className="relative">
-          <div className="h-[500px] relative overflow-hidden">
+          <div className="h-[300px] md:h-[500px] relative overflow-hidden">
             {bannerContent?.image_url ? (
               <Image 
                 src={bannerContent.image_url}
@@ -86,27 +86,19 @@ export default function LocationPage() {
                 sizes="100vw"
               />
             ) : (
-              <Image 
-                src="/images/cube45/background2.jpg"
-                alt="CUBE 45" 
-                fill
-                priority
-                quality={100}
-                className="object-cover"
-                sizes="100vw"
-              />
+              <div className="w-full h-full bg-gray-200"></div>
             )}
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent"></div>
             
             {/* 텍스트 오버레이 */}
             <div className="absolute inset-0 flex items-center">
-              <div className="container mx-auto px-8">
-                <div className="text-white max-w-2xl">
-                  <h1 className="text-7xl font-bold mb-4">
-                    {bannerContent?.title || 'CUBE 45'}
+              <div className="container mx-auto px-4 md:px-8">
+                <div className="text-white max-w-full md:max-w-2xl">
+                  <h1 className="text-4xl md:text-7xl font-bold mb-2 md:mb-4 break-words">
+                    {bannerContent?.title || ''}
                   </h1>	
-                  <p className="text-lg mb-2">
-                    {bannerContent?.subtitle || '즐거움을 담은 단 하나의 큐브'}
+                  <p className="text-sm md:text-lg mb-1 md:mb-2">
+                    {bannerContent?.subtitle || ''}
                   </p>
                 </div>
               </div>
@@ -114,18 +106,18 @@ export default function LocationPage() {
 
             {/* 하단 정보 바 */}
             <div className="absolute bottom-0 left-0 right-0 backdrop-blur-sm" style={{ backgroundColor: 'rgba(245, 230, 211, 0.6)' }}>
-              <div className="container mx-auto px-8">
-                <div className="flex items-center justify-center py-4">
-                  <div className="flex items-center space-x-8">
-                    <Link href="/intro" className="text-xl text-black hover:text-gray-700 cursor-pointer">
+              <div className="container mx-auto px-4 md:px-8">
+                <div className="flex items-center justify-center py-2 md:py-4">
+                  <div className="flex items-center space-x-3 md:space-x-8 text-xs md:text-xl">
+                    <Link href="/intro" className="text-black hover:text-gray-700 cursor-pointer">
                       CUBE 45
                     </Link>
                     <span className="text-black">|</span>
-                    <Link href="/location" className="text-xl text-black hover:text-gray-700 cursor-pointer font-bold">
+                    <Link href="/location" className="text-black hover:text-gray-700 cursor-pointer font-bold">
                       배치도
                     </Link>
                     <span className="text-black">|</span>
-                    <Link href="/tour" className="text-xl text-black hover:text-gray-700 cursor-pointer">
+                    <Link href="/tour" className="text-black hover:text-gray-700 cursor-pointer">
                       관광정보
                     </Link>
                   </div>
@@ -136,23 +128,48 @@ export default function LocationPage() {
         </div>
 
         {/* 배치도 섹션 */}
-        <div className="py-20">
-          <div className="container mx-auto px-8">
-            <div className="flex items-start gap-16">
-              {/* 왼쪽 텍스트 */}
-              <div className="w-1/3 relative">
-                <h2 className="text-5xl font-light mb-4 leading-tight">
+        <div className="py-10 md:py-20">
+          <div className="container mx-auto px-4 md:px-8">
+            {/* 모바일 레이아웃 */}
+            <div className="flex flex-col md:hidden gap-8">
+              <div className="relative">
+                <h2 className="text-3xl font-light text-black mb-4 leading-tight">
                   {layoutTextContent?.title?.split('\n').map((line, i) => (
                     <span key={i}>
                       {line}
                       {i < (layoutTextContent?.title?.split('\n').length || 0) - 1 && <br/>}
                     </span>
-                  )) || (
-                    <>
-                      CUBE 45<br />
-                      LAYOUT
-                    </>
-                  )}
+                  )) || ''}
+                </h2>
+                <div className="border-t border-gray-300 mt-4 mb-8"></div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-bold text-black mb-4">
+                  {layoutTextContent?.subtitle || ''}
+                </h3>
+                <p className="text-sm text-gray-700 leading-relaxed">
+                  {layoutTextContent?.description?.split('\n').map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      {i < (layoutTextContent?.description?.split('\n').length || 0) - 1 && <br/>}
+                    </span>
+                  )) || ''}
+                </p>
+              </div>
+            </div>
+
+            {/* 데스크톱 레이아웃 - 원래대로 */}
+            <div className="hidden md:flex items-start gap-16">
+              {/* 왼쪽 텍스트 */}
+              <div className="w-1/3 relative">
+                <h2 className="text-5xl font-light text-black mb-4 leading-tight">
+                  {layoutTextContent?.title?.split('\n').map((line, i) => (
+                    <span key={i}>
+                      {line}
+                      {i < (layoutTextContent?.title?.split('\n').length || 0) - 1 && <br/>}
+                    </span>
+                  )) || ''}
                 </h2>
                 {/* 구분선 - LAYOUT 텍스트 바로 아래, 왼쪽으로 더 연장 */}
                 <div className="absolute border-t border-gray-300" 
@@ -164,8 +181,8 @@ export default function LocationPage() {
               </div>
               
               <div className="w-2/3 mt-16">
-                <h3 className="text-xl font-bold mb-6">
-                  {layoutTextContent?.subtitle || '고요한 자연 속에서 당신만을 위한 프라이빗 쉼터'}
+                <h3 className="text-xl font-bold text-black mb-6">
+                  {layoutTextContent?.subtitle || ''}
                 </h3>
                 <p className="text-base text-gray-700 leading-relaxed">
                   {layoutTextContent?.description?.split('\n').map((line, i) => (
@@ -173,14 +190,7 @@ export default function LocationPage() {
                       {line}
                       {i < (layoutTextContent?.description?.split('\n').length || 0) - 1 && <br/>}
                     </span>
-                  )) || (
-                    <>
-                      LX22의 특별한 공간들을 한눈에 만나보세요.<br />
-                      자연과 하나 되는 LX22 풀빌라는 편리함과 휴식을 동시에<br />
-                      제공하는 다채로운 부대시설을 자랑합니다.<br />
-                      여유로운 시간을 위한 모든 것이 준비되어 있습니다.
-                    </>
-                  )}
+                  )) || ''}
                 </p>
               </div>
             </div>
@@ -189,23 +199,17 @@ export default function LocationPage() {
       </div>
 		  
       {/* 배치도 이미지 */}
-      <div className="w-full py-16">
+      <div className="w-full py-4 md:py-16">
         {layoutImageContent?.image_url ? (
           <Image 
             src={layoutImageContent.image_url}
             alt="CUBE 45 배치도"
             width={1920}
             height={1080}
-            className="w-full h-auto object-cover"
+            className="w-full h-auto object-contain md:object-cover"
           />
         ) : (
-          <Image 
-            src="/images/cube45/location.jpg"
-            alt="CUBE 45 배치도"
-            width={1920}
-            height={1080}
-            className="w-full h-auto object-cover"
-          />
+          <div className="w-full h-[400px] bg-gray-200"></div>
         )}
       </div>
       

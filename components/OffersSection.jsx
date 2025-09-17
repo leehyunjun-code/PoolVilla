@@ -1,28 +1,41 @@
-// components/OffersSection.jsx
 'use client'
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
-import Image from 'next/image'
 
 export default function OffersSection() {
   const [offersData, setOffersData] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [isMobile, setIsMobile] = useState(false)
 
+  // 화면 크기 체크
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Supabase에서 데이터 가져오기
   useEffect(() => {
     fetchOffers()
   }, [])
 
-  // 자동 슬라이드 기능
+  // 자동 슬라이드 기능 - 모바일/데스크탑 구분
   useEffect(() => {
-    if (offersData.length <= 3) return
+    const itemsToShow = isMobile ? 2 : 3
+    if (offersData.length <= itemsToShow) return
 
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev === offersData.length - 1 ? 0 : prev + 1))
-    }, 1500) // 1.5초마다 자동 이동
+    }, isMobile ? 3000 : 1500) // 모바일 3초, 데스크탑 1.5초
 
     return () => clearInterval(interval)
-  }, [offersData.length])
+  }, [offersData.length, isMobile])
 
   const fetchOffers = async () => {
     try {
@@ -36,55 +49,45 @@ export default function OffersSection() {
 
       if (error) throw error
 
-      // 데이터 형식 변환 - extra_data 활용
+      // 데이터 형식 변환
       const formattedOffers = data?.map((item, index) => ({
         id: item.id,
         number: item.extra_data?.number || String(index + 1).padStart(2, '0'),
-        title: item.title || 'CUBE 45 Private Pool Villa',
+        title: item.title || '',
         subtitle: item.subtitle || '',
         koreanTitle: item.extra_data?.koreanTitle || '',
-        image: item.image_url || '/images/main/offers.jpg',
+        image: item.image_url || '',
         description: item.description || ''
       })) || []
 
       setOffersData(formattedOffers)
     } catch (error) {
       console.error('오퍼 데이터 로드 실패:', error)
-      // 에러 시 기본 데이터 사용
-      setOffersData([
-        {
-          id: 1,
-          number: '01',
-          title: 'CUBE 45 Private Pool Villa',
-          subtitle: 'Group Guest Information',
-          koreanTitle: '단체고객 예약 안내',
-          image: '/images/main/offers.jpg',
-          description: '20명 이상 단체 예약 시 특별 할인 혜택을 제공합니다.'
-        }
-      ])
+      // 에러 시 빈 배열
+      setOffersData([])
     } finally {
       setLoading(false)
     }
   }
   
-  // 이전 슬라이드로 이동
+  // 이전 슬라이드
   const handlePrev = () => {
     if (offersData.length === 0) return
     setCurrentIndex((prev) => (prev === 0 ? offersData.length - 1 : prev - 1))
   }
   
-  // 다음 슬라이드로 이동
+  // 다음 슬라이드
   const handleNext = () => {
     if (offersData.length === 0) return
     setCurrentIndex((prev) => (prev === offersData.length - 1 ? 0 : prev + 1))
   }
   
-  // 표시할 3개 아이템 가져오기
+  // 표시할 아이템 가져오기
   const getVisibleOffers = () => {
     if (offersData.length === 0) return []
     
     const visible = []
-    const itemsToShow = Math.min(3, offersData.length)
+    const itemsToShow = isMobile ? 2 : 3  // 모바일 2개, 데스크탑 3개
     
     for (let i = 0; i < itemsToShow; i++) {
       const index = (currentIndex + i) % offersData.length
@@ -96,7 +99,7 @@ export default function OffersSection() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">OFFERS</h2>
+        <h2 className="text-3xl font-bold text-center text-black mb-12">OFFERS</h2>
         <div className="flex items-center justify-center h-64">
           <div className="w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
         </div>
@@ -107,51 +110,51 @@ export default function OffersSection() {
   if (offersData.length === 0) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">OFFERS</h2>
+        <h2 className="text-3xl font-bold text-center text-black mb-12">OFFERS</h2>
         <p className="text-center text-gray-500">등록된 오퍼가 없습니다.</p>
       </div>
     )
   }
 
+  const itemsToShow = isMobile ? 2 : 3
+
   return (
     <div className="container mx-auto px-4 py-16">
-      <h2 className="text-3xl font-bold text-center mb-12">OFFERS</h2>
+      <h2 className="text-3xl font-bold text-center text-black mb-12">OFFERS</h2>
       <div className="relative">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {/* 그리드 - 모바일 2개, 데스크탑 3개 */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mx-auto">
           {getVisibleOffers().map((offer) => (
             <div key={offer.id}>
-              <div className="mb-2">
-                <p className="text-gray-500 text-sm mb-1">{offer.number}</p>
-                <p className="text-xs text-gray-600 mb-2">{offer.title}</p>
-                <h3 className="text-xl font-semibold mb-1">{offer.subtitle}</h3>
-                <h3 className="text-xl font-semibold">{offer.koreanTitle}</h3>
+              <div className="mb-2 px-1 sm:px-0">
+                <p className="text-gray-500 text-xs sm:text-sm mb-1">{offer.number}</p>
+                <p className="text-[10px] sm:text-xs text-gray-600 mb-1 sm:mb-2 truncate">{offer.title}</p>
+                <h3 className="text-sm sm:text-xl font-semibold text-black mb-0.5 sm:mb-1">{offer.subtitle}</h3>
+                <h3 className="text-sm sm:text-xl font-semibold text-black">{offer.koreanTitle}</h3>
               </div>
-              <div className="h-64 overflow-hidden relative">
-                {offer.image.startsWith('http') || offer.image.startsWith('https') ? (
-                  <Image
-                    src={offer.image}
-                    alt={offer.koreanTitle}
-                    fill
-                    className="object-cover"
-                  />
-                ) : (
+              {/* 사진 영역 */}
+              <div className="h-40 sm:h-80 overflow-hidden relative">
+                {offer.image ? (
                   <img 
                     src={offer.image}
                     alt={offer.koreanTitle}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
                   />
+                ) : (
+                  <div className="w-full h-full bg-gray-200"></div>
                 )}
               </div>
             </div>
           ))}
         </div>
         
-        {/* 좌우 화살표 - 오퍼가 3개 이상일 때만 표시 */}
-        {offersData.length > 3 && (
+        {/* 좌우 화살표 - 아이템이 표시 개수보다 많을 때만 */}
+        {offersData.length > itemsToShow && (
           <>
+            {/* 데스크탑 화살표 */}
             <button 
               onClick={handlePrev}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 bg-white rounded-full p-2 shadow-md hover:shadow-lg"
+              className="absolute -left-10 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm text-gray-800 p-3 rounded-full hover:bg-white hover:shadow-lg transition-all hidden sm:block"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -159,9 +162,27 @@ export default function OffersSection() {
             </button>
             <button 
               onClick={handleNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 bg-white rounded-full p-2 shadow-md hover:shadow-lg"
+              className="absolute -right-10 top-1/2 -translate-y-1/2 z-10 bg-white/90 backdrop-blur-sm text-gray-800 p-3 rounded-full hover:bg-white hover:shadow-lg transition-all hidden sm:block"
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+            
+            {/* 모바일 화살표 */}
+            <button 
+              onClick={handlePrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 text-gray-800 p-1.5 rounded-full shadow-md sm:hidden"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+            <button 
+              onClick={handleNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 text-gray-800 p-1.5 rounded-full shadow-md sm:hidden"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </button>
@@ -169,13 +190,13 @@ export default function OffersSection() {
         )}
       </div>
       
-      {/* 페이지 인디케이터 점 - 오퍼가 3개 이상일 때만 표시 */}
-      {offersData.length > 3 && (
-        <div className="flex justify-center mt-8 gap-2">
+      {/* 페이지 인디케이터 */}
+      {offersData.length > itemsToShow && (
+        <div className="flex justify-center mt-6 sm:mt-8 gap-2">
           {offersData.map((_, index) => {
-            // 현재 표시되는 3개 카드 인덱스 확인
+            // 현재 표시되는 아이템 확인
             let isActive = false
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < itemsToShow; i++) {
               if ((currentIndex + i) % offersData.length === index) {
                 isActive = true
                 break

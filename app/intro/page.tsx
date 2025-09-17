@@ -31,6 +31,12 @@ export default function IntroPage() {
   const leftTitleRef = useRef(null)
   const rightTextRef = useRef(null)
   const reservationBtnRef = useRef(null)
+  
+  // 모바일용 ref들 추가
+  const mobileTitleRef = useRef(null)
+  const mobileImageRef = useRef(null)
+  const mobileTextRef = useRef(null)
+  const mobileBtnRef = useRef(null)
 
   // 데이터 가져오기
   useEffect(() => {
@@ -84,7 +90,11 @@ export default function IntroPage() {
       centerImageRef.current,
       leftTitleRef.current,
       rightTextRef.current,
-      reservationBtnRef.current
+      reservationBtnRef.current,
+      mobileTitleRef.current,
+      mobileImageRef.current,
+      mobileTextRef.current,
+      mobileBtnRef.current
     ]
 
     elements.forEach(el => {
@@ -140,17 +150,30 @@ export default function IntroPage() {
           transform: translate(0, 0) !important;
           opacity: 1 !important;
         }
+
+        /* 모바일에서 애니메이션 거리 축소 */
+        @media (max-width: 768px) {
+          .slide-from-left {
+            transform: translateX(-30px);
+          }
+          .slide-from-right {
+            transform: translateX(30px);
+          }
+          .slide-from-bottom {
+            transform: translateY(20px);
+          }
+        }
       `}</style>
 
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white overflow-x-hidden">
         {/* 네비게이션 */}
         <Navigation />
 
         {/* 메인 콘텐츠 */}
-        <div className="pt-28">
+        <div className="pt-20 md:pt-28">
           {/* CUBE 45 헤더 섹션 */}
           <div className="relative">
-            <div className="h-[500px] relative overflow-hidden">
+            <div className="h-[300px] md:h-[500px] relative overflow-hidden">
               {bannerContent?.image_url ? (
                 <Image 
                   src={bannerContent.image_url}
@@ -168,13 +191,13 @@ export default function IntroPage() {
               
               {/* 텍스트 오버레이 */}
               <div className="absolute inset-0 flex items-center">
-                <div className="container mx-auto px-8">
-                  <div className="text-white max-w-2xl">
-                    <h1 className="text-7xl font-bold mb-4">
-                      {bannerContent?.title || 'CUBE 45'}
+                <div className="container mx-auto px-4 md:px-8">
+                  <div className="text-white max-w-full md:max-w-2xl">
+                    <h1 className="text-4xl md:text-7xl font-bold mb-2 md:mb-4 break-words">
+                      {bannerContent?.title || ''}
                     </h1>	
-                    <p className="text-lg mb-2">
-                      {bannerContent?.subtitle || '즐거움을 담은 단 하나의 큐브'}
+                    <p className="text-sm md:text-lg mb-1 md:mb-2">
+                      {bannerContent?.subtitle || ''}
                     </p>
                   </div>
                 </div>
@@ -182,18 +205,18 @@ export default function IntroPage() {
 
               {/* 하단 정보 바 */}
               <div className="absolute bottom-0 left-0 right-0 backdrop-blur-sm" style={{ backgroundColor: 'rgba(245, 230, 211, 0.6)' }}>
-                <div className="container mx-auto px-8">
-                  <div className="flex items-center justify-center py-4">
-                    <div className="flex items-center space-x-8">
-                      <Link href="/intro" className="text-xl text-black hover:text-gray-700 cursor-pointer font-bold">
+                <div className="container mx-auto px-4 md:px-8">
+                  <div className="flex items-center justify-center py-2 md:py-4">
+                    <div className="flex items-center space-x-3 md:space-x-8 text-xs md:text-xl">
+                      <Link href="/intro" className="text-black hover:text-gray-700 cursor-pointer font-bold">
                         CUBE 45
                       </Link>
                       <span className="text-black">|</span>
-                      <Link href="/location" className="text-xl text-black hover:text-gray-700 cursor-pointer">
+                      <Link href="/location" className="text-black hover:text-gray-700 cursor-pointer">
                         배치도
                       </Link>
                       <span className="text-black">|</span>
-                      <Link href="/tour" className="text-xl text-black hover:text-gray-700 cursor-pointer">
+                      <Link href="/tour" className="text-black hover:text-gray-700 cursor-pointer">
                         관광정보
                       </Link>
                     </div>
@@ -204,75 +227,57 @@ export default function IntroPage() {
           </div>
 
           {/* Exclusive Cube of Joy 섹션 */}
-          <div className="py-20">
-            <div className="container mx-auto px-8">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="py-10 md:py-20">
+            <div className="container mx-auto px-4 md:px-8">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-16 items-center">
                 {/* 왼쪽 텍스트 영역 - 왼쪽에서 슬라이드 인 */}
                 <div ref={leftTextRef} className="slide-from-left">
-                  <div className="mt-12 mb-8 relative">
-                    <h2 className="text-5xl font-light leading-tight">
+                  <div className="mt-6 md:mt-12 mb-4 md:mb-8 relative">
+                    <h2 className="text-2xl md:text-5xl font-light text-black leading-tight break-words">
                       {exclusiveCubeContent?.title?.split('\n').map((line, i) => (
                         <span key={i}>
                           {line}
                           {i < (exclusiveCubeContent?.title?.split('\n').length || 0) - 1 && <br/>}
                         </span>
-                      )) || (
-                        <>
-                          Exclusive<br/>
-                          Cube of Joy
-                        </>
-                      )}
+                      )) || ''}
                     </h2>
-                    <span className="absolute text-gray-500 text-base border-b border-gray-400 pb-1" 
+                    <span className="hidden md:block absolute text-gray-500 text-base border-b border-gray-400 pb-1" 
                           style={{ top: '50%', right: '310px', transform: 'translateY(-50%)' }}>
+                      in gapyeong
+                    </span>
+                    <span className="block md:hidden text-gray-500 text-sm border-b border-gray-400 pb-1 inline-block mt-2">
                       in gapyeong
                     </span>
                   </div>
                   
                   {/* 구분선 */}
-                  <div className="border-t border-gray-300 my-20 -mr-32"></div>
+                  <div className="border-t border-gray-300 my-10 md:my-20 mr-0 md:-mr-32"></div>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-4 md:space-y-6">
                     <div>
-                      <h3 className="text-2xl font-semibold mb-3">
-                        {exclusiveCubeContent?.subtitle || '고요한 휴식 속 프라이빗 빌라'}
+                      <h3 className="text-lg md:text-2xl font-semibold text-black mb-2 md:mb-3">
+                        {exclusiveCubeContent?.subtitle || ''}
                       </h3>
-                      <p className="text-black leading-relaxed text-xl">
+                      <p className="text-black leading-relaxed text-xs md:text-xl break-words">
                         {exclusiveCubeContent?.description?.split('\n').map((line, i) => (
                           <span key={i}>
                             {line}
                             {i < (exclusiveCubeContent?.description?.split('\n').length || 0) - 1 && <br/>}
                           </span>
-                        )) || (
-                          <>
-                            고요한 자연 속에서 당신만을 위한 프라이빗 쉼터<br/>
-                            사계절 내내 이용 가능한 실내 수영장과<br/>
-                            고급스러운 편의시설을 갖춘 LX22 풀빌라에서<br/>
-                            진정한 힐링을 경험하세요.
-                          </>
-                        )}
+                        )) || ''}
                       </p>
                     </div>
                   </div>
 
-                  <button className="mt-10 px-8 py-2 border border-gray-800 rounded-full text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors"
-                          style={{ marginLeft: '180px' }}>
+                  <button className="mt-6 md:mt-10 px-6 md:px-8 py-2 border border-gray-800 rounded-full text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors mx-auto md:ml-[180px] block md:inline-block">
                     Gallery
                   </button>
                 </div>
 
                 {/* 오른쪽 이미지 영역 - 오른쪽에서 슬라이드 인 */}
-                <div ref={rightImageRef} className="flex justify-center -mt-28 slide-from-right">
+                <div ref={rightImageRef} className="flex justify-center -mt-2 md:-mt-28 slide-from-right">
                   <div 
-                    className="shadow-2xl overflow-hidden relative"
-                    style={{
-                      width: '640px',
-                      height: '480px',
-                      borderTopLeftRadius: '240px',
-                      borderBottomLeftRadius: '240px',
-                      borderTopRightRadius: '0',
-                      borderBottomRightRadius: '0'
-                    }}
+                    className="shadow-2xl overflow-hidden relative w-[320px] h-[240px] md:w-[640px] md:h-[480px] rounded-tl-[120px] rounded-bl-[120px] md:rounded-tl-[240px] md:rounded-bl-[240px] rounded-tr-none rounded-br-none"
                   >
                     {exclusiveCubeImage?.image_url ? (
                       <Image 
@@ -292,13 +297,62 @@ export default function IntroPage() {
           </div>
 
           {/* An Exceptional Retreat 섹션 */}
-          <div className="py-32 pb-80">
-            <div className="container mx-auto px-8">
-              <div className="flex items-center justify-center">
-                
-                {/* 중앙 이미지와 주변 텍스트 컨테이너 */}
+          <div className="py-16 md:py-32 pb-20 md:pb-80">
+            <div className="container mx-auto px-4 md:px-8 overflow-hidden md:overflow-visible">
+              {/* 모바일 레이아웃 */}
+              <div className="block md:hidden space-y-8">
+                <div ref={mobileTitleRef} className="slide-from-left">
+                  <h2 className="text-2xl font-light text-black leading-tight">
+                    {exceptionalRetreatContent?.title?.split('\n').map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        {i < (exceptionalRetreatContent?.title?.split('\n').length || 0) - 1 && <br/>}
+                      </span>
+                    )) || ''}
+                  </h2>
+                </div>
+
+                <div ref={mobileImageRef} className="slide-from-bottom">
+                  <div className="overflow-hidden shadow-lg relative w-[240px] h-[350px] mx-auto rounded-tl-[120px] rounded-tr-[120px] rounded-br-[130px] rounded-bl-[30px]">
+                    {exceptionalRetreatImage?.image_url ? (
+                      <Image 
+                        src={exceptionalRetreatImage.image_url}
+                        alt="Villa Pool View" 
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full bg-gray-200"></div>
+                    )}
+                  </div>
+                </div>
+
+                <div ref={mobileTextRef} className="slide-from-right">
+                  <h3 className="text-lg font-semibold text-black mb-2">
+                    {exceptionalRetreatContent?.subtitle || ''}
+                  </h3>
+                  <p className="text-black leading-relaxed text-xs">
+                    {exceptionalRetreatContent?.description?.split('\n').map((line, i) => (
+                      <span key={i}>
+                        {line}
+                        {i < (exceptionalRetreatContent?.description?.split('\n').length || 0) - 1 && <br/>}
+                      </span>
+                    )) || ''}
+                  </p>
+                </div>
+
+                <div ref={mobileBtnRef} className="slide-from-right flex justify-center">
+                  <Link href="/reservation">
+                    <button className="px-8 py-2 border border-gray-800 rounded-full text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors">
+                      Reservation
+                    </button>
+                  </Link>
+                </div>
+              </div>
+
+              {/* 데스크톱 레이아웃 - 원래대로 */}
+              <div className="hidden md:flex items-center justify-center">
                 <div className="relative">
-                  
                   {/* 중앙 이미지 - 아래에서 슬라이드 인 */}
                   <div ref={centerImageRef} 
                        className="overflow-hidden shadow-lg slide-from-bottom relative"
@@ -310,7 +364,7 @@ export default function IntroPage() {
                          borderBottomRightRadius: '180px',
                          borderBottomLeftRadius: '40px',
                          marginLeft: '-160px',
-						 zIndex: 10	 
+                         zIndex: 10	 
                        }}>
                     {exceptionalRetreatImage?.image_url ? (
                       <Image 
@@ -327,20 +381,13 @@ export default function IntroPage() {
                   
                   {/* 왼쪽 위 제목 - 왼쪽에서 슬라이드 인 */}
                   <div ref={leftTitleRef} className="absolute slide-from-left" style={{ left: '-600px', top: '-16px' }}>
-                    <h2 className="text-4xl font-light leading-tight">
+                    <h2 className="text-4xl font-light text-black leading-tight">
                       {exceptionalRetreatContent?.title?.split('\n').map((line, i) => (
                         <span key={i}>
                           {line}
                           {i < (exceptionalRetreatContent?.title?.split('\n').length || 0) - 1 && <br/>}
                         </span>
-                      )) || (
-                        <>
-                          An Exceptional<br/>
-                          Retreat<br/>
-                          in the<br/>
-                          Grandest Villa
-                        </>
-                      )}
+                      )) || ''}
                     </h2>
                   </div>
                   
@@ -359,8 +406,8 @@ export default function IntroPage() {
                   <div ref={rightTextRef} className="absolute left-80 top-102 w-96 whitespace-nowrap slide-from-right">
                     <div className="space-y-6">
                       <div>
-                        <h3 className="text-2xl font-semibold mb-3">
-                          {exceptionalRetreatContent?.subtitle || '고요한 휴식 속 프라이빗 빌라'}
+                        <h3 className="text-2xl font-semibold text-black mb-3">
+                          {exceptionalRetreatContent?.subtitle || ''}
                         </h3>
                         <p className="text-black leading-relaxed text-xl">
                           {exceptionalRetreatContent?.description?.split('\n').map((line, i) => (
@@ -368,13 +415,7 @@ export default function IntroPage() {
                               {line}
                               {i < (exceptionalRetreatContent?.description?.split('\n').length || 0) - 1 && <br/>}
                             </span>
-                          )) || (
-                            <>
-                              고요한 자연 속에서 당신만을 위한 프라이빗 쉼터<br/>
-                              사계절 내내 이용 가능한 실내 수영장과 고급스러운<br/>
-                              편의시설을 갖춘 LX22 풀빌라에서 진정한 힐링을 경험하세요.
-                            </>
-                          )}
+                          )) || ''}
                         </p>
                       </div>
                     </div>

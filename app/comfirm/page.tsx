@@ -91,12 +91,12 @@ export default function ConfirmPage() {
       <Navigation />
       
       <div className="pt-40">
-        <div className="container mx-auto px-4 py-32">
-          <div className="max-w-md mx-auto mb-55">
-            <div className="bg-white border border-gray-300 p-8">
+        <div className="container mx-auto px-4 py-16 md:py-32">
+          <div className="max-w-md mx-auto mb-20 md:mb-55">
+            <div className="bg-white border border-gray-300 p-4 md:p-8">
               {/* 헤더 */}
-              <div className="flex justify-between items-center mb-8">
-                <h2 className="text-lg font-medium">예약조회</h2>
+              <div className="flex justify-between items-center mb-6 md:mb-8">
+                <h2 className="text-base md:text-lg font-medium text-black">예약조회</h2>
                 <button 
                   onClick={handleClose}
                   className="text-gray-500 hover:text-gray-700"
@@ -106,7 +106,7 @@ export default function ConfirmPage() {
               </div>
               
               {/* 입력 폼 */}
-              <div className="space-y-6 mb-8">
+              <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
                     예약자 이름 <span className="text-red-500">*</span>
@@ -119,7 +119,7 @@ export default function ConfirmPage() {
                       const value = e.target.value.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z]/g, '');
                       setBookerName(value);
                     }}
-                    className="w-full p-4 border border-gray-300 text-sm focus:border-teal-500 focus:outline-none"
+                    className="w-full p-3 md:p-4 border border-gray-300 text-sm focus:border-teal-500 focus:outline-none text-black"
                   />
                   <p className="text-xs text-gray-500 mt-1">예약 시 입력한 이름을 정확히 입력해주세요</p>
                 </div>
@@ -137,7 +137,7 @@ export default function ConfirmPage() {
                       setBookerPhone(value);
                     }}
                     maxLength={11}
-                    className="w-full p-4 border border-gray-300 text-sm focus:border-teal-500 focus:outline-none"
+                    className="w-full p-3 md:p-4 border border-gray-300 text-sm focus:border-teal-500 focus:outline-none text-black"
                   />
                   <p className="text-xs text-gray-500 mt-1">하이픈(-) 없이 숫자만 입력해주세요</p>
                 </div>
@@ -148,7 +148,7 @@ export default function ConfirmPage() {
                 <button 
                   onClick={handleSearch}
                   disabled={isLoading}
-                  className="flex-1 py-3 bg-teal-700 text-white font-medium text-sm disabled:bg-gray-400"
+                  className="flex-1 py-2 md:py-3 bg-teal-700 text-white font-medium text-sm disabled:bg-gray-400 hover:bg-teal-800 active:scale-95 transition-all duration-150 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {isLoading ? '검색중...' : '검색하기'}
                 </button>
@@ -156,14 +156,14 @@ export default function ConfirmPage() {
 
               {/* 검색 결과 */}
               {showResults && reservations.length > 0 && (
-                <div className="mt-8 border-t pt-8">
-                  <h3 className="text-xl font-bold mb-6 text-center text-gray-800">예약 정보</h3>
+                <div className="mt-6 md:mt-8 border-t pt-6 md:pt-8">
+                  <h3 className="text-lg md:text-xl font-bold mb-4 md:mb-6 text-center text-gray-800">예약 정보</h3>
                   {reservations.map((reservation, index) => (
-                    <div key={reservation.id} className="mb-6 bg-white rounded-lg shadow-md border overflow-hidden relative">
+                    <div key={reservation.id} className="mb-4 md:mb-6 bg-white rounded-lg shadow-md border overflow-hidden relative">
                       {/* 취소됨 대각선 스탬프 */}
                       {reservation.status === 'cancelled' && (
                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                          <div className="transform rotate-12 bg-red-600 text-white px-24 py-6 text-3xl font-bold shadow-2xl border-4 border-red-700 opacity-90">
+                          <div className="transform rotate-12 bg-red-600 text-white px-16 md:px-24 py-4 md:py-6 text-2xl md:text-3xl font-bold shadow-2xl border-4 border-red-700 opacity-90">
                             취소됨
                           </div>
                         </div>
@@ -174,13 +174,13 @@ export default function ConfirmPage() {
                         reservation.status === 'cancelled' 
                           ? 'bg-gradient-to-r from-gray-400 to-gray-600' 
                           : 'bg-blue-600'
-                      } text-white p-4`}>
-                        <h4 className={`font-bold text-center text-lg ${
+                      } text-white p-3 md:p-4`}>
+                        <h4 className={`font-bold text-center text-base md:text-lg text-white ${
                           reservation.status === 'cancelled' ? 'opacity-50' : ''
                         }`}>
                           예약번호: {reservation.reservation_number}
                         </h4>
-                        <p className={`text-center text-sm mt-1 ${
+                        <p className={`text-center text-xs md:text-sm mt-1 ${
                           reservation.status === 'cancelled' 
                             ? 'text-gray-200 opacity-50' 
                             : 'text-blue-100'
@@ -190,61 +190,61 @@ export default function ConfirmPage() {
                       </div>
                         
                       {/* 예약 상세 정보 */}
-                      <div className="p-6">
+                      <div className="p-4 md:p-6">
                         {/* 날짜 정보 */}
-                        <div className="bg-blue-50 rounded-lg p-4 mb-4 border-l-4 border-blue-400">
-                          <div className="grid grid-cols-3 gap-4 text-center">
+                        <div className="bg-blue-50 rounded-lg p-3 md:p-4 mb-3 md:mb-4 border-l-4 border-blue-400">
+                          <div className="grid grid-cols-3 gap-2 md:gap-4 text-center">
                             <div>
                               <p className="text-xs text-gray-500 mb-1">체크인</p>
-                              <p className="font-semibold text-blue-700">{reservation.check_in_date}</p>
+                              <p className="text-sm md:text-base font-semibold text-blue-700">{reservation.check_in_date}</p>
                             </div>
                             <div>
                               <p className="text-xs text-gray-500 mb-1">숙박</p>
-                              <p className="font-semibold text-blue-700">{reservation.nights}박</p>
+                              <p className="text-sm md:text-base font-semibold text-blue-700">{reservation.nights}박</p>
                             </div>
                             <div>
                               <p className="text-xs text-gray-500 mb-1">체크아웃</p>
-                              <p className="font-semibold text-blue-700">{reservation.check_out_date}</p>
+                              <p className="text-sm md:text-base font-semibold text-blue-700">{reservation.check_out_date}</p>
                             </div>
                           </div>
                         </div>
               
                         {/* 예약자 정보 */}
-                        <div className="mb-4">
+                        <div className="mb-3 md:mb-4">
                           <h5 className="font-semibold text-gray-700 mb-2 text-sm">예약자 정보</h5>
-                          <div className="bg-gray-50 border-l-4 border-blue-400 pl-4 py-3 rounded-r-lg">
-                            <p className="font-medium text-gray-800">{reservation.booker_name}</p>
-                            <p className="text-gray-700 text-sm">{reservation.booker_phone}</p>
-                            <p className="text-gray-700 text-sm">{reservation.booker_email}</p>
+                          <div className="bg-gray-50 border-l-4 border-blue-400 pl-3 md:pl-4 py-2 md:py-3 rounded-r-lg">
+                            <p className="font-medium text-gray-800 text-sm md:text-base">{reservation.booker_name}</p>
+                            <p className="text-gray-700 text-xs md:text-sm text-black">{reservation.booker_phone}</p>
+                            <p className="text-gray-700 text-xs md:text-sm text-black">{reservation.booker_email}</p>
                           </div>
                         </div>
                         
                         {/* 투숙자 정보가 있을 때만 표시 */}
                         {reservation.is_different_guest && (
-                          <div className="mb-4">
+                          <div className="mb-3 md:mb-4">
                             <h5 className="font-semibold text-gray-700 mb-2 text-sm">투숙자 정보</h5>
-                            <div className="bg-gray-50 border-l-4 border-gray-400 pl-4 py-3 rounded-r-lg">
-                              <p className="font-medium text-gray-800">{reservation.guest_name}</p>
-                              <p className="text-gray-700 text-sm">{reservation.guest_phone}</p>
-                              <p className="text-gray-700 text-sm">{reservation.guest_email}</p>
+                            <div className="bg-gray-50 border-l-4 border-gray-400 pl-3 md:pl-4 py-2 md:py-3 rounded-r-lg">
+                              <p className="font-medium text-gray-800 text-sm md:text-base">{reservation.guest_name}</p>
+                              <p className="text-gray-700 text-xs md:text-sm text-black">{reservation.guest_phone}</p>
+                              <p className="text-gray-700 text-xs md:text-sm text-black">{reservation.guest_email}</p>
                             </div>
                           </div>
                         )}
                         
                         {/* 인원 정보 */}
-                        <div className="mb-4">
+                        <div className="mb-3 md:mb-4">
                           <h5 className="font-semibold text-gray-700 mb-2 text-sm">투숙인원</h5>
-                          <div className="bg-gray-50 border-l-4 border-blue-400 pl-4 py-3 rounded-r-lg">
+                          <div className="bg-gray-50 border-l-4 border-blue-400 pl-3 md:pl-4 py-2 md:py-3 rounded-r-lg">
                             <div className="space-y-1">
-                              <p className="text-gray-700 text-sm">성인: {reservation.adult_count}명</p>
+                              <p className="text-gray-700 text-xs md:text-sm text-black">성인: {reservation.adult_count}명</p>
                               {reservation.student_count > 0 && (
-                                <p className="text-gray-700 text-sm">학생: {reservation.student_count}명</p>
+                                <p className="text-gray-700 text-xs md:text-sm text-black">학생: {reservation.student_count}명</p>
                               )}
                               {reservation.child_count > 0 && (
-                                <p className="text-gray-700 text-sm">아동: {reservation.child_count}명</p>
+                                <p className="text-gray-700 text-xs md:text-sm text-black">아동: {reservation.child_count}명</p>
                               )}
                               {reservation.infant_count > 0 && (
-                                <p className="text-gray-700 text-sm">영유아: {reservation.infant_count}명</p>
+                                <p className="text-gray-700 text-xs md:text-sm text-black">영유아: {reservation.infant_count}명</p>
                               )}
                             </div>
                           </div>
@@ -252,9 +252,9 @@ export default function ConfirmPage() {
                         
                         {/* 추가옵션이 있을 때만 표시 */}
                         {reservation.selected_options && reservation.selected_options.length > 0 && (
-                          <div className="mb-4">
+                          <div className="mb-3 md:mb-4">
                             <h5 className="font-semibold text-gray-700 mb-2 text-sm">추가옵션</h5>
-                            <div className="flex flex-wrap gap-2">
+                            <div className="flex flex-wrap gap-1 md:gap-2">
                               {reservation.selected_options.map((option, idx) => {
                                 const optionNames: { [key: string]: string } = {
                                   'bbq4': 'BBQ 숯&그릴 4인용',
@@ -264,7 +264,7 @@ export default function ConfirmPage() {
                                   'fireplace': '벽난로'
                                 }
                                 return (
-                                  <span key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm border border-blue-200">
+                                  <span key={idx} className="bg-blue-100 text-blue-800 px-2 md:px-3 py-1 rounded-full text-xs md:text-sm border border-blue-200">
                                     {optionNames[option] || option}
                                   </span>
                                 )
@@ -275,36 +275,36 @@ export default function ConfirmPage() {
                         
                         {/* 요청사항이 있을 때만 표시 */}
                         {reservation.customer_request && (
-                          <div className="mb-4">
+                          <div className="mb-3 md:mb-4">
                             <h5 className="font-semibold text-gray-700 mb-2 text-sm">요청사항</h5>
-                            <div className="bg-gray-50 p-3 rounded-lg border border-gray-200">
-                              <p className="text-gray-700 text-sm">{reservation.customer_request}</p>
+                            <div className="bg-gray-50 p-2 md:p-3 rounded-lg border border-gray-200">
+                              <p className="text-gray-700 text-xs md:text-sm text-black">{reservation.customer_request}</p>
                             </div>
                           </div>
                         )}
                         
                         {/* 요금 정보 */}
-                        <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                          <h5 className="font-semibold text-gray-700 mb-3 text-sm">결제 정보</h5>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
+                        <div className="bg-gray-50 rounded-lg p-3 md:p-4 border border-gray-200">
+                          <h5 className="font-semibold text-gray-700 mb-2 md:mb-3 text-sm">결제 정보</h5>
+                          <div className="space-y-1 md:space-y-2">
+                            <div className="flex justify-between text-sm md:text-base">
                               <span className="text-gray-600">객실요금</span>
-                              <span>₩{reservation.room_price.toLocaleString()}</span>
+                              <span className="text-black">₩{reservation.room_price.toLocaleString()}</span>
                             </div>
                             {reservation.additional_fee > 0 && (
-                              <div className="flex justify-between">
+                              <div className="flex justify-between text-sm md:text-base">
                                 <span className="text-gray-600">추가인원요금</span>
-                                <span>₩{reservation.additional_fee.toLocaleString()}</span>
+                                <span className="text-black">₩{reservation.additional_fee.toLocaleString()}</span>
                               </div>
                             )}
                             {reservation.options_fee > 0 && (
-                              <div className="flex justify-between">
+                              <div className="flex justify-between text-sm md:text-base">
                                 <span className="text-gray-600">추가옵션요금</span>
-                                <span>₩{reservation.options_fee.toLocaleString()}</span>
+                                <span className="text-black">₩{reservation.options_fee.toLocaleString()}</span>
                               </div>
                             )}
                             <hr className="border-gray-300" />
-                            <div className="flex justify-between font-bold text-lg">
+                            <div className="flex justify-between font-bold text-base md:text-lg">
                               <span className="text-gray-800">총 결제금액</span>
                               <span className="text-red-600">₩{reservation.total_amount.toLocaleString()}</span>
                             </div>
@@ -313,11 +313,11 @@ export default function ConfirmPage() {
                         
                         {/* 취소 버튼 - 확정된 예약만 표시 */}
                         {reservation.status === 'confirmed' && (
-                          <div className="mt-4 text-center">
+                          <div className="mt-3 md:mt-4 text-center">
                             <button 
                               onClick={() => handleCancel()}
                               disabled={isLoading}
-                              className="px-8 py-2 bg-red-600 text-white font-medium text-sm rounded disabled:bg-gray-400"
+                              className="px-6 md:px-8 py-2 bg-red-600 text-white font-medium text-xs md:text-sm rounded disabled:bg-gray-400 hover:bg-red-700 active:scale-95 transition-all duration-150 cursor-pointer disabled:cursor-not-allowed"
                             >
                               {isLoading ? '처리중...' : '예약 취소'}
                             </button>

@@ -83,45 +83,49 @@ export default function GuestInfoPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* 네비게이션 */}
       <Navigation />
       
       {/* 메인 콘텐츠 */}
-      <div className="pt-28">
+      <div className="pt-20 md:pt-28">
         {/* CUBE 45 헤더 섹션 - 배너 데이터 사용 */}
         <div className="relative">
-          <div className="h-[500px] relative overflow-hidden">
-            <Image 
-              src={bannerData?.image_url || "/images/cube45/background2.jpg"}
-              alt="CUBE 45" 
-              fill
-              priority
-              quality={100}
-              className="object-cover"
-              sizes="100vw"
-            />
+          <div className="h-[300px] md:h-[500px] relative overflow-hidden">
+            {bannerData?.image_url ? (
+              <Image 
+                src={bannerData.image_url}
+                alt="CUBE 45" 
+                fill
+                priority
+                quality={100}
+                className="object-cover"
+                sizes="100vw"
+              />
+            ) : (
+              <div className="w-full h-full bg-gray-200"></div>
+            )}
             <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent"></div>
           </div>
         </div>
         
         {/* 이용안내 콘텐츠 */}
-        <div className="py-20 bg-gray-50">
-          <div className="container mx-auto px-8">
+        <div className="py-10 md:py-20 bg-gray-50">
+          <div className="container mx-auto px-4 md:px-8">
             <div className="max-w-6xl mx-auto">
               {/* 헤더 - 배너 데이터의 제목/부제목 사용 */}
-              <div className="mb-12">
-                <p className="text-xl text-black mb-2">CUBE45</p>
-                <p className="text-xl text-black mb-4">
-                  {bannerData?.title || "URBAN POOL STAY"}
+              <div className="mb-8 md:mb-12">
+                <p className="text-base md:text-xl text-black mb-1 md:mb-2"></p>
+                <p className="text-base md:text-xl text-black mb-2 md:mb-4">
+                  {bannerData?.title || ""}
                 </p>
-                <h1 className="text-5xl font-light mb-8">
-                  {bannerData?.subtitle || "Guest Information"}
+                <h1 className="text-3xl md:text-5xl font-light text-black mb-6 md:mb-8 whitespace-pre-wrap break-words">
+                  {bannerData?.subtitle || ""}
                 </h1>
                 {/* 왼쪽 밑줄만 */}
                 <div className="flex items-center">
-                  <div className="w-96 border-t border-gray-300"></div>
-                  <div className="px-4"></div>
+                  <div className="w-32 md:w-96 border-t border-gray-300"></div>
+                  <div className="px-2 md:px-4"></div>
                 </div>
               </div>
 
@@ -129,28 +133,30 @@ export default function GuestInfoPage() {
               {sectionGroups.map((group, index) => (
                 <div key={group.section.id}>
                   {/* 섹션 제목 */}
-                  <div className={index > 0 ? 'mt-20' : ''}>
+                  <div className={index > 0 ? 'mt-12 md:mt-20' : ''}>
                     {index > 0 && (
                       /* 섹션 구분선 */
-                      <div className="flex items-center mb-20">
-                        <div className="w-96 border-t border-gray-300"></div>
-                        <div className="px-4"></div>
+                      <div className="flex items-center mb-12 md:mb-20">
+                        <div className="w-32 md:w-96 border-t border-gray-300"></div>
+                        <div className="px-2 md:px-4"></div>
                       </div>
                     )}
                     
-                    <h2 className="text-2xl font-medium mb-8">{group.section.title}</h2>
+                    <h2 className="text-lg md:text-2xl font-medium text-black mb-6 md:mb-8 whitespace-pre-wrap break-words">
+                      {group.section.title}
+                    </h2>
                     
-                    <div className="space-y-8 text-black">
+                    <div className="space-y-6 md:space-y-8 text-black">
                       {/* 카드(항목) 렌더링 */}
                       {group.cards.map((card) => (
                         <div key={card.id}>
-                          <h3 className="text-lg font-medium text-black mb-3">
+                          <h3 className="text-base md:text-lg font-medium text-black mb-2 md:mb-3 whitespace-pre-wrap break-words">
                             {card.title}
                           </h3>
                           {card.description && (
-                            <div className="text-sm space-y-2">
+                            <div className="text-xs md:text-sm text-black space-y-1 md:space-y-2">
                               {card.description.split('\n').map((line, idx) => (
-                                <div key={idx} className={line.startsWith('  ') ? 'ml-4' : ''}>
+                                <div key={idx} className={`${line.startsWith('  ') ? 'ml-3 md:ml-4' : ''} whitespace-pre-wrap break-words`}>
                                   {line}
                                 </div>
                               ))}

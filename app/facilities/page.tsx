@@ -83,15 +83,15 @@ export default function FacilitiesPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       {/* 네비게이션 */}
       <Navigation />
       
       {/* 메인 콘텐츠 */}
-      <div className="pt-28">
+      <div className="pt-20 md:pt-28">
         {/* 헤더 섹션 - 배너 데이터 사용 */}
         <div className="relative">
-          <div className="h-[500px] relative overflow-hidden">
+          <div className="h-[300px] md:h-[500px] relative overflow-hidden">
             <Image 
               src={bannerData?.image_url || "/images/cube45/background2.jpg"}
               alt="CUBE 45" 
@@ -107,20 +107,20 @@ export default function FacilitiesPage() {
 
         {/* 동적 섹션 렌더링 */}
         {sectionGroups.map((group, index) => (
-          <section key={group.section.id} className="py-20 px-4 bg-gray-50">
+          <section key={group.section.id} className="py-10 md:py-20 px-4 bg-gray-50">
             <div className="max-w-4xl mx-auto">
-              <div className="text-center mb-12">
-                <div className="w-45 h-[1px] bg-gray-300 mx-auto mb-6"></div>
-                <h2 className="text-4xl font-light mb-4 text-black whitespace-pre-wrap">
+              <div className="text-center mb-8 md:mb-12">
+                <div className="w-20 md:w-45 h-[1px] bg-gray-300 mx-auto mb-4 md:mb-6"></div>
+                <h2 className="text-2xl md:text-4xl font-light mb-3 md:mb-4 text-black whitespace-pre-wrap break-words">
                   {group.section.title}
                 </h2>
                 {group.section.subtitle && (
-                  <p className="text-lg text-black mb-6 font-bold whitespace-pre-wrap">
+                  <p className="text-base md:text-lg text-black mb-4 md:mb-6 font-bold whitespace-pre-wrap break-words">
                     {group.section.subtitle}
                   </p>
                 )}
                 {group.section.description && (
-                  <p className="text-sm text-black max-w-2xl mx-auto leading-relaxed whitespace-pre-wrap">
+                  <p className="text-xs md:text-sm text-black max-w-2xl mx-auto leading-relaxed whitespace-pre-wrap break-words">
                     {group.section.description}
                   </p>
                 )}
@@ -128,10 +128,10 @@ export default function FacilitiesPage() {
 
               {/* 카드 렌더링 */}
               {group.cards.length > 0 && (
-                <div className="grid md:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-8">
                   {group.cards.map((card) => (
                     <div key={card.id} className="bg-white overflow-hidden shadow-lg">
-                      <div className="relative h-48">
+                      <div className="relative h-40 md:h-48">
                         {card.image_url ? (
                           <Image
                             src={card.image_url}
@@ -147,17 +147,17 @@ export default function FacilitiesPage() {
                           />
                         )}
                       </div>
-                      <div className="p-6 text-center">
-                        <h3 className="font-semibold text-lg mb-2 text-black whitespace-pre-wrap">
+                      <div className="p-4 md:p-6 text-center">
+                        <h3 className="font-semibold text-base md:text-lg mb-1 md:mb-2 text-black whitespace-pre-wrap break-words">
                           {card.title}
                         </h3>
                         {card.subtitle && (
-                          <p className="text-sm text-black whitespace-pre-wrap">
+                          <p className="text-xs md:text-sm text-black whitespace-pre-wrap break-words">
                             {card.subtitle}
                           </p>
                         )}
                         {card.description && (
-                          <p className="text-xs text-gray-600 mt-2 whitespace-pre-wrap">
+                          <p className="text-[10px] md:text-xs text-gray-600 mt-1 md:mt-2 whitespace-pre-wrap break-words">
                             {card.description}
                           </p>
                         )}
