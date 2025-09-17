@@ -1689,8 +1689,7 @@ export default function LocationPage() {
                                         const checkOutStr = checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : ''
                                         
                                         // PG URL 생성 - roomName 추가
-                                        const pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_PC/WelStdPayRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom.name)}&checkIn=${checkInStr}&checkOut=${checkOutStr}`
-                                        
+                                        const pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_PC/WelStdPayRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom?.name || '')}&checkIn=${checkInStr}&checkOut=${checkOutStr}`                                        
                                         window.location.href = pgUrl                                        
                                     } else {
                                         alert('예약 처리 중 오류가 발생했습니다.')
