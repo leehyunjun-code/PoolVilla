@@ -162,10 +162,49 @@ export default function LocationPage() {
     const tidParam = params.get('tid')
     
     if (stepParam === '3' && reservationParam) {
-      // 결제 완료 - 예약완료 단계로 이동
-      setReservationNumber(reservationParam)
-      setActiveStep(3)
-      return  // 다른 처리 중단
+        // 결제 완료 - 예약완료 단계로 이동
+        setReservationNumber(reservationParam)
+        
+        // Supabase에서 예약 정보 가져오기
+        const fetchReservationData = async () => {
+            const { data, error } = await supabase
+                .from('cube45_reservations')
+                .select('*')
+                .eq('reservation_number', reservationParam)
+                .single()
+            
+            if (data) {
+                // 예약 정보 복원
+                setSelectedRoom({
+                    id: data.room_id,
+                    name: data.room_name,
+                    rooms: 0,
+                    bathrooms: 0,
+                    minGuests: 0,
+                    maxGuests: 0,
+                    size: 0,
+                    petFriendly: false,
+                    price: data.room_price
+                })
+                setBookerInfo({
+                    name: data.booker_name,
+                    email: data.booker_email,
+                    phone: data.booker_phone
+                })
+                setCheckInDate(new Date(data.check_in_date))
+                setCheckOutDate(new Date(data.check_out_date))
+                setAdultCount(data.adult_count)
+                setStudentCount(data.student_count)
+                setChildCount(data.child_count)
+                setInfantCount(data.infant_count)
+                setSelectedOptions(data.selected_options || [])
+                setTotalRoomPrice(data.room_price)
+            }
+        }
+        
+        fetchReservationData()
+        setActiveStep(3)
+        return
     }
     
     // 기존 코드
