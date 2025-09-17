@@ -167,7 +167,7 @@ export default function LocationPage() {
         
         // Supabase에서 예약 정보 가져오기
         const fetchReservationData = async () => {
-            const { data, error } = await supabase
+            const { data } = await supabase
                 .from('cube45_reservations')
                 .select('*')
                 .eq('reservation_number', reservationParam)
@@ -191,14 +191,14 @@ export default function LocationPage() {
                     email: data.booker_email,
                     phone: data.booker_phone
                 })
-                setCheckInDate(new Date(data.check_in_date))
-                setCheckOutDate(new Date(data.check_out_date))
-                setAdultCount(data.adult_count)
-                setStudentCount(data.student_count)
-                setChildCount(data.child_count)
-                setInfantCount(data.infant_count)
+                setFirstDate(new Date(data.check_in_date))
+                setSecondDate(new Date(data.check_out_date))
+                setAdultCount(data.adult_count || 0)
+                setStudentCount(data.student_count || 0)
+                setChildCount(data.child_count || 0)
+                setInfantCount(data.infant_count || 0)
                 setSelectedOptions(data.selected_options || [])
-                setTotalRoomPrice(data.room_price)
+                setTotalRoomPrice(data.room_price || 0)
             }
         }
         
