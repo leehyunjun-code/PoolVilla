@@ -155,6 +155,20 @@ export default function LocationPage() {
   // URL 파라미터 받기
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)
+    
+    // 결제 완료 후 돌아온 경우 처리 (새로 추가)
+    const stepParam = params.get('step')
+    const reservationParam = params.get('reservation')
+    const tidParam = params.get('tid')
+    
+    if (stepParam === '3' && reservationParam) {
+      // 결제 완료 - 예약완료 단계로 이동
+      setReservationNumber(reservationParam)
+      setActiveStep(3)
+      return  // 다른 처리 중단
+    }
+    
+    // 기존 코드
     const checkInParam = params.get('checkIn')
     const checkOutParam = params.get('checkOut')
     const adultsParam = params.get('adults')
@@ -1659,18 +1673,29 @@ export default function LocationPage() {
                             style={getFirstErrorMessage() ? {} : {backgroundColor: '#134C59'}}
                             disabled={!!getFirstErrorMessage()}
                             onClick={async () => {
-                              if (!getFirstErrorMessage()) {
-                                const newReservationNumber = generateReservationNumber()
-                                const reservationData = prepareReservationData(newReservationNumber)
-                                const result = await saveReservation(reservationData)
-                                
-                                if (result.success) {
-                                  setReservationNumber(newReservationNumber)
-                                  setActiveStep(3)
-                                } else {
-                                  alert('예약 처리 중 오류가 발생했습니다.')
+                                if (!getFirstErrorMessage()) {
+                                    const newReservationNumber = generateReservationNumber()
+                                    const reservationData = prepareReservationData(newReservationNumber)
+                                    const result = await saveReservation(reservationData)
+                                    
+                                    if (result.success) {
+                                        // PG 결제 페이지로 이동
+                                        const currentDomain = window.location.origin  // 현재 도메인 자동 감지
+                                        // 총 금액 계산
+                                        const totalAmount = totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()
+                                        
+                                        // 체크인/체크아웃 날짜 포맷
+                                        const checkInStr = checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : ''
+                                        const checkOutStr = checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : ''
+                                        
+                                        // PG URL 생성 - roomName 추가
+                                        const pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_PC/WelStdPayRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom.name)}&checkIn=${checkInStr}&checkOut=${checkOutStr}`
+                                        
+                                        window.location.href = pgUrl                                        
+                                    } else {
+                                        alert('예약 처리 중 오류가 발생했습니다.')
+                                    }
                                 }
-                              }
                             }}
                           >
                             결제
