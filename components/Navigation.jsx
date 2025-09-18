@@ -79,7 +79,7 @@ export default function Navigation() {
 
           {/* 로고 */}
           <Link href="/">
-            <div className="cursor-pointer flex justify-center items-center py-2 md:py-0">
+            <div className="cursor-pointer flex justify-center items-center py-2.5 md:py-4">
               <Image 
                 src="/images/main/cube45.jpg"
                 alt="CUBE 45"
