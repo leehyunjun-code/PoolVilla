@@ -85,10 +85,10 @@ export default function Navigation() {
               <Image 
                 src="/images/main/cube45.jpg"
                 alt="CUBE 45"
-                width={200}
-                height={80}
+                width={160}
+                height={64}
                 priority
-                className="object-contain w-32 md:w-[200px] h-16 md:h-20"
+                className="object-contain w-24 md:w-40 h-12 md:h-16"
               />
             </div>
           </Link>
