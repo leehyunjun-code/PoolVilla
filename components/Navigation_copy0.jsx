@@ -83,7 +83,7 @@ export default function Navigation() {
           <Link href="/">
             <div className="cursor-pointer flex justify-center items-center py-2 md:py-0">
               <Image 
-                src="/images/main/logo.jpg"
+                src="/images/main/cube45.jpg"
                 alt="CUBE 45"
                 width={200}
                 height={80}
