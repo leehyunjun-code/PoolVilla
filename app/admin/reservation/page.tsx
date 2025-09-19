@@ -33,6 +33,9 @@ interface Reservation {
   check_out_time?: string
   cancelled_at?: string
   customer_request?: string	
+  is_deleted?: boolean
+  
+	deleted_at?: string
 }
 
 export default function AdminReservation() {
@@ -61,6 +64,8 @@ export default function AdminReservation() {
       let query = supabase
         .from('cube45_reservations')
         .select('*', { count: 'exact' })
+	    .neq('status', 'pending')
+	    .eq('is_deleted', false)
       
       if (searchConditions.startDate && searchConditions.endDate) {
         if (searchConditions.dateType === 'created_at') {
@@ -179,6 +184,33 @@ export default function AdminReservation() {
     } catch (error) {
       console.error('체크 상태 업데이트 실패:', error)
       alert('상태 변경에 실패했습니다. 다시 시도해주세요.')
+    }
+  }
+  
+  const handleDelete = async (reservationId: string) => {
+    if (!confirm('이 예약을 삭제하시겠습니까?\n(관리자 페이지에서만 보이지 않으며, 데이터는 보존됩니다)')) {
+      return
+    }
+  
+    try {
+      const now = new Date()
+      
+      const { error } = await supabase
+        .from('cube45_reservations')
+        .update({
+          is_deleted: true,
+          deleted_at: now.toISOString()
+        })
+        .eq('id', reservationId)
+  
+      if (error) throw error
+  
+      await fetchReservations()
+      alert('예약이 삭제되었습니다.')
+  
+    } catch (error) {
+      console.error('예약 삭제 실패:', error)
+      alert('삭제에 실패했습니다. 다시 시도해주세요.')
     }
   }
   
@@ -653,6 +685,16 @@ export default function AdminReservation() {
                             )}
                           </div>
                         </div>
+                        
+                        {/* 삭제 버튼 추가 */}
+                        <div className="mt-3 pt-2 border-t">
+                          <button 
+                            onClick={() => handleDelete(reservation.id)}
+                            className="w-full px-3 py-2 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors"
+                          >
+                            예약 삭제
+                          </button>
+                        </div>
                       </div>
                     </div>
                   )
@@ -688,12 +730,15 @@ export default function AdminReservation() {
                     체크아웃
                     <div className="text-[10px] text-gray-500 mt-1">(클릭하여 변경)</div>
                   </th>
+                  <th className="border border-gray-300 px-4 py-3 text-center text-xs font-medium text-black">
+                    관리
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={13} className="border border-gray-300 px-4 py-8 text-center text-gray-500">
+                    <td colSpan={14} className="border border-gray-300 px-4 py-8 text-center text-gray-500">
                       <div className="flex items-center justify-center">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
                         <span className="ml-2 text-xs">로딩 중...</span>
@@ -702,7 +747,7 @@ export default function AdminReservation() {
                   </tr>
                 ) : reservations.length === 0 ? (
                   <tr>
-                    <td colSpan={13} className="border border-gray-300 px-4 py-8 text-center text-gray-500 text-xs">
+                    <td colSpan={14} className="border border-gray-300 px-4 py-8 text-center text-gray-500 text-xs">
                       조회된 예약이 없습니다.
                     </td>
                   </tr>
@@ -809,6 +854,15 @@ export default function AdminReservation() {
                               </div>
                             )}
                           </div>
+                        </td>
+                        <td className="border border-gray-300 px-4 py-3 text-center text-xs">
+                          <button 
+                            onClick={() => handleDelete(reservation.id)}
+                            className="px-3 py-2 bg-red-600 text-white rounded text-xs hover:bg-red-700 transition-colors"
+                            title="예약 삭제"
+                          >
+                            삭제
+                          </button>
                         </td>
                       </tr>
                     )

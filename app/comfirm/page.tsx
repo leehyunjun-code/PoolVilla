@@ -2,7 +2,7 @@
 import Navigation from '@/components/Navigation'
 import Footer from '@/components/Footer'
 import { useState } from 'react'
-import { getReservationByNameAndPhone, cancelReservationByInfo } from '@/api/confirm'
+import { getReservationByNameAndPhone, cancelReservationByInfo, cancelReservationById } from '@/api/confirm'
 
 interface Reservation {
   id: string | number
@@ -59,7 +59,7 @@ export default function ConfirmPage() {
     setIsLoading(false)
   }
 
-  const handleCancel = async () => {
+  const handleCancel = async (reservationId: string | number) => {
     if (!bookerName.trim() || !bookerPhone.trim()) {
       alert('이름과 전화번호를 모두 입력해주세요.')
       return
@@ -67,14 +67,11 @@ export default function ConfirmPage() {
 
     if (confirm('정말 예약을 취소하시겠습니까?')) {
       setIsLoading(true)
-      const result = await cancelReservationByInfo(bookerName, bookerPhone)
+      const result = await cancelReservationById(reservationId)
       
-      if (result.success && (result.data || []).length > 0) {
+      if (result.success) {
         alert('예약이 성공적으로 취소되었습니다.')
-        setReservations([])
-        setShowResults(false)
-        setBookerName('')
-        setBookerPhone('')
+        handleSearch()  // 목록 새로고침
       } else {
         alert('취소할 예약을 찾을 수 없습니다.')
       }
@@ -315,7 +312,7 @@ export default function ConfirmPage() {
                         {reservation.status === 'confirmed' && (
                           <div className="mt-3 md:mt-4 text-center">
                             <button 
-                              onClick={() => handleCancel()}
+                              onClick={() => handleCancel(reservation.id)}
                               disabled={isLoading}
                               className="px-6 md:px-8 py-2 bg-red-600 text-white font-medium text-xs md:text-sm rounded disabled:bg-gray-400 hover:bg-red-700 active:scale-95 transition-all duration-150 cursor-pointer disabled:cursor-not-allowed"
                             >

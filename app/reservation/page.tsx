@@ -167,6 +167,17 @@ export default function LocationPage() {
         
         // Supabase에서 예약 정보 가져오기
         const fetchReservationData = async () => {
+            // 먼저 예약 상태를 confirmed로 업데이트
+            if (tidParam) {
+                await supabase
+                    .from('cube45_reservations')
+                    .update({ 
+                        status: 'confirmed',
+                        payment_tid: tidParam 
+                    })
+                    .eq('reservation_number', reservationParam)
+            }
+            
             const { data } = await supabase
                 .from('cube45_reservations')
                 .select('*')
@@ -204,6 +215,24 @@ export default function LocationPage() {
         
         fetchReservationData()
         setActiveStep(3)
+        return
+    }
+    
+    // 결제 실패/취소로 돌아온 경우 처리 (새로 추가)
+    if (reservationParam && !tidParam && !stepParam) {
+        // pending 상태의 예약 삭제
+        const deleteFailedReservation = async () => {
+            await supabase
+                .from('cube45_reservations')
+                .delete()
+                .eq('reservation_number', reservationParam)
+                .eq('status', 'pending')  // pending 상태인 것만 삭제
+            
+            alert('결제가 취소되었습니다.')
+            window.location.href = '/reservation'
+        }
+        
+        deleteFailedReservation()
         return
     }
     
@@ -545,7 +574,7 @@ export default function LocationPage() {
     // 3. 객실의 최대인원과 비교
     rooms = rooms.filter(room => room.maxGuests >= totalGuests)
     
-    // 날짜별 예약 중복 필터링
+    // 날짜별 예약 중복 필터링 (confirmed 상태만 확인)
     if (checkInDate && checkOutDate) {
       const checkIn = `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}`
       const checkOut = `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}`
@@ -667,13 +696,25 @@ export default function LocationPage() {
       
       // 미온수 그룹 처리
       if (optionKey === 'hotwater1' || optionKey === 'hotwater2') {
-        newOptions = newOptions.filter(key => key !== 'hotwater1' && key !== 'hotwater2')
-        newOptions.push(optionKey)
+        // 이미 같은 옵션이 선택되어 있으면 해제
+        if (newOptions.includes(optionKey)) {
+          newOptions = newOptions.filter(key => key !== 'hotwater1' && key !== 'hotwater2')
+        } else {
+          // 다른 미온수 옵션 제거 후 새 옵션 추가
+          newOptions = newOptions.filter(key => key !== 'hotwater1' && key !== 'hotwater2')
+          newOptions.push(optionKey)
+        }
       }
       // BBQ 그룹 처리  
       else if (optionKey === 'bbq4' || optionKey === 'bbq4plus') {
-        newOptions = newOptions.filter(key => key !== 'bbq4' && key !== 'bbq4plus')
-        newOptions.push(optionKey)
+        // 이미 같은 옵션이 선택되어 있으면 해제
+        if (newOptions.includes(optionKey)) {
+          newOptions = newOptions.filter(key => key !== 'bbq4' && key !== 'bbq4plus')
+        } else {
+          // 다른 BBQ 옵션 제거 후 새 옵션 추가
+          newOptions = newOptions.filter(key => key !== 'bbq4' && key !== 'bbq4plus')
+          newOptions.push(optionKey)
+        }
       }
       // 벽난로는 단독 옵션
       else if (optionKey === 'fireplace') {
@@ -1388,7 +1429,7 @@ export default function LocationPage() {
                             <input 
                               type="text" 
                               className="w-full p-2 border border-gray-300 text-sm text-black" 
-                              placeholder="010-1234-5678"
+                              placeholder="010-0000-0000"
                               value={bookerInfo.phone}
                               onChange={(e) => {
                                 const validatedPhone = validatePhone(e.target.value);
@@ -1718,7 +1759,10 @@ export default function LocationPage() {
                             onClick={async () => {
                                 if (!getFirstErrorMessage()) {
                                     const newReservationNumber = generateReservationNumber()
-                                    const reservationData = prepareReservationData(newReservationNumber)
+                                    const reservationData = {
+                                        ...prepareReservationData(newReservationNumber),
+                                        status: 'pending'  // pending 상태 추가
+                                    }
                                     const result = await saveReservation(reservationData)
                                     
                                     if (result.success) {

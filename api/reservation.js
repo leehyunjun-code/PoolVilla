@@ -30,7 +30,8 @@ export const saveReservation = async (reservationData) => {
         options_fee: reservationData.optionsFee,
         total_amount: reservationData.totalAmount,
         selected_options: reservationData.selectedOptions,
-        customer_request: reservationData.customerRequest
+        customer_request: reservationData.customerRequest,
+        status: reservationData.status || 'pending'  // status 필드 추가
       }])
       .select()
 
@@ -90,10 +91,10 @@ export const getBookedRooms = async (checkInDate, checkOutDate) => {
     const { data, error } = await supabase
       .from('cube45_reservations')
       .select('room_id')
-      .eq('status', 'confirmed')
+      .eq('status', 'confirmed')  // 확정된 예약만
+      .eq('is_deleted', false)    // 삭제되지 않은 것만
       .lt('check_in_date', checkOutDate)
       .gt('check_out_date', checkInDate)
-
     console.log('Supabase 결과:', { data, error })
     
     if (error) {
