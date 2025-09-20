@@ -114,13 +114,15 @@ export default function IntroPage() {
   const exceptionalRetreatImage = getContent('exceptional_retreat_image')
   
   // 추가 이미지들 수집
-  const exclusiveImages = [exclusiveCubeImage?.image_url].filter(Boolean)
+  const exclusiveImages: string[] = [exclusiveCubeImage?.image_url]
+    .filter((img): img is string => Boolean(img))
   for (let i = 2; i <= 5; i++) {
     const img = getContent(`exclusive_cube_image_${i}`)?.image_url
     if (img) exclusiveImages.push(img)
   }
   
-  const exceptionalImages = [exceptionalRetreatImage?.image_url].filter(Boolean)
+  const exceptionalImages: string[] = [exceptionalRetreatImage?.image_url]
+    .filter((img): img is string => Boolean(img))
   for (let i = 2; i <= 5; i++) {
     const img = getContent(`exceptional_retreat_image_${i}`)?.image_url
     if (img) exceptionalImages.push(img)
