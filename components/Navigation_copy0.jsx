@@ -10,12 +10,11 @@ export default function Navigation() {
   const [mobileSubMenuOpen, setMobileSubMenuOpen] = useState({})
   
   const menuItems = {
-    'CUBE 45': ['CUBE 45', '배치도', '관광정보'],
+    'CUBE 45': ['CUBE 45', '배치도', '관광정보', '오시는길'],
     '독채객실': ['풀빌라옵션','A동','B동', 'C동', 'D동'],
     '부대시설': [],
     '이용안내': [],
     '스페셜 오퍼': [],
-    '실시간예약': [],
     '예약확인': []
   }
   
@@ -24,7 +23,8 @@ export default function Navigation() {
     'CUBE 45': {
       'CUBE 45': '/intro',
       '배치도': '/location',
-      '관광정보': '/tour'
+      '관광정보': '/tour',
+      '오시는길': '/Contact'
     },
     '독채객실': { 
       '풀빌라옵션': '/room/pool', 	

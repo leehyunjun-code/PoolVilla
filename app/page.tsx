@@ -9,6 +9,7 @@ import Navigation from '@/components/Navigation'
 import OffersSection from '@/components/OffersSection'
 import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
+import ContactSection from '@/components/ContactSection'
 
 // 타입 정의
 interface ZoneSummary {
@@ -448,7 +449,7 @@ export default function Home() {
       {/* POOL VILLA 섹션 - 4개 나란히 유지, 크기만 조정 */}
       <main className="container mx-auto px-4 py-8 md:py-16">
         <h2 className="text-2xl md:text-4xl font-bold text-center text-black mb-6 md:mb-12">POOL VILLA</h2>
-        <div className="flex">
+        <div className="flex gap-2 md:gap-4">
           {/* 풀빌라 A동 */}
           <div className="bg-white overflow-hidden cursor-pointer flex-1">
             <div className="h-32 sm:h-48 md:h-80 overflow-hidden">
@@ -518,7 +519,7 @@ export default function Home() {
         <div className="border-t border-gray-300"></div>
         
         {/* 정보 영역 - 4개 나란히 유지, 크기만 조정 */}
-        <div className="flex">
+        <div className="flex gap-2 md:gap-4">
           {/* A동 정보 */}
           <div className="pt-2 md:pt-4 px-2 md:px-4 flex-1">
             {/* 모바일: 세로 2줄 */}
@@ -721,6 +722,9 @@ export default function Home() {
             </div>
           </div>
         </div>
+
+        {/* Contact 섹션 - 새로 추가 */}
+        <ContactSection />
       </main>
       
       {/* 예약문의/현장문의 섹션 - 텍스트 더 축소 */}

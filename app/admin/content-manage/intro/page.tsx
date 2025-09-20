@@ -44,6 +44,8 @@ export default function PageContentsManage() {
   const [savingSection, setSavingSection] = useState<string | null>(null)
   const [editingCafe, setEditingCafe] = useState<string | null>(null)
   const [addingCafe, setAddingCafe] = useState(false)
+  const [exclusiveImages, setExclusiveImages] = useState<string[]>([])
+  const [exceptionalImages, setExceptionalImages] = useState<string[]>([])
   const [newCafe, setNewCafe] = useState<CafeItem>({
     id: 0,
     section_name: '',
@@ -72,7 +74,7 @@ export default function PageContentsManage() {
         .select('*')
         .eq('page_name', activeTab)
         .order('display_order')
-
+  
       if (error) throw error
       
       setContents(data || [])
@@ -89,6 +91,28 @@ export default function PageContentsManage() {
           display_order: item.display_order
         })) || []
         setCafes(cafeData)
+      }
+      
+      // Exclusive Cube 이미지들 로드
+      if (activeTab === 'intro') {
+        const exclusiveImgs = []
+        for (let i = 1; i <= 5; i++) {
+          const imgContent = data?.find(c => c.section_name === `exclusive_cube_image_${i}`)
+          if (imgContent?.image_url) {
+            exclusiveImgs.push(imgContent.image_url)
+          }
+        }
+        setExclusiveImages(exclusiveImgs)
+  
+        // Exceptional Retreat 이미지들 로드
+        const exceptionalImgs = []
+        for (let i = 1; i <= 5; i++) {
+          const imgContent = data?.find(c => c.section_name === `exceptional_retreat_image_${i}`)
+          if (imgContent?.image_url) {
+            exceptionalImgs.push(imgContent.image_url)
+          }
+        }
+        setExceptionalImages(exceptionalImgs)
       }
     } catch (error) {
       console.error('데이터 로드 실패:', error)
@@ -137,6 +161,93 @@ export default function PageContentsManage() {
           : content
       )
     )
+  }
+  
+  const handleAddExtraImage = async (sectionPrefix: string) => {
+    // 파일 선택 창 열기
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = 'image/*'
+    
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+      
+      // 파일 크기 체크
+      if (file.size > 5 * 1024 * 1024) {
+        showToast('파일 크기는 5MB 이하여야 합니다.', 'error')
+        return
+      }
+      
+      try {
+        // 이미지 먼저 업로드
+        const url = await uploadImage(file)
+        if (!url) return
+        
+        // 현재 있는 추가 이미지 번호 확인
+        const existingNumbers = []
+        for (let i = 2; i <= 5; i++) {
+          if (getContent(`${sectionPrefix}_${i}`)) {
+            existingNumbers.push(i)
+          }
+        }
+        
+        // 빈 번호 찾기
+        let newNumber = 0
+        for (let i = 2; i <= 5; i++) {
+          if (!existingNumbers.includes(i)) {
+            newNumber = i
+            break
+          }
+        }
+        
+        if (newNumber === 0) {
+          showToast('최대 5개까지만 추가 가능합니다.', 'error')
+          return
+        }
+        
+        // DB에 새 이미지 추가 (업로드한 URL과 함께)
+        const { error } = await supabase
+          .from('cube45_page_contents')
+          .insert({
+            page_name: activeTab,
+            section_name: `${sectionPrefix}_${newNumber}`,
+            content_type: 'image',
+            image_url: url,  // ← 업로드한 이미지 URL 사용
+            display_order: newNumber,
+            is_active: true
+          })
+        
+        if (error) throw error
+        fetchContents()
+        showToast('이미지가 추가되었습니다.', 'success')
+      } catch (error) {
+        console.error('이미지 추가 실패:', error)
+        showToast('이미지 추가에 실패했습니다.', 'error')
+      }
+    }
+    
+    // 파일 선택 창 열기
+    input.click()
+  }
+  
+  const handleDeleteExtraImage = async (sectionName: string) => {
+    if (!confirm('정말 삭제하시겠습니까?')) return
+    
+    try {
+      const { error } = await supabase
+        .from('cube45_page_contents')
+        .delete()
+        .eq('page_name', activeTab)
+        .eq('section_name', sectionName)
+      
+      if (error) throw error
+      fetchContents()
+      showToast('이미지가 삭제되었습니다.', 'success')
+    } catch (error) {
+      console.error('이미지 삭제 실패:', error)
+      showToast('이미지 삭제에 실패했습니다.', 'error')
+    }
   }
 
   const handleSaveSection = async (sectionNames: string[]) => {
@@ -439,7 +550,14 @@ export default function PageContentsManage() {
                 <div className="flex justify-between items-center mb-3 md:mb-4">
                   <h2 className="text-sm md:text-xl font-semibold text-black">Exclusive Cube</h2>
                   <button
-                    onClick={() => handleSaveSection(['exclusive_cube', 'exclusive_cube_image'])}
+                    onClick={() => handleSaveSection([
+                      'exclusive_cube', 
+                      'exclusive_cube_image_1',
+                      'exclusive_cube_image_2',
+                      'exclusive_cube_image_3',
+                      'exclusive_cube_image_4',
+                      'exclusive_cube_image_5'
+                    ])}
                     disabled={savingSection === 'exclusive_cube'}
                     className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                   >
@@ -478,19 +596,28 @@ export default function PageContentsManage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">이미지</label>
-                    <div className="relative">
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700">이미지</label>
+                      <button
+                        onClick={() => handleAddExtraImage('exclusive_cube_image')}
+                        className="px-2 py-1 bg-green-600 text-white rounded text-[10px] hover:bg-green-700"
+                      >
+                        이미지 추가
+                      </button>
+                    </div>
+                    
+                    <div className="relative mb-2">
                       <div className="w-full h-32 md:h-64 bg-gray-100 rounded-lg overflow-hidden relative">
                         {getContent('exclusive_cube_image')?.image_url ? (
                           <Image
                             src={getContent('exclusive_cube_image')?.image_url || ''}
-                            alt="Exclusive Cube 이미지"
+                            alt="Exclusive Cube 메인 이미지"
                             fill
                             className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span className="text-[10px] md:text-sm">이미지 없음</span>
+                            <span className="text-[10px] md:text-sm">메인 이미지</span>
                           </div>
                         )}
                       </div>
@@ -504,6 +631,47 @@ export default function PageContentsManage() {
                         />
                       </label>
                     </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {[2, 3, 4, 5].map((num) => {
+                        const imageContent = getContent(`exclusive_cube_image_${num}`)
+                        if (!imageContent) return null
+                        
+                        return (
+                          <div key={num} className="relative">
+                            <div className="w-full h-20 md:h-24 bg-gray-100 rounded-lg overflow-hidden relative">
+                              {imageContent.image_url ? (
+                                <Image
+                                  src={imageContent.image_url}
+                                  alt={`추가 이미지 ${num}`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                  <span className="text-[10px]">이미지 {num}</span>
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => handleDeleteExtraImage(`exclusive_cube_image_${num}`)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs"
+                            >
+                              ×
+                            </button>
+                            <label className="absolute bottom-1 left-1 bg-white px-1 py-0.5 rounded shadow cursor-pointer text-[8px]">
+                              변경
+                              <input
+                                type="file"
+                                className="sr-only"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(`exclusive_cube_image_${num}`, e)}
+                              />
+                            </label>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -513,7 +681,14 @@ export default function PageContentsManage() {
                 <div className="flex justify-between items-center mb-3 md:mb-4">
                   <h2 className="text-sm md:text-xl font-semibold text-black">Exceptional Retreat</h2>
                   <button
-                    onClick={() => handleSaveSection(['exceptional_retreat', 'exceptional_retreat_image'])}
+                    onClick={() => handleSaveSection([
+                      'exceptional_retreat',
+                      'exceptional_retreat_image_1',
+                      'exceptional_retreat_image_2',
+                      'exceptional_retreat_image_3',
+                      'exceptional_retreat_image_4',
+                      'exceptional_retreat_image_5'
+                    ])}
                     disabled={savingSection === 'exceptional_retreat'}
                     className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                   >
@@ -552,19 +727,28 @@ export default function PageContentsManage() {
                     </div>
                   </div>
                   <div>
-                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">이미지</label>
-                    <div className="relative">
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block text-[10px] md:text-sm font-medium text-gray-700">이미지</label>
+                      <button
+                        onClick={() => handleAddExtraImage('exceptional_retreat_image')}
+                        className="px-2 py-1 bg-green-600 text-white rounded text-[10px] hover:bg-green-700"
+                      >
+                        이미지 추가
+                      </button>
+                    </div>
+                    
+                    <div className="relative mb-2">
                       <div className="w-full h-32 md:h-64 bg-gray-100 rounded-lg overflow-hidden relative">
                         {getContent('exceptional_retreat_image')?.image_url ? (
                           <Image
                             src={getContent('exceptional_retreat_image')?.image_url || ''}
-                            alt="Exceptional Retreat 이미지"
+                            alt="Exceptional Retreat 메인 이미지"
                             fill
                             className="object-cover"
                           />
                         ) : (
                           <div className="w-full h-full flex items-center justify-center text-gray-400">
-                            <span className="text-[10px] md:text-sm">이미지 없음</span>
+                            <span className="text-[10px] md:text-sm">메인 이미지</span>
                           </div>
                         )}
                       </div>
@@ -577,6 +761,47 @@ export default function PageContentsManage() {
                           onChange={(e) => handleImageUpload('exceptional_retreat_image', e)}
                         />
                       </label>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                      {[2, 3, 4, 5].map((num) => {
+                        const imageContent = getContent(`exceptional_retreat_image_${num}`)
+                        if (!imageContent) return null
+                        
+                        return (
+                          <div key={num} className="relative">
+                            <div className="w-full h-20 md:h-24 bg-gray-100 rounded-lg overflow-hidden relative">
+                              {imageContent.image_url ? (
+                                <Image
+                                  src={imageContent.image_url}
+                                  alt={`추가 이미지 ${num}`}
+                                  fill
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                  <span className="text-[10px]">이미지 {num}</span>
+                                </div>
+                              )}
+                            </div>
+                            <button
+                              onClick={() => handleDeleteExtraImage(`exceptional_retreat_image_${num}`)}
+                              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs"
+                            >
+                              ×
+                            </button>
+                            <label className="absolute bottom-1 left-1 bg-white px-1 py-0.5 rounded shadow cursor-pointer text-[8px]">
+                              변경
+                              <input
+                                type="file"
+                                className="sr-only"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(`exceptional_retreat_image_${num}`, e)}
+                              />
+                            </label>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                 </div>

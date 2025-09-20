@@ -352,10 +352,10 @@ export default function RoomManagePage() {
           const parts = c.section_name.split('_');
           return parseInt(parts[parts.length - 1]) || 0;
         })
-        .filter(n => n >= 1 && n <= 5);
+        .filter(n => n >= 1 && n <= 10);
       
       let newNumber = 0;
-      for (let i = 1; i <= 5; i++) {
+      for (let i = 1; i <= 10; i++) {
         if (!existingNumbers.includes(i)) {
           newNumber = i;
           break;
@@ -363,7 +363,7 @@ export default function RoomManagePage() {
       }
       
       if (newNumber === 0) {
-        showToast('최대 5개까지만 추가 가능합니다.', 'error');
+        showToast('최대 10개까지만 추가 가능합니다.', 'error');
         return;
       }
       
@@ -930,7 +930,7 @@ export default function RoomManagePage() {
                           추가
                         </button>
                         <button
-                          onClick={() => handleSaveSection(['slider_1', 'slider_2', 'slider_3', 'slider_4', 'slider_5'])}
+                          onClick={() => handleSaveSection(['slider_1', 'slider_2', 'slider_3', 'slider_4', 'slider_5', 'slider_6', 'slider_7', 'slider_8', 'slider_9', 'slider_10'])}
                           disabled={savingSection === 'slider_1'}
                           className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
                         >
@@ -939,7 +939,7 @@ export default function RoomManagePage() {
                       </div>
                     </div>
                     <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-4">
-                      {[1, 2, 3, 4, 5].map(num => {
+                      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => {
                         const content = getContent(`slider_${num}`)
                         return content ? (
                           <div key={num} className="relative">

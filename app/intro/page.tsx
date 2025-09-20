@@ -23,6 +23,8 @@ interface PageContent {
 export default function IntroPage() {
   const [contents, setContents] = useState<PageContent[]>([])
   const [loading, setLoading] = useState(true)
+  const [exclusiveCurrentImage, setExclusiveCurrentImage] = useState(0)
+  const [exceptionalCurrentImage, setExceptionalCurrentImage] = useState(0)
   
   // 애니메이션을 위한 ref들
   const leftTextRef = useRef(null)
@@ -104,6 +106,46 @@ export default function IntroPage() {
     return () => observer.disconnect()
   }, [loading]) // loading이 끝난 후 Observer 설정
 
+  // 모든 Hook은 조건문 전에 선언
+  const bannerContent = getContent('banner')
+  const exclusiveCubeContent = getContent('exclusive_cube')
+  const exclusiveCubeImage = getContent('exclusive_cube_image')
+  const exceptionalRetreatContent = getContent('exceptional_retreat')
+  const exceptionalRetreatImage = getContent('exceptional_retreat_image')
+  
+  // 추가 이미지들 수집
+  const exclusiveImages = [exclusiveCubeImage?.image_url].filter(Boolean)
+  for (let i = 2; i <= 5; i++) {
+    const img = getContent(`exclusive_cube_image_${i}`)?.image_url
+    if (img) exclusiveImages.push(img)
+  }
+  
+  const exceptionalImages = [exceptionalRetreatImage?.image_url].filter(Boolean)
+  for (let i = 2; i <= 5; i++) {
+    const img = getContent(`exceptional_retreat_image_${i}`)?.image_url
+    if (img) exceptionalImages.push(img)
+  }
+
+  // 슬라이드 효과 - 조건문 전에 위치
+  useEffect(() => {
+    if (!loading && exclusiveImages.length > 1) {
+      const timer = setInterval(() => {
+        setExclusiveCurrentImage(prev => (prev + 1) % exclusiveImages.length)
+      }, 2500)
+      return () => clearInterval(timer)
+    }
+  }, [loading, contents])
+
+  useEffect(() => {
+    if (!loading && exceptionalImages.length > 1) {
+      const timer = setInterval(() => {
+        setExceptionalCurrentImage(prev => (prev + 1) % exceptionalImages.length)
+      }, 2500)
+      return () => clearInterval(timer)
+    }
+  }, [loading, contents])
+
+  // 로딩 체크는 모든 Hook 선언 후에
   if (loading) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
@@ -114,12 +156,6 @@ export default function IntroPage() {
       </div>
     )
   }
-
-  const bannerContent = getContent('banner')
-  const exclusiveCubeContent = getContent('exclusive_cube')
-  const exclusiveCubeImage = getContent('exclusive_cube_image')
-  const exceptionalRetreatContent = getContent('exceptional_retreat')
-  const exceptionalRetreatImage = getContent('exceptional_retreat_image')
 
   return (
     <>
@@ -279,14 +315,20 @@ export default function IntroPage() {
                   <div 
                     className="shadow-2xl overflow-hidden relative w-[320px] h-[240px] md:w-[640px] md:h-[480px] rounded-tl-[120px] rounded-bl-[120px] md:rounded-tl-[240px] md:rounded-bl-[240px] rounded-tr-none rounded-br-none"
                   >
-                    {exclusiveCubeImage?.image_url ? (
-                      <Image 
-                        src={exclusiveCubeImage.image_url}
-                        alt="CUBE 45 Interior" 
-                        fill
-                        className="object-cover"
-                        sizes="640px"
-                      />
+                    {exclusiveImages.length > 0 ? (
+                      exclusiveImages.map((img, index) => (
+                        <Image 
+                          key={index}
+                          src={img}
+                          alt="CUBE 45 Interior" 
+                          fill
+                          className={`object-cover transition-opacity duration-1000 ${
+                            index === exclusiveCurrentImage ? 'opacity-100' : 'opacity-0'
+                          }`}
+                          style={{ position: 'absolute' }}
+                          sizes="640px"
+                        />
+                      ))
                     ) : (
                       <div className="w-full h-full bg-gray-200"></div>
                     )}
@@ -314,13 +356,19 @@ export default function IntroPage() {
 
                 <div ref={mobileImageRef} className="slide-from-bottom">
                   <div className="overflow-hidden shadow-lg relative w-[240px] h-[350px] mx-auto rounded-tl-[120px] rounded-tr-[120px] rounded-br-[130px] rounded-bl-[30px]">
-                    {exceptionalRetreatImage?.image_url ? (
-                      <Image 
-                        src={exceptionalRetreatImage.image_url}
-                        alt="Villa Pool View" 
-                        fill
-                        className="object-cover"
-                      />
+                    {exceptionalImages.length > 0 ? (
+                      exceptionalImages.map((img, index) => (
+                        <Image 
+                          key={index}
+                          src={img}
+                          alt="Villa Pool View" 
+                          fill
+                          className={`object-cover transition-opacity duration-1000 ${
+                            index === exceptionalCurrentImage ? 'opacity-100' : 'opacity-0'
+                          }`}
+                          style={{ position: 'absolute' }}
+                        />
+                      ))
                     ) : (
                       <div className="w-full h-full bg-gray-200"></div>
                     )}
@@ -366,14 +414,20 @@ export default function IntroPage() {
                          marginLeft: '-160px',
                          zIndex: 10	 
                        }}>
-                    {exceptionalRetreatImage?.image_url ? (
-                      <Image 
-                        src={exceptionalRetreatImage.image_url}
-                        alt="Villa Pool View" 
-                        fill
-                        className="object-cover"
-                        sizes="384px"
-                      />
+                    {exceptionalImages.length > 0 ? (
+                      exceptionalImages.map((img, index) => (
+                        <Image 
+                          key={index}
+                          src={img}
+                          alt="Villa Pool View" 
+                          fill
+                          className={`object-cover transition-opacity duration-1000 ${
+                            index === exceptionalCurrentImage ? 'opacity-100' : 'opacity-0'
+                          }`}
+                          style={{ position: 'absolute' }}
+                          sizes="384px"
+                        />
+                      ))
                     ) : (
                       <div className="w-full h-full bg-gray-200"></div>
                     )}

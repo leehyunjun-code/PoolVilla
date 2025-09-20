@@ -60,12 +60,23 @@ export default function DZonePage() {
   const handlePrevImage = () => {
     setCurrentImage((prev) => (prev === 0 ? sliderImages.length - 1 : prev - 1))
   }
-
+  
   // 다음 이미지로 이동
   const handleNextImage = () => {
     setCurrentImage((prev) => (prev === sliderImages.length - 1 ? 0 : prev + 1))
   }
-
+  
+  // 자동 슬라이드 효과 추가
+  useEffect(() => {
+    if (sliderImages.length > 1) {
+      const interval = setInterval(() => {
+        handleNextImage()
+      }, 2000) // 2초마다 실행
+  
+      return () => clearInterval(interval) // 컴포넌트 언마운트 시 인터벌 정리
+    }
+  }, [currentImage, sliderImages.length]) // dependencies 추가
+  
   // 데이터 조회
   useEffect(() => {
     const fetchData = async () => {
@@ -200,14 +211,23 @@ export default function DZonePage() {
           <div className="container mx-auto px-4 md:px-8">
             <div className="max-w-6xl mx-auto relative">
               <div className="relative h-[300px] md:h-[450px] overflow-hidden">
-                <Image
-                  src={sliderImages[currentImage] || "/images/room/aroom.jpg"}
-                  alt={`D동 이미지 ${currentImage + 1}`}
-                  fill
-                  quality={100}
-                  className="object-cover"
-                  sizes="100vw"
-                />
+                {sliderImages.map((image, index) => (
+                  <div
+                    key={index}
+                    className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+                      currentImage === index ? 'opacity-100' : 'opacity-0'
+                    }`}
+                  >
+                    <Image
+                      src={image || "/images/room/aroom.jpg"}
+                      alt={`D동 이미지 ${index + 1}`}
+                      fill
+                      quality={100}
+                      className="object-cover"
+                      sizes="100vw"
+                    />
+                  </div>
+                ))}
                 
                 {/* 왼쪽 화살표 버튼 */}
                 <button

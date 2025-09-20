@@ -61,6 +61,7 @@ export default function LocationPage() {
   const [customerRequest, setCustomerRequest] = useState('')
   const [filteredRooms, setFilteredRooms] = useState<Room[]>([])
   const [totalRoomPrice, setTotalRoomPrice] = useState<number>(0)
+  const [reservationData, setReservationData] = useState<any>(null)
   
   const [showTermsPopup, setShowTermsPopup] = useState<{
     isOpen: boolean;
@@ -185,18 +186,24 @@ export default function LocationPage() {
                 .single()
             
             if (data) {
-                // 예약 정보 복원
-                setSelectedRoom({
-                    id: data.room_id,
-                    name: data.room_name,
-                    rooms: 0,
-                    bathrooms: 0,
-                    minGuests: 0,
-                    maxGuests: 0,
-                    size: 0,
-                    petFriendly: false,
-                    price: data.room_price
-                })
+              // 예약 정보 복원
+			  setReservationData(data)	
+              setSelectedRoom({
+                id: data.room_id,
+                name: data.room_name,
+                rooms: 0,
+                bathrooms: 0,
+                minGuests: 0,
+                maxGuests: 0,
+                size: 0,
+                petFriendly: false,
+                price: data.room_price
+              })
+              
+              // DB에서 가져온 금액들을 직접 상태에 설정
+              setTotalRoomPrice(data.room_price || 0)
+				
+				
                 setBookerInfo({
                     name: data.booker_name,
                     email: data.booker_email,
@@ -1115,9 +1122,8 @@ export default function LocationPage() {
                       
                       {/* 객실검색 버튼 */}
                       <button 
-                        className="w-full py-3 text-white font-medium text-sm"
+                        className="px-6 md:px-8 py-2 text-white font-medium text-xs md:text-sm hover:bg-[#0f3a44] active:scale-95 transition-all duration-150 cursor-pointer" 
                         style={{backgroundColor: '#134C59'}}
-                        disabled={isSearching || roomsLoading}
                         onClick={async () => {
                           if (!checkInDate || !checkOutDate) {
                             alert('체크인과 체크아웃 날짜를 선택해주세요.')
@@ -1228,7 +1234,7 @@ export default function LocationPage() {
                                       </div>
                                       <div className="flex flex-row md:flex-col items-start md:items-end justify-between md:justify-end">
                                         <div className="text-sm md:text-base font-bold mb-0 md:mb-2 text-black">₩{room.price.toLocaleString()} <span className="text-xs text-gray-500 font-normal">VAT포함</span></div>
-                                        <button className="px-6 md:px-8 py-2 text-white font-medium text-xs md:text-sm" style={{backgroundColor: '#134C59'}} onClick={() => {
+                                        <button className="px-6 md:px-8 py-2 text-white font-medium text-xs md:text-sm active:scale-95 transition-all duration-150" style={{backgroundColor: '#134C59'}} onClick={() => {
                                           setSelectedRoom(room)
                                           setActiveStep(2)
                                         }}>객실예약</button>
@@ -1342,7 +1348,7 @@ export default function LocationPage() {
                         {/* 예약 유의사항 */}
                         <div className="mb-4">
                           <h5 className="text-sm font-medium mb-2 text-gray-800 text-left">예약 유의사항</h5>
-                          <div className="h-48 md:h-64 overflow-y-scroll text-xs text-gray-600 leading-relaxed text-left p-3 bg-gray-50 mobile-scrollbar">
+                          <div className="h-48 md:h-100 overflow-y-scroll text-xs text-gray-600 leading-relaxed text-left p-3 bg-gray-50 mobile-scrollbar">
 
                             패밀리트윈 객실은 인원추가 시 11,000원/인이 추가됩니다. 스위트는 인원추가 시 22,000원/인이 추가되며 침구류가 제공됩니다.<br/><br/>
                             
@@ -1354,7 +1360,7 @@ export default function LocationPage() {
                             
                             <strong>[비성수기 취소규정]</strong><br/>
                             - 체크인 기준 3일전 : 무료취소 가능<br/>
-                            - 체크인ㄴ 기준 2일전 : 전체예약에대해 50% 수수료 발생<br/>
+                            - 체크인 기준 2일전 : 전체예약에대해 50% 수수료 발생<br/>
                             - 체크인 기준 1일전 및 당일취소, NO SHOW : 전체 예약에 대해 100% 수수료 발생<br/><br/>
                             
                             - 기준 인원 초과 시 추가 비용이 발생하게 됩니다. (모든 영,유아는 투숙 인원에 포함이 됩니다.)<br/>
@@ -1733,7 +1739,7 @@ export default function LocationPage() {
                           <hr className="my-2 border-gray-300" />
                           
                           <div className="flex justify-between items-center">
-                            <span className="text-lg font-medium text-black">총 결제금액</span>
+                            <span className="text-lg font-medium">총 결제금액</span>
                             <span className="text-lg font-bold text-red-500">
                               ₩{(totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
                             </span>
@@ -1743,7 +1749,7 @@ export default function LocationPage() {
                         {/* 버튼 */}
                         <div className="flex gap-4">
                           <button 
-                            className="flex-1 py-3 bg-gray-400 text-white font-medium text-sm"
+                            className="flex-1 py-3 bg-red-500 text-white font-medium text-sm cursor-pointer hover:bg-red-600 transition-colors"
                             onClick={handleReset}
                           >
                             다시검색
@@ -1752,10 +1758,10 @@ export default function LocationPage() {
                             className={`flex-1 py-3 font-medium text-sm ${
                               getFirstErrorMessage()
                                 ? 'bg-gray-400 text-white cursor-not-allowed'
-                                : 'text-white'
+                                : 'text-white hover:bg-[#0f3a44] active:scale-95 transition-all duration-150 cursor-pointer'
                             }`}
                             style={getFirstErrorMessage() ? {} : {backgroundColor: '#134C59'}}
-                            disabled={!!getFirstErrorMessage()}
+							  
                             onClick={async () => {
                                 if (!getFirstErrorMessage()) {
                                     const newReservationNumber = generateReservationNumber()
@@ -1766,8 +1772,12 @@ export default function LocationPage() {
                                     const result = await saveReservation(reservationData)
                                     
                                     if (result.success) {
-                                        // PG 결제 페이지로 이동
-                                        const currentDomain = window.location.origin  // 현재 도메인 자동 감지
+                                        // 디바이스 감지
+                                        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+                                        
+                                        // 현재 도메인 자동 감지
+                                        const currentDomain = window.location.origin
+                                        
                                         // 총 금액 계산
                                         const totalAmount = totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()
                                         
@@ -1775,9 +1785,24 @@ export default function LocationPage() {
                                         const checkInStr = checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : ''
                                         const checkOutStr = checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : ''
                                         
-                                        // PG URL 생성 - roomName 추가
-                                        const pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_PC/WelStdPayRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom?.name || '')}&checkIn=${checkInStr}&checkOut=${checkOutStr}`                                        
-                                        window.location.href = pgUrl                                        
+                                        // 디바이스에 따른 PG URL 분기
+                                        let pgUrl = ''
+                                        
+                                        if (isMobile) {
+                                            // 모바일 결제 페이지
+                                            pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_MOBILE/WelPayMoRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom?.name || '')}&checkIn=${checkInStr}&checkOut=${checkOutStr}`
+                                            
+                                            console.log('모바일 결제 페이지로 이동:', pgUrl)
+                                        } else {
+                                            // PC 결제 페이지
+                                            pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_PC/WelStdPayRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom?.name || '')}&checkIn=${checkInStr}&checkOut=${checkOutStr}`
+                                            
+                                            console.log('PC 결제 페이지로 이동:', pgUrl)
+                                        }
+                                        
+                                        // 결제 페이지로 이동
+                                        window.location.href = pgUrl
+                                        
                                     } else {
                                         alert('예약 처리 중 오류가 발생했습니다.')
                                     }
@@ -1993,7 +2018,7 @@ export default function LocationPage() {
                           <div className="grid" style={{gridTemplateColumns: '35% 65%'}}>
                             <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">결제금액</div>
                             <div className="p-2 md:p-3 text-red-500 font-bold text-left pl-3 md:pl-8 text-xs md:text-sm">
-                              ₩{(totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
+                              ₩{reservationData ? reservationData.total_amount.toLocaleString() : '0'}
                             </div>
                           </div>
                         </div>
@@ -2002,21 +2027,17 @@ export default function LocationPage() {
                       {/* 하단 버튼 */}
                       <div className="flex flex-col md:flex-row gap-4 justify-center">
                         <button 
-                          className="px-6 md:px-8 py-3 bg-gray-500 text-white font-medium text-sm md:text-base"
+                          className="px-6 md:px-8 py-3 bg-blue-500 text-white font-medium text-sm md:text-base cursor-pointer hover:bg-blue-600 transition-colors"
                           onClick={() => window.location.href = '/'}
                         >
                           메인으로
                         </button>
                         <button 
-                          className="px-6 md:px-8 py-3 text-white font-medium text-sm md:text-base"
+                          className="px-6 md:px-8 py-3 text-white font-medium text-sm md:text-base cursor-pointer hover:bg-teal-800 transition-colors"
                           style={{backgroundColor: '#134C59'}}
-                          onClick={() => {
-                            if (confirm('정말 예약을 취소하시겠습니까?')) {
-                              window.location.href = '/'
-                            }
-                          }}
+                          onClick={() => window.location.href = '/comfirm'}
                         >
-                          취소하기
+                          예약확인
                         </button>
                       </div>
                     </div>
