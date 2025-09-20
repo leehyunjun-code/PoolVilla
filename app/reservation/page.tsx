@@ -38,6 +38,26 @@ interface DbRoom {
   price_saturday?: number
 }
 
+interface ReservationData {
+  reservation_number: string
+  room_id: string
+  room_name: string
+  check_in_date: string
+  check_out_date: string
+  booker_name: string
+  booker_email: string
+  booker_phone: string
+  adult_count: number
+  student_count: number
+  child_count: number
+  infant_count: number
+  selected_options: string[]
+  room_price: number
+  total_amount: number
+  status?: string
+  payment_tid?: string
+}
+
 export default function LocationPage() {
   const [activeStep, setActiveStep] = useState(1)
   const [currentYear, setCurrentYear] = useState(2025)
@@ -61,7 +81,7 @@ export default function LocationPage() {
   const [customerRequest, setCustomerRequest] = useState('')
   const [filteredRooms, setFilteredRooms] = useState<Room[]>([])
   const [totalRoomPrice, setTotalRoomPrice] = useState<number>(0)
-  const [reservationData, setReservationData] = useState<any>(null)
+  const [reservationData, setReservationData] = useState<ReservationData | null>(null)
   
   const [showTermsPopup, setShowTermsPopup] = useState<{
     isOpen: boolean;
@@ -316,6 +336,13 @@ export default function LocationPage() {
       updateTotalPrice()
     }
   }, [selectedRoom, checkInDate, checkOutDate])	
+	
+  useEffect(() => {
+    // 모바일인 경우 2개로 조정
+    if (window.innerWidth < 768) {
+      setVisibleRooms(2)
+    }
+  }, [])	
   
   // 객실명 동적 생성 함수
   const generateRoomDisplayName = (room: DbRoom): string => {
@@ -926,7 +953,7 @@ export default function LocationPage() {
               
               {/* 단계별 탭 - 반응형 수정 */}
               <div className="flex justify-center mb-4 md:mb-6">
-                <div className="flex bg-gray-200 overflow-hidden w-full max-w-4xl">
+                <div className="flex bg-gray-200 overflow-hidden w-full max-w-[960px] px-4 md:px-0">
                   {/* 01 객실선택 */}
                   <button
                     onClick={(e) => {
@@ -1133,7 +1160,7 @@ export default function LocationPage() {
                           setIsSearching(true)
                           setShowRoomResults(false)
                           setSelectedBuilding('전체')
-                          setVisibleRooms(3)
+                          setVisibleRooms(window.innerWidth < 768 ? 2 : 3)
                           
                           // 상태 업데이트 대신 직접 값 전달
                           setSearchAdults(adults)
@@ -1169,7 +1196,7 @@ export default function LocationPage() {
                                 key={building}
                                 onClick={async () => {
                                   setSelectedBuilding(building)
-                                  setVisibleRooms(3)
+                                  setVisibleRooms(window.innerWidth < 768 ? 2 : 3)
                                   
                                   // 해결: 선택된 building을 직접 전달
                                   const rooms = await getFilteredRooms(building)
