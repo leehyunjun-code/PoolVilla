@@ -95,6 +95,18 @@ export default function LocationPage() {
   const today = new Date()
   const currentDate = today.getDate()
   
+  const formatPhoneDisplay = (phone: string): string => {
+    const numbers = phone.replace(/[^0-9]/g, '');
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+  };
+  
+  // 전화번호에서 숫자만 추출 (DB 저장용)
+  const extractNumbers = (phone: string): string => {
+    return phone.replace(/[^0-9]/g, '').slice(0, 11);
+  };
+  
   // 이름 검증 - 한글, 영문만 허용 (숫자, 특수문자, 띄어쓰기 제한)
   const validateName = (name: string): string => {
     return name.replace(/[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z]/g, '');
@@ -1435,9 +1447,15 @@ export default function LocationPage() {
                               placeholder="홍길동"
                               value={bookerInfo.name}
                               onChange={(e) => {
-                                console.log('입력값:', e.target.value);
-                                const validatedName = validateName(e.target.value);
-                                console.log('검증 후:', validatedName);
+                                const inputValue = e.target.value;
+                                // 한글, 영문 이외의 문자 체크
+                                const invalidPattern = /[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z]/;
+                                
+                                if (invalidPattern.test(inputValue) && inputValue !== '') {
+                                  alert('이름은 한글, 영문만 입력 가능합니다. (띄어쓰기, 숫자, 특수문자 입력 불가)');
+                                }
+                                
+                                const validatedName = validateName(inputValue);
                                 setBookerInfo(prev => ({...prev, name: validatedName}));
                               }}
                             />
@@ -1452,6 +1470,7 @@ export default function LocationPage() {
                               onKeyDown={(e) => {
                                 if (e.key === ' ') {
                                   e.preventDefault();
+                                  alert('이메일에는 띄어쓰기를 입력할 수 없습니다.');
                                 }
                               }}
                               onChange={(e) => setBookerInfo(prev => ({...prev, email: e.target.value}))}
@@ -1462,16 +1481,30 @@ export default function LocationPage() {
                             <input 
                               type="text" 
                               className="w-full p-2 border border-gray-300 text-sm text-black" 
-                              placeholder="010-0000-0000"
-                              value={bookerInfo.phone}
+                              value={formatPhoneDisplay(bookerInfo.phone)}
                               onChange={(e) => {
-                                const validatedPhone = validatePhone(e.target.value);
-                                setBookerInfo(prev => ({...prev, phone: validatedPhone}));
+                                const inputValue = e.target.value;
+                                const numbersOnly = inputValue.replace(/[^0-9]/g, '');
+                                
+                                // 숫자가 아닌 문자 입력 체크
+                                if (inputValue !== '' && inputValue.replace(/-/g, '') !== numbersOnly) {
+                                  alert('전화번호는 숫자만 입력 가능합니다.');
+                                  return;
+                                }
+                                
+                                // 11자리 제한
+                                if (numbersOnly.length > 11) {
+                                  alert('전화번호는 11자리까지만 입력 가능합니다.');
+                                  return;
+                                }
+                                
+                                // DB에는 숫자만 저장
+                                setBookerInfo(prev => ({...prev, phone: numbersOnly}));
                               }}
                             />
                           </div>
                         </div>
-                      
+                        
                         {/* 투숙자 정보 - 체크박스 선택 시에만 표시 */}
                         {isDifferentGuest && (
                           <>
@@ -1485,7 +1518,15 @@ export default function LocationPage() {
                                   placeholder="홍길동"
                                   value={guestInfo.name}
                                   onChange={(e) => {
-                                    const validatedName = validateName(e.target.value);
+                                    const inputValue = e.target.value;
+                                    // 한글, 영문 이외의 문자 체크
+                                    const invalidPattern = /[^가-힣ㄱ-ㅎㅏ-ㅣa-zA-Z]/;
+                                    
+                                    if (invalidPattern.test(inputValue) && inputValue !== '') {
+                                      alert('이름은 한글, 영문만 입력 가능합니다. (띄어쓰기, 숫자, 특수문자 입력 불가)');
+                                    }
+                                    
+                                    const validatedName = validateName(inputValue);
                                     setGuestInfo(prev => ({...prev, name: validatedName}));
                                   }}
                                 />
@@ -1500,6 +1541,7 @@ export default function LocationPage() {
                                   onKeyDown={(e) => {
                                     if (e.key === ' ') {
                                       e.preventDefault();
+                                      alert('이메일에는 띄어쓰기를 입력할 수 없습니다.');
                                     }
                                   }}
                                   onChange={(e) => setGuestInfo(prev => ({...prev, email: e.target.value}))}
@@ -1510,11 +1552,25 @@ export default function LocationPage() {
                                 <input 
                                   type="text" 
                                   className="w-full p-2 border border-gray-300 text-sm text-black" 
-                                  placeholder="010-1234-5678"
-                                  value={guestInfo.phone}
+                                  value={formatPhoneDisplay(guestInfo.phone)}
                                   onChange={(e) => {
-                                    const validatedPhone = validatePhone(e.target.value);
-                                    setGuestInfo(prev => ({...prev, phone: validatedPhone}));
+                                    const inputValue = e.target.value;
+                                    const numbersOnly = inputValue.replace(/[^0-9]/g, '');
+                                    
+                                    // 숫자가 아닌 문자 입력 체크
+                                    if (inputValue !== '' && inputValue.replace(/-/g, '') !== numbersOnly) {
+                                      alert('전화번호는 숫자만 입력 가능합니다.');
+                                      return;
+                                    }
+                                    
+                                    // 11자리 제한
+                                    if (numbersOnly.length > 11) {
+                                      alert('전화번호는 11자리까지만 입력 가능합니다.');
+                                      return;
+                                    }
+                                    
+                                    // DB에는 숫자만 저장
+                                    setGuestInfo(prev => ({...prev, phone: numbersOnly}));
                                   }}
                                 />
                               </div>
@@ -1741,7 +1797,7 @@ export default function LocationPage() {
                         
                         {/* 총 결제 금액 */}
                         <div className="mb-6 p-4 bg-gray-50">
-                          <h4 className="text-sm font-medium mb-2 text-gray-800">총 결제 금액</h4>
+                          <h4 className="text-sm font-medium mb-2 text-black">총 결제 금액</h4>
                           <div className="flex justify-between items-center">
                             <span className="text-sm text-gray-600">객실요금</span>
                             <span className="text-sm text-black">₩{totalRoomPrice.toLocaleString()}</span>
@@ -1766,7 +1822,7 @@ export default function LocationPage() {
                           <hr className="my-2 border-gray-300" />
                           
                           <div className="flex justify-between items-center">
-                            <span className="text-lg font-medium">총 결제금액</span>
+                            <span className="text-lg font-medium text-black">총 결제금액</span>
                             <span className="text-lg font-bold text-red-500">
                               ₩{(totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()).toLocaleString()}
                             </span>
@@ -2011,7 +2067,7 @@ export default function LocationPage() {
                           </div>
                           <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
                             <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">구매자 연락처</div>
-                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{bookerInfo.phone || '--'}</div>
+                            <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{formatPhoneDisplay(bookerInfo.phone) || '--'}</div>
                           </div>
                           <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
                             <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">구매자 이메일</div>
@@ -2027,7 +2083,7 @@ export default function LocationPage() {
                               </div>
                               <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
                                 <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">투숙자 연락처</div>
-                                <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{guestInfo.phone || '--'}</div>
+                                <div className="p-2 md:p-3 text-left pl-3 md:pl-8 text-xs md:text-sm text-black">{formatPhoneDisplay(guestInfo.phone) || '--'}</div>
                               </div>
                               <div className="grid border-b border-gray-300" style={{gridTemplateColumns: '35% 65%'}}>
                                 <div className="bg-gray-100 p-2 md:p-3 pl-3 md:pl-6 font-medium text-left text-xs md:text-sm text-black">투숙자 이메일</div>

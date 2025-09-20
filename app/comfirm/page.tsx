@@ -37,6 +37,14 @@ export default function ConfirmPage() {
   const [reservations, setReservations] = useState<Reservation[]>([])
   const [isLoading, setIsLoading] = useState(false)
   const [showResults, setShowResults] = useState(false)
+  
+  // 전화번호 포맷팅 함수 추가
+  const formatPhoneDisplay = (phone: string): string => {
+    const numbers = phone.replace(/[^0-9]/g, '');
+    if (numbers.length <= 3) return numbers;
+    if (numbers.length <= 7) return `${numbers.slice(0, 3)}-${numbers.slice(3)}`;
+    return `${numbers.slice(0, 3)}-${numbers.slice(3, 7)}-${numbers.slice(7, 11)}`;
+  };
 
   const handleSearch = async () => {
     if (!bookerName.trim() || !bookerPhone.trim()) {
@@ -127,13 +135,12 @@ export default function ConfirmPage() {
                   </label>
                   <input 
                     type="text"
-                    placeholder="예: 01012345678"
-                    value={bookerPhone}
+                    placeholder="예: 010-1234-5678"
+                    value={formatPhoneDisplay(bookerPhone)}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/[^0-9]/g, '');
+                      const value = e.target.value.replace(/[^0-9]/g, '').slice(0, 11);
                       setBookerPhone(value);
                     }}
-                    maxLength={11}
                     className="w-full p-3 md:p-4 border border-gray-300 text-sm focus:border-teal-500 focus:outline-none text-black"
                   />
                   <p className="text-xs text-gray-500 mt-1">하이픈(-) 없이 숫자만 입력해주세요</p>
@@ -211,7 +218,7 @@ export default function ConfirmPage() {
                           <h5 className="font-semibold text-gray-700 mb-2 text-sm">예약자 정보</h5>
                           <div className="bg-gray-50 border-l-4 border-blue-400 pl-3 md:pl-4 py-2 md:py-3 rounded-r-lg">
                             <p className="font-medium text-gray-800 text-sm md:text-base">{reservation.booker_name}</p>
-                            <p className="text-gray-700 text-xs md:text-sm text-black">{reservation.booker_phone}</p>
+                            <p className="text-gray-700 text-xs md:text-sm text-black">{formatPhoneDisplay(reservation.booker_phone)}</p>
                             <p className="text-gray-700 text-xs md:text-sm text-black">{reservation.booker_email}</p>
                           </div>
                         </div>
@@ -222,7 +229,7 @@ export default function ConfirmPage() {
                             <h5 className="font-semibold text-gray-700 mb-2 text-sm">투숙자 정보</h5>
                             <div className="bg-gray-50 border-l-4 border-gray-400 pl-3 md:pl-4 py-2 md:py-3 rounded-r-lg">
                               <p className="font-medium text-gray-800 text-sm md:text-base">{reservation.guest_name}</p>
-                              <p className="text-gray-700 text-xs md:text-sm text-black">{reservation.guest_phone}</p>
+                              <p className="text-gray-700 text-xs md:text-sm text-black">{formatPhoneDisplay(reservation.guest_phone || '')}</p>
                               <p className="text-gray-700 text-xs md:text-sm text-black">{reservation.guest_email}</p>
                             </div>
                           </div>
