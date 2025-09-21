@@ -620,14 +620,22 @@ export default function LocationPage() {
     // 3. 객실의 최대인원과 비교
     rooms = rooms.filter(room => room.maxGuests >= totalGuests)
     
-    // 날짜별 예약 중복 필터링 (confirmed 상태만 확인)
+    // 날짜별 예약 중복 필터링 (pending + confirmed 모두 확인)
     if (checkInDate && checkOutDate) {
       const checkIn = `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}`
       const checkOut = `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}`
-      const bookedRoomsResult = await getBookedRooms(checkIn, checkOut)
-      if (bookedRoomsResult.success) {
-        const bookedRoomIds = bookedRoomsResult.data
-        rooms = rooms.filter(room => !bookedRoomIds?.includes(room.id))
+      
+      // Supabase에서 직접 조회 (pending + confirmed 포함)
+      const { data: bookedRooms } = await supabase
+        .from('cube45_reservations')
+        .select('room_id')
+        .in('status', ['pending', 'confirmed'])
+        .gte('check_out_date', checkIn)
+        .lte('check_in_date', checkOut)
+      
+      if (bookedRooms && bookedRooms.length > 0) {
+        const bookedRoomIds = bookedRooms.map(r => r.room_id)
+        rooms = rooms.filter(room => !bookedRoomIds.includes(room.id))
       }
     }
     
@@ -1847,6 +1855,34 @@ export default function LocationPage() {
 							  
                             onClick={async () => {
                                 if (!getFirstErrorMessage()) {
+                                    // 중복 예약 체크 추가
+                                    const checkInStr = checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : ''
+                                    const checkOutStr = checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : ''
+                                    
+                                    const { data: existingReservations } = await supabase
+                                        .from('cube45_reservations')
+                                        .select('reservation_number')
+                                        .eq('room_id', selectedRoom.id)
+                                        .in('status', ['pending', 'confirmed'])
+                                        .gte('check_out_date', checkInStr)
+                                        .lte('check_in_date', checkOutStr)
+                                    
+                                    if (existingReservations && existingReservations.length > 0) {
+                                        alert('선택하신 객실이 다른 고객님께서 예약 진행 중입니다. 다른 객실을 선택해주세요.')
+                                        setActiveStep(1)  // 객실선택 단계로 돌아가기
+                                        setSelectedRoom(null)  // 선택된 객실 초기화
+                                        setShowRoomResults(false)  // 검색 결과 숨기기
+                                        
+                                        // 객실 목록 다시 검색
+                                        setTimeout(async () => {
+                                            const rooms = await getFilteredRooms('전체', searchAdults, searchChildren)
+                                            setFilteredRooms(rooms)
+                                            setShowRoomResults(true)
+                                        }, 100)
+                                        return
+                                    }
+                                    
+                                    // 기존 코드 계속
                                     const newReservationNumber = generateReservationNumber()
                                     const reservationData = {
                                         ...prepareReservationData(newReservationNumber),
@@ -1863,10 +1899,6 @@ export default function LocationPage() {
                                         
                                         // 총 금액 계산
                                         const totalAmount = totalRoomPrice + calculateAdditionalFee() + calculateOptionsFee()
-                                        
-                                        // 체크인/체크아웃 날짜 포맷
-                                        const checkInStr = checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : ''
-                                        const checkOutStr = checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : ''
                                         
                                         // 디바이스에 따른 PG URL 분기
                                         let pgUrl = ''
@@ -1887,7 +1919,7 @@ export default function LocationPage() {
                                         window.location.href = pgUrl
                                         
                                     } else {
-                                        alert('예약 처리 중 오류가 발생했습니다.')
+                                        alert('예약 처리 중 오류가 발생했습니다.')                            
                                     }
                                 }
                             }}
