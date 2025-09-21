@@ -1855,6 +1855,12 @@ export default function LocationPage() {
 							  
                             onClick={async () => {
                                 if (!getFirstErrorMessage()) {
+                                    // selectedRoom null 체크 추가
+                                    if (!selectedRoom) {
+                                        alert('객실을 선택해주세요.')
+                                        return
+                                    }
+                                    
                                     // 중복 예약 체크 추가
                                     const checkInStr = checkInDate ? `${checkInDate.getFullYear()}-${(checkInDate.getMonth() + 1).toString().padStart(2, '0')}-${checkInDate.getDate().toString().padStart(2, '0')}` : ''
                                     const checkOutStr = checkOutDate ? `${checkOutDate.getFullYear()}-${(checkOutDate.getMonth() + 1).toString().padStart(2, '0')}-${checkOutDate.getDate().toString().padStart(2, '0')}` : ''
@@ -1862,18 +1868,17 @@ export default function LocationPage() {
                                     const { data: existingReservations } = await supabase
                                         .from('cube45_reservations')
                                         .select('reservation_number')
-                                        .eq('room_id', selectedRoom.id)
+                                        .eq('room_id', selectedRoom.id)  // 이제 안전함
                                         .in('status', ['pending', 'confirmed'])
                                         .gte('check_out_date', checkInStr)
                                         .lte('check_in_date', checkOutStr)
                                     
                                     if (existingReservations && existingReservations.length > 0) {
                                         alert('선택하신 객실이 다른 고객님께서 예약 진행 중입니다. 다른 객실을 선택해주세요.')
-                                        setActiveStep(1)  // 객실선택 단계로 돌아가기
-                                        setSelectedRoom(null)  // 선택된 객실 초기화
-                                        setShowRoomResults(false)  // 검색 결과 숨기기
+                                        setActiveStep(1)
+                                        setSelectedRoom(null)
+                                        setShowRoomResults(false)
                                         
-                                        // 객실 목록 다시 검색
                                         setTimeout(async () => {
                                             const rooms = await getFilteredRooms('전체', searchAdults, searchChildren)
                                             setFilteredRooms(rooms)
