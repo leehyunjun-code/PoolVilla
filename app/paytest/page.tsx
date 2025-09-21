@@ -28,7 +28,7 @@ export default function PayTestPage() {
     
     const currentDomain = window.location.origin
     
-    const pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_MOBILE/WelPayMoRequest.php?` +
+    const pgUrl = `https://cubecube45.mycafe24.com/mobile/WelPayMoRequest.php?` +
       `auto=true&` +
       `returnDomain=${encodeURIComponent(currentDomain)}&` +
       `reservationNumber=${reservationNumber}&` +
@@ -50,7 +50,7 @@ export default function PayTestPage() {
     
     const currentDomain = window.location.origin
     
-    const pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_PC/WelStdPayRequest.php?` +
+    const pgUrl = `https://cubecube45.mycafe24.com/pc/WelStdPayRequest.php?` +
       `auto=true&` +
       `returnDomain=${encodeURIComponent(currentDomain)}&` +
       `reservationNumber=${reservationNumber}&` +

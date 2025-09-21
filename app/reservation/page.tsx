@@ -1910,12 +1910,12 @@ export default function LocationPage() {
                                         
                                         if (isMobile) {
                                             // 모바일 결제 페이지
-                                            pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_MOBILE/WelPayMoRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom?.name || '')}&checkIn=${checkInStr}&checkOut=${checkOutStr}`
+                                            pgUrl = `https://cubecube45.mycafe24.com/mobile/WelPayMoRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom?.name || '')}&checkIn=${checkInStr}&checkOut=${checkOutStr}`
                                             
                                             console.log('모바일 결제 페이지로 이동:', pgUrl)
                                         } else {
                                             // PC 결제 페이지
-                                            pgUrl = `https://cube-pg-whive.run.goorm.site/PHP_PC/WelStdPayRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom?.name || '')}&checkIn=${checkInStr}&checkOut=${checkOutStr}`
+                                            pgUrl = `https://cubecube45.mycafe24.com/pc/WelStdPayRequest.php?auto=true&returnDomain=${encodeURIComponent(currentDomain)}&reservationNumber=${newReservationNumber}&price=${totalAmount}&buyername=${encodeURIComponent(bookerInfo.name)}&buyertel=${bookerInfo.phone}&buyeremail=${bookerInfo.email}&roomName=${encodeURIComponent(selectedRoom?.name || '')}&checkIn=${checkInStr}&checkOut=${checkOutStr}`
                                             
                                             console.log('PC 결제 페이지로 이동:', pgUrl)
                                         }
