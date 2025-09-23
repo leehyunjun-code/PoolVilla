@@ -1,8 +1,9 @@
 import { Instagram, BookOpen } from 'lucide-react'
+
 export default function Footer() {
   return (
     <footer>
-      {/* 상단 섹션 */}
+      {/* 단일 섹션 */}
       <div style={{ backgroundColor: '#8B7355' }} className="text-white py-4 md:py-8">
         <div className="max-w-5xl mx-auto px-3 md:px-6">
           <div className="flex justify-between items-center gap-3 md:gap-12">
@@ -13,7 +14,7 @@ export default function Footer() {
               className="h-8 md:h-12 w-auto flex-shrink-0"
             />
             
-            {/* 오른쪽 영역 */}
+            {/* 중간 영역 */}
             <div className="flex-1 min-w-0">
               {/* 메뉴 - 모바일에서는 가로 스크롤 가능 */}
               <div className="flex gap-2 md:gap-10 text-[10px] md:text-sm mb-2 md:mb-3 overflow-x-auto whitespace-nowrap scrollbar-hide">
@@ -27,31 +28,13 @@ export default function Footer() {
               {/* 주소 정보 */}
               <div className="text-[9px] md:text-xs text-gray-200">
                 <p className="truncate">경기도 가평군 설악면 국수터길 13-1</p>
-                <p className="truncate">사업자번호: 301-37-28829 | 대표: 박언</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      {/* 하단 섹션 */}
-      <div style={{ backgroundColor: '#4A3F36' }} className="text-gray-400 py-4 md:py-8">
-        <div className="max-w-5xl mx-auto px-3 md:px-6">
-          <div className="flex justify-between items-center gap-2 md:gap-12">
-            {/* 왼쪽 BRANDFORUM 이미지 */}
-            <img 
-              src="/images/main/BRANDFORUM.jpg" 
-              alt="BRANDFORUM" 
-              className="h-8 md:h-12 w-auto flex-shrink-0"
-            />
-            
-            {/* 중간 정보 */}
-            <div className="flex-1 min-w-0">
-              <div className="mb-1 md:mb-3"></div>
-              <div className="text-[8px] md:text-xs text-white md:pl-30">
-                <p className="truncate">온라인위탁사: (주)브랜드포럼 | 대표: 02-338-1316</p>
-                <p className="truncate">통신판매업신고: 2024-서울강서-0865</p>
-                <p className="text-[7px] md:text-xs">COPYRIGHT 2025 BRANDFORUM INC.</p>
+                {/* 데스크톱: 한 줄로 표시 */}
+                <p className="truncate hidden md:block">사업자번호: 301-37-28829 | 대표: 박언 | 대표번호: 070-5129-1671</p>
+                {/* 모바일: 두 줄로 표시 */}
+                <div className="md:hidden">
+                  <p className="truncate">사업자번호: 301-37-28829 | 대표: 박언</p>
+                  <p className="truncate">대표번호: 070-5129-1671</p>
+                </div>
               </div>
             </div>
             
