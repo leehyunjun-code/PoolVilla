@@ -15,6 +15,7 @@ export default function Navigation() {
     '부대시설': [],
     '이용안내': [],
     '스페셜 오퍼': [],
+	'실시간예약': [],    
     '예약확인': []
   }
   
@@ -65,7 +66,7 @@ export default function Navigation() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
       {/* 상단 로고 영역 */}
-      <div style={{ backgroundColor: '#f5e6d3' }}>
+      <div style={{ backgroundColor: 'white' }}>
         <div className="text-center relative">
           {/* 모바일 햄버거 메뉴 버튼 */}
           <button

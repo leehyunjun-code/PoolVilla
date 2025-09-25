@@ -32,11 +32,12 @@ interface CafeItem {
   image_url: string
   tag: string
   description: string
+  link: string  
   display_order: number
 }
 
 export default function PageContentsManage() {
-  const [activeTab, setActiveTab] = useState<'intro' | 'location' | 'tour'>('intro')
+  const [activeTab, setActiveTab] = useState<'intro' | 'location' | 'tour' | 'contact'>('intro')
   const [contents, setContents] = useState<PageContent[]>([])
   const [cafes, setCafes] = useState<CafeItem[]>([])
   const [editedContents, setEditedContents] = useState<PageContent[]>([])
@@ -69,6 +70,7 @@ export default function PageContentsManage() {
   const fetchContents = useCallback(async () => {
     setLoading(true)
     try {
+      // 모든 탭이 같은 테이블 사용
       const { data, error } = await supabase
         .from('cube45_page_contents')
         .select('*')
@@ -88,6 +90,7 @@ export default function PageContentsManage() {
           image_url: item.image_url,
           tag: item.extra_data?.tag || '',
           description: item.extra_data?.description || '',
+          link: item.extra_data?.link || '',  
           display_order: item.display_order
         })) || []
         setCafes(cafeData)
@@ -121,7 +124,7 @@ export default function PageContentsManage() {
       setLoading(false)
     }
   }, [activeTab])
-
+  
   useEffect(() => {
     fetchContents()
   }, [fetchContents])
@@ -154,6 +157,29 @@ export default function PageContentsManage() {
   }
 
   const handleLocalUpdate = (section_name: string, field: string, value: string) => {
+    console.log('handleLocalUpdate 호출 - section:', section_name, 'field:', field, 'value:', value)
+    
+    const existingContent = editedContents.find(c => c.section_name === section_name)
+    
+    if (!existingContent) {
+      console.log('섹션이 없어서 새로 추가:', section_name)
+      
+      // 기본 contents에서 찾아보기
+      const originalContent = contents.find(c => c.section_name === section_name)
+      
+      if (originalContent) {
+        // 기존 데이터에 새 값만 업데이트해서 추가
+        setEditedContents(prev => [...prev, {
+          ...originalContent,
+          [field]: value
+        }])
+      } else {
+        console.error('원본 데이터에도 해당 섹션이 없음:', section_name)
+      }
+      return
+    }
+    
+    // 기존 로직
     setEditedContents(prev => 
       prev.map(content => 
         content.section_name === section_name 
@@ -235,13 +261,60 @@ export default function PageContentsManage() {
     if (!confirm('정말 삭제하시겠습니까?')) return
     
     try {
-      const { error } = await supabase
-        .from('cube45_page_contents')
-        .delete()
-        .eq('page_name', activeTab)
-        .eq('section_name', sectionName)
+      // 메인 이미지 삭제 시 번호 당기기
+      if (sectionName === 'exclusive_cube_image' || sectionName === 'exceptional_retreat_image') {
+        const prefix = sectionName.replace('_image', '')
+        
+        // 2~5번 이미지들 확인
+        const images = []
+        for (let i = 2; i <= 5; i++) {
+          const img = getContent(`${prefix}_image_${i}`)
+          if (img?.image_url) {
+            images.push({ num: i, url: img.image_url })
+          }
+        }
+        
+        if (images.length > 0) {
+          // 2번 이미지를 메인으로
+          await supabase
+            .from('cube45_page_contents')
+            .update({ image_url: images[0].url })
+            .eq('page_name', activeTab)
+            .eq('section_name', sectionName)
+          
+          // 나머지 이미지들 번호 당기기
+          for (let i = 0; i < images.length - 1; i++) {
+            await supabase
+              .from('cube45_page_contents')
+              .update({ image_url: images[i + 1].url })
+              .eq('page_name', activeTab)
+              .eq('section_name', `${prefix}_image_${i + 2}`)
+          }
+          
+          // 마지막 이미지 위치 삭제
+          await supabase
+            .from('cube45_page_contents')
+            .delete()
+            .eq('page_name', activeTab)
+            .eq('section_name', `${prefix}_image_${images.length + 1}`)
+        } else {
+          // 추가 이미지가 없으면 메인 이미지만 null로
+          await supabase
+            .from('cube45_page_contents')
+            .update({ image_url: null })
+            .eq('page_name', activeTab)
+            .eq('section_name', sectionName)
+        }
+      } 
+      // 추가 이미지 삭제 시
+      else {
+        await supabase
+          .from('cube45_page_contents')
+          .delete()
+          .eq('page_name', activeTab)
+          .eq('section_name', sectionName)
+      }
       
-      if (error) throw error
       fetchContents()
       showToast('이미지가 삭제되었습니다.', 'success')
     } catch (error) {
@@ -249,27 +322,42 @@ export default function PageContentsManage() {
       showToast('이미지 삭제에 실패했습니다.', 'error')
     }
   }
-
+  
   const handleSaveSection = async (sectionNames: string[]) => {
     setSavingSection(sectionNames[0])
+    
     try {
       const updates = editedContents.filter(content => 
         sectionNames.includes(content.section_name)
       )
-
-      const updatePromises = updates.map(content => 
-        supabase
+      
+      if (updates.length === 0) {
+        showToast('저장할 데이터가 없습니다.', 'error')
+        setSavingSection(null)
+        return
+      }
+  
+      // 모든 탭이 같은 테이블 사용
+      const updatePromises = updates.map(content => {
+        const updateData: any = {
+          title: content.title || null,
+          subtitle: content.subtitle || null,
+          description: content.description || null,
+          image_url: content.image_url || null
+        }
+        
+        // contact 페이지의 링크들은 extra_data에 저장
+        if (activeTab === 'contact' && (content.section_name === 'kakao_link' || content.section_name === 'naver_link')) {
+          updateData.extra_data = content.extra_data
+        }
+        
+        return supabase
           .from('cube45_page_contents')
-          .update({
-            title: content.title,
-            subtitle: content.subtitle,
-            description: content.description,
-            image_url: content.image_url
-          })
+          .update(updateData)
           .eq('id', content.id)
-      )
-
-      await Promise.all(updatePromises)
+      })
+      
+      const results = await Promise.all(updatePromises)
       
       showToast('저장되었습니다.', 'success')
       fetchContents()
@@ -283,16 +371,25 @@ export default function PageContentsManage() {
 
   const handleImageUpload = async (section_name: string, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
+    console.log('1. 파일 선택됨:', file?.name, 'section:', section_name)
+    
     if (!file) return
-
+  
     if (file.size > 5 * 1024 * 1024) {
       showToast('파일 크기는 5MB 이하여야 합니다.', 'error')
       return
     }
-
+  
+    console.log('2. 이미지 업로드 시작')
     const url = await uploadImage(file)
+    console.log('3. 업로드된 URL:', url)
+    
     if (url) {
+      console.log('4. handleLocalUpdate 호출 - section:', section_name, 'url:', url)
       handleLocalUpdate(section_name, 'image_url', url)
+      
+      // 현재 editedContents 상태 확인
+      console.log('5. 업데이트 후 editedContents:', editedContents.find(c => c.section_name === section_name))
     }
   }
 
@@ -302,11 +399,12 @@ export default function PageContentsManage() {
       
       if (updates.title !== undefined) updateData.title = updates.title
       if (updates.image_url !== undefined) updateData.image_url = updates.image_url
-      if (updates.tag !== undefined || updates.description !== undefined) {
+      if (updates.tag !== undefined || updates.description !== undefined || updates.link !== undefined) {
         const currentCafe = cafes.find(c => c.section_name === section_name)
         updateData.extra_data = {
           tag: updates.tag !== undefined ? updates.tag : currentCafe?.tag,
-          description: updates.description !== undefined ? updates.description : currentCafe?.description
+          description: updates.description !== undefined ? updates.description : currentCafe?.description,
+          link: updates.link !== undefined ? updates.link : currentCafe?.link
         }
       }
 
@@ -343,7 +441,8 @@ export default function PageContentsManage() {
           is_active: true,
           extra_data: {
             tag: newCafe.tag || '#Cafe',
-            description: newCafe.description || '설명을 입력하세요'
+            description: newCafe.description || '설명을 입력하세요',
+            link: newCafe.link || ''
           }
         })
 
@@ -474,6 +573,16 @@ export default function PageContentsManage() {
             >
               관광정보
             </button>
+			<button
+              onClick={() => setActiveTab('contact')}
+              className={`py-2 md:py-4 px-1 border-b-2 font-medium text-[10px] md:text-sm transition-colors whitespace-nowrap ${
+                activeTab === 'contact'
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              }`}
+            >
+              오시는길
+            </button>  
           </nav>
         </div>
 
@@ -621,6 +730,15 @@ export default function PageContentsManage() {
                           </div>
                         )}
                       </div>
+                      {/* 삭제 버튼 추가 */}
+                      {getContent('exclusive_cube_image')?.image_url && (
+                        <button
+                          onClick={() => handleDeleteExtraImage('exclusive_cube_image')}
+                          className="absolute top-1 right-1 md:top-2 md:right-2 bg-red-500 text-white rounded-full w-6 h-6 md:w-8 md:h-8 text-sm md:text-base hover:bg-red-600"
+                        >
+                          ×
+                        </button>
+                      )}
                       <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
                         <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                         <input
@@ -702,7 +820,7 @@ export default function PageContentsManage() {
                       <textarea
                         value={getContent('exceptional_retreat')?.title || ''}
                         onChange={(e) => handleLocalUpdate('exceptional_retreat', 'title', e.target.value)}
-                        rows={3}
+                        rows={4}
                         placeholder="An Exceptional&#10;Retreat"
                         className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded resize-none text-[11px] md:text-base text-black"
                       />
@@ -752,6 +870,15 @@ export default function PageContentsManage() {
                           </div>
                         )}
                       </div>
+                      {/* 삭제 버튼 추가 */}
+                      {getContent('exceptional_retreat_image')?.image_url && (
+                        <button
+                          onClick={() => handleDeleteExtraImage('exceptional_retreat_image')}
+                          className="absolute top-1 right-1 md:top-2 md:right-2 bg-red-500 text-white rounded-full w-6 h-6 md:w-8 md:h-8 text-sm md:text-base hover:bg-red-600"
+                        >
+                          ×
+                        </button>
+                      )}
                       <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
                         <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
                         <input
@@ -1130,7 +1257,14 @@ export default function PageContentsManage() {
                         value={newCafe.description}
                         onChange={(e) => setNewCafe({...newCafe, description: e.target.value})}
                         placeholder="설명"
-                        rows={2}
+                        rows={4}
+                        className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-sm text-black"
+                      />
+                      <input
+                        type="text"
+                        value={newCafe.link}
+                        onChange={(e) => setNewCafe({...newCafe, link: e.target.value})}
+                        placeholder="링크"
                         className="w-full px-2 py-1 md:px-3 md:py-2 border rounded text-[11px] md:text-sm text-black"
                       />
                       <div className="flex gap-2">
@@ -1225,7 +1359,21 @@ export default function PageContentsManage() {
                                   setCafes(newCafes)
                                 }}
                                 placeholder="설명"
-                                rows={2}
+                                rows={4}
+                                className="w-full px-2 py-1 border rounded text-[11px] md:text-sm text-black"
+                              />
+                              <input
+                                type="text"
+                                value={cafe.link}
+                                onChange={(e) => {
+                                  const newCafes = cafes.map(c => 
+                                    c.section_name === cafe.section_name 
+                                      ? { ...c, link: e.target.value }
+                                      : c
+                                  )
+                                  setCafes(newCafes)
+                                }}
+                                placeholder="링크"
                                 className="w-full px-2 py-1 border rounded text-[11px] md:text-sm text-black"
                               />
                               <div className="flex gap-1 md:gap-2">
@@ -1236,7 +1384,8 @@ export default function PageContentsManage() {
                                       handleCafeUpdate(cafe.section_name, {
                                         title: updatedCafe.title,
                                         tag: updatedCafe.tag,
-                                        description: updatedCafe.description
+                                        description: updatedCafe.description,
+                                        link: updatedCafe.link
                                       })
                                     }
                                     setEditingCafe(null)
@@ -1290,6 +1439,176 @@ export default function PageContentsManage() {
                       </div>
                     </div>
                   ))}
+                </div>
+              </div>
+            </>
+          )}
+		  	
+		  {/* CONTACT 탭 콘텐츠 */}
+          {activeTab === 'contact' && (
+            <>
+              {/* 배너 섹션 */}
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">배너 섹션</h2>
+                  <button
+                    onClick={() => handleSaveSection(['banner'])}
+                    disabled={savingSection === 'banner'}
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {savingSection === 'banner' ? '저장 중...' : '저장'}
+                  </button>
+                </div>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-6">
+                  <div>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">배경 이미지</label>
+                    <div className="relative">
+                      <div className="w-full h-24 md:h-48 bg-gray-100 rounded-lg overflow-hidden relative">
+                        {getContent('banner')?.image_url ? (
+                          <Image
+                            src={getContent('banner')?.image_url || ''}
+                            alt="배너 이미지"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
+                          </div>
+                        )}
+                      </div>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload('banner', e)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                 <div className="space-y-2 md:space-y-4">
+                   <div>
+                     <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">메인 타이틀</label>
+                     <input
+                       type="text"
+                       value={getContent('banner')?.title || ''}
+                       onChange={(e) => handleLocalUpdate('banner', 'title', e.target.value)}
+                       className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
+                     />
+                   </div>
+                 </div>
+                </div>
+              </div>
+
+              {/* Contact 페이지 콘텐츠 관리 */}
+              <div className="bg-white rounded-lg shadow p-3 md:p-6">
+                <div className="flex justify-between items-center mb-3 md:mb-4">
+                  <h2 className="text-sm md:text-xl font-semibold text-black">오시는길 콘텐츠</h2>
+                  <button
+                    onClick={() => handleSaveSection(['left_image', 'map_image', 'kakao_link', 'naver_link'])}
+                    disabled={savingSection === 'left_image'}
+                    className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700 disabled:opacity-50"
+                  >
+                    {savingSection === 'left_image' ? '저장 중...' : '저장'}
+                  </button>
+                </div>
+                
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  {/* 왼쪽 이미지 영역 */}
+                  <div>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">왼쪽 사진 영역</label>
+                    <div className="relative">
+                      <div className="w-full h-32 md:h-94 bg-gray-100 rounded-lg overflow-hidden relative">
+                        {getContent('left_image')?.image_url ? (
+                          <Image
+                            src={getContent('left_image')?.image_url || ''}
+                            alt="왼쪽 이미지"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
+                          </div>
+                        )}
+                      </div>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload('left_image', e)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+
+                  {/* 오른쪽 지도 대체 이미지 */}
+                  <div>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">오른쪽 지도 영역 (이미지)</label>
+                    <div className="relative">
+                      <div className="w-full h-32 md:h-94 bg-gray-100 rounded-lg overflow-hidden relative">
+                        {getContent('map_image')?.image_url ? (
+                          <Image
+                            src={getContent('map_image')?.image_url || ''}
+                            alt="지도 대체 이미지"
+                            fill
+                            className="object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center text-gray-400">
+                            <span className="text-[10px] md:text-sm">이미지 없음</span>
+                          </div>
+                        )}
+                      </div>
+                      <label className="absolute bottom-1 right-1 md:bottom-4 md:right-4 bg-white px-2 md:px-4 py-0.5 md:py-2 rounded shadow cursor-pointer hover:bg-gray-50">
+                        <span className="text-[10px] md:text-sm font-medium text-gray-700">변경</span>
+                        <input
+                          type="file"
+                          className="sr-only"
+                          accept="image/*"
+                          onChange={(e) => handleImageUpload('map_image', e)}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 지도 링크 관리 */}
+                <div className="mt-6 space-y-3">
+                  <div>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">카카오맵 바로가기 링크</label>
+                    <input
+                      type="text"
+                      value={getContent('kakao_link')?.extra_data?.link || ''}
+                      onChange={(e) => {
+                        const current = getContent('kakao_link')
+                        if (current) {
+                          handleLocalUpdate('kakao_link', 'extra_data', { ...current.extra_data, link: e.target.value })
+                        }
+                      }}
+                      placeholder="https://map.kakao.com/..."
+                      className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[10px] md:text-sm font-medium text-gray-700 mb-1 md:mb-2">네이버지도 바로가기 링크</label>
+                    <input
+                      type="text"
+                      value={getContent('naver_link')?.extra_data?.link || ''}
+                      onChange={(e) => {
+                        const current = getContent('naver_link')
+                        if (current) {
+                          handleLocalUpdate('naver_link', 'extra_data', { ...current.extra_data, link: e.target.value })
+                        }
+                      }}
+                      placeholder="https://map.naver.com/..."
+                      className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
+                    />
+                  </div>
                 </div>
               </div>
             </>

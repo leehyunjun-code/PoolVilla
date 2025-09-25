@@ -20,6 +20,7 @@ interface PageContent {
   extra_data: {
     tag?: string
     description?: string
+    link?: string  // 추가된 필드
   } | null
 }
 
@@ -30,6 +31,7 @@ interface CafeItem {
   image_url: string
   tag: string
   description: string
+  link: string  // 추가된 필드
   display_order: number
 }
 
@@ -55,7 +57,7 @@ export default function TourPage() {
       
       setContents(data || [])
       
-      // 카페 데이터만 필터링
+      // 카페 데이터만 필터링 (link 필드 추가)
       const cafeData = data?.filter(item => item.content_type === 'card').map(item => ({
         id: item.id,
         section_name: item.section_name,
@@ -63,6 +65,7 @@ export default function TourPage() {
         image_url: item.image_url || '',
         tag: item.extra_data?.tag || '',
         description: item.extra_data?.description || '',
+        link: item.extra_data?.link || '',  // link 데이터 가져오기
         display_order: item.display_order
       })) || []
       
@@ -76,6 +79,13 @@ export default function TourPage() {
 
   const getContent = (section_name: string) => {
     return contents.find(c => c.section_name === section_name)
+  }
+
+  // 자세히보기 버튼 클릭 핸들러
+  const handleDetailClick = (link: string) => {
+    if (link) {
+      window.open(link, '_blank', 'noopener,noreferrer')
+    }
   }
 
   if (loading) {
@@ -147,6 +157,10 @@ export default function TourPage() {
                     <Link href="/tour" className="text-black hover:text-gray-700 cursor-pointer font-bold">
                       관광정보
                     </Link>
+					<span className="text-black">|</span>
+                    <Link href="/Contact" className="text-black hover:text-gray-700 cursor-pointer">
+                      오시는길
+                    </Link>  
                   </div>
                 </div>
               </div>
@@ -186,7 +200,7 @@ export default function TourPage() {
               </div>
             </div>
 
-            {/* 데스크톱 레이아웃 - 원래대로 */}
+            {/* 데스크톱 레이아웃 */}
             <div className="hidden md:flex items-start gap-16">
               {/* 왼쪽 텍스트 */}
               <div className="w-1/3 relative">
@@ -264,14 +278,26 @@ export default function TourPage() {
                           {cafe.description}
                         </p>
                         <div className="flex justify-end">
-                          <button className="px-4 py-1.5 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-700 transition-colors">
-                            자세히보기
-                          </button>
+                          {cafe.link ? (
+                            <button 
+                              onClick={() => handleDetailClick(cafe.link)}
+                              className="px-4 py-1.5 bg-gray-800 text-white text-sm rounded-full hover:bg-gray-700 transition-colors"
+                            >
+                              자세히보기
+                            </button>
+                          ) : (
+                            <button 
+                              disabled
+                              className="px-4 py-1.5 bg-gray-400 text-white text-sm rounded-full cursor-not-allowed"
+                            >
+                              자세히보기
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
 
-                    {/* 데스크톱 레이아웃 - 원래대로 */}
+                    {/* 데스크톱 레이아웃 */}
                     <div className="hidden md:flex bg-white py-8">
                       {/* 왼쪽 이미지 */}
                       <div className="w-1/3">
@@ -312,9 +338,21 @@ export default function TourPage() {
                           </p>
                         </div>
                         <div className="mt-6 flex justify-end">
-                          <button className="px-6 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition-colors">
-                            자세히보기
-                          </button>
+                          {cafe.link ? (
+                            <button 
+                              onClick={() => handleDetailClick(cafe.link)}
+                              className="px-6 py-2 bg-gray-800 text-white rounded-full hover:bg-gray-700 transition-colors"
+                            >
+                              자세히보기
+                            </button>
+                          ) : (
+                            <button 
+                              disabled
+                              className="px-6 py-2 bg-gray-400 text-white rounded-full cursor-not-allowed"
+                            >
+                              자세히보기
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>

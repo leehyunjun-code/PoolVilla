@@ -27,7 +27,7 @@ export default function OffersSection() {
 
   // 자동 슬라이드 기능 - 모바일/데스크탑 구분
   useEffect(() => {
-    const itemsToShow = isMobile ? 2 : 3
+    const itemsToShow = isMobile ? 1 : 3  // 모바일 1개로 변경
     if (offersData.length <= itemsToShow) return
 
     const interval = setInterval(() => {
@@ -87,7 +87,7 @@ export default function OffersSection() {
     if (offersData.length === 0) return []
     
     const visible = []
-    const itemsToShow = isMobile ? 2 : 3  // 모바일 2개, 데스크탑 3개
+    const itemsToShow = isMobile ? 1 : 3  // 모바일 1개로 변경
     
     for (let i = 0; i < itemsToShow; i++) {
       const index = (currentIndex + i) % offersData.length
@@ -116,14 +116,14 @@ export default function OffersSection() {
     )
   }
 
-  const itemsToShow = isMobile ? 2 : 3
+  const itemsToShow = isMobile ? 1 : 3  // 모바일 1개로 변경
 
   return (
     <div className="container mx-auto px-4 py-16">
       <h2 className="text-3xl font-bold text-center text-black mb-12">OFFERS</h2>
       <div className="relative">
-        {/* 그리드 - 모바일 2개, 데스크탑 3개 */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 mx-auto">
+        {/* 그리드 - 모바일 1개, 데스크탑 3개 */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mx-auto max-w-xs sm:max-w-none">
           {getVisibleOffers().map((offer) => (
             <div key={offer.id}>
               <div className="mb-2 px-1 sm:px-0">
@@ -172,7 +172,7 @@ export default function OffersSection() {
             {/* 모바일 화살표 */}
             <button 
               onClick={handlePrev}
-              className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white/80 text-gray-800 p-1.5 rounded-full shadow-md sm:hidden"
+              className="absolute left-0 top-[55%] -translate-y-1/2 z-10 bg-white/80 text-gray-800 p-1.5 rounded-full shadow-md sm:hidden"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />

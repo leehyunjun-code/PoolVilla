@@ -120,6 +120,10 @@ export default function LocationPage() {
                     <Link href="/tour" className="text-black hover:text-gray-700 cursor-pointer">
                       관광정보
                     </Link>
+					<span className="text-black">|</span>
+                      <Link href="/Contact" className="text-black hover:text-gray-700 cursor-pointer">
+                        오시는길
+                      </Link>  
                   </div>
                 </div>
               </div>
@@ -199,7 +203,7 @@ export default function LocationPage() {
       </div>
 		  
       {/* 배치도 이미지 */}
-      <div className="w-full py-4 md:py-16">
+      <div className="py-4 md:py-16" style={{ width: '90%', margin: '0 auto' }}>
         {layoutImageContent?.image_url ? (
           <Image 
             src={layoutImageContent.image_url}

@@ -17,11 +17,11 @@ interface RoomContent {
   is_active: boolean
 }
 
-export default function D1Page() {
+export default function D9Page() {
   const pathname = usePathname()
   
-  // D1 페이지 전용
-  const roomId = 'D1'
+  // D9 페이지 전용
+  const roomId = 'D9'
   
   // 상태 관리
   const [currentImage, setCurrentImage] = useState(0)

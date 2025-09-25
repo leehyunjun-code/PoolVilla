@@ -257,6 +257,10 @@ export default function IntroPage() {
                       <Link href="/tour" className="text-black hover:text-gray-700 cursor-pointer">
                         관광정보
                       </Link>
+					  <span className="text-black">|</span>
+                      <Link href="/Contact" className="text-black hover:text-gray-700 cursor-pointer">
+                        오시는길
+                      </Link>	
                     </div>
                   </div>
                 </div>

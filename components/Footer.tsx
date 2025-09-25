@@ -1,5 +1,4 @@
 import { Instagram, BookOpen } from 'lucide-react'
-
 export default function Footer() {
   return (
     <footer>
@@ -9,7 +8,7 @@ export default function Footer() {
           <div className="flex justify-between items-center gap-3 md:gap-12">
             {/* 왼쪽 CUBE45 이미지 */}
             <img 
-              src="/images/main/cube45.jpg" 
+              src="/images/main/footer.jpg" 
               alt="CUBE45" 
               className="h-8 md:h-12 w-auto flex-shrink-0"
             />
@@ -38,16 +37,13 @@ export default function Footer() {
               </div>
             </div>
             
-            {/* 오른쪽 SNS 아이콘 박스 */}
-            <div 
-              className="flex gap-2 md:gap-4 p-2 md:p-4 flex-shrink-0"
-              style={{ backgroundColor: '#F1EBD6' }}
-            >
+            {/* 오른쪽 SNS 아이콘 박스 - 배경색 제거, 아이콘 색상 흰색으로 변경 */}
+            <div className="flex gap-2 md:gap-4 p-2 md:p-4 flex-shrink-0">
               <a href="#" className="hover:opacity-80 transition-opacity">
-                <Instagram size={16} className="text-gray-700 md:w-[22px] md:h-[22px]" />
+                <Instagram size={16} className="text-white md:w-[22px] md:h-[22px]" />
               </a>
               <a href="#" className="hover:opacity-80 transition-opacity">
-                <BookOpen size={16} className="text-gray-700 md:w-[22px] md:h-[22px]" />
+                <BookOpen size={16} className="text-white md:w-[22px] md:h-[22px]" />
               </a>
             </div>
           </div>

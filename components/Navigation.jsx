@@ -15,7 +15,7 @@ export default function Navigation() {
     '부대시설': [],
     '이용안내': [],
     '스페셜 오퍼': [],
-    '예약확인': []
+	'실시간예약': []
   }
   
   // 서브메뉴 링크 매핑
@@ -40,6 +40,7 @@ export default function Navigation() {
     '부대시설': '/facilities',
     '이용안내': '/guide',
     '스페셜 오퍼': '/special',
+    '실시간예약': 'https://rev.yapen.co.kr/external/set?ypIdx=78048',
     '예약확인': '/comfirm'
   }
 
@@ -55,6 +56,9 @@ export default function Navigation() {
   const handleMobileMenuClick = (menu) => {
     if (menuItems[menu].length > 0) {
       toggleMobileSubMenu(menu)
+    } else if (menu === '실시간예약') {
+      window.open('https://rev.yapen.co.kr/external/set?ypIdx=78048', '_blank')
+      setMobileMenuOpen(false)
     } else if (mainMenuLinks[menu]) {
       window.location.href = mainMenuLinks[menu]
       setMobileMenuOpen(false)
@@ -64,7 +68,7 @@ export default function Navigation() {
   return (
     <div className="fixed top-0 left-0 right-0 z-50">
       {/* 상단 로고 영역 */}
-      <div style={{ backgroundColor: '#f5e6d3' }}>
+      <div style={{ backgroundColor: 'white' }}>
         <div className="text-center relative">
           {/* 모바일 햄버거 메뉴 버튼 */}
           <button
@@ -106,7 +110,13 @@ export default function Navigation() {
                   onMouseEnter={() => setHoveredMenu(menu)}
                   onMouseLeave={() => setHoveredMenu(null)}
                 >
-                  {menu === '예약확인' ? (
+                  {menu === '실시간예약' ? (
+                      <a href="https://rev.yapen.co.kr/external/set?ypIdx=78048" target="_blank" rel="noopener noreferrer">
+                        <span className="cursor-pointer text-white px-6 flex items-center text-lg font-medium h-14" style={{ backgroundColor: '#3E2B2C' }}>
+                          {menu}
+                        </span>
+                      </a>
+                  ) : menu === '예약확인' ? (
                     <Link href="/comfirm">
                       <span className="cursor-pointer hover:text-gray-200 flex items-center text-lg font-medium h-14">
                         {menu}
@@ -184,13 +194,14 @@ export default function Navigation() {
               <li key={menu} className="border-b border-gray-200">
                 <div
                   className="px-4 py-3 flex justify-between items-center cursor-pointer hover:bg-gray-50"
+                  style={menu === '실시간예약' ? { backgroundColor: '#3E2B2C' } : {}}
                   onClick={() => handleMobileMenuClick(menu)}
                 >
-                  <span className="font-medium text-gray-700">
+                  <span className={`font-medium ${menu === '실시간예약' ? 'text-white font-semibold' : 'text-gray-700'}`}>
                     {menu}
                   </span>
                   {menuItems[menu].length > 0 && (
-                    <span className="text-gray-400">
+                    <span className={menu === '실시간예약' ? 'text-white' : 'text-gray-400'}>
                       {mobileSubMenuOpen[menu] ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
                     </span>
                   )}
