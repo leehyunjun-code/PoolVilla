@@ -311,9 +311,11 @@ export default function IntroPage() {
                     </div>
                   </div>
 
-                  <button className="mt-6 md:mt-10 px-6 md:px-8 py-2 border border-gray-800 rounded-full text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors mx-auto md:ml-[180px] block md:inline-block">
-                    Gallery
-                  </button>
+                  <Link href="/room/pool">
+                    <button className="mt-6 md:mt-10 px-6 md:px-8 py-2 border border-gray-800 rounded-full text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors mx-auto md:ml-[180px] block md:inline-block">
+                      Room
+                    </button>
+                  </Link>
                 </div>
 
                 {/* 오른쪽 이미지 영역 - 오른쪽에서 슬라이드 인 */}
@@ -396,9 +398,9 @@ export default function IntroPage() {
                 </div>
 
                 <div ref={mobileBtnRef} className="slide-from-right flex justify-center">
-                  <Link href="/reservation">
+                  <Link href="/room/pool">
                     <button className="px-8 py-2 border border-gray-800 rounded-full text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors">
-                      Reservation
+                      Room
                     </button>
                   </Link>
                 </div>
@@ -483,9 +485,9 @@ export default function IntroPage() {
                   
                   {/* 오른쪽 아래 Reservation 버튼 - 오른쪽에서 슬라이드 인 */}
                   <div ref={reservationBtnRef} className="absolute slide-from-right" style={{ right: '-500px', bottom: '-150px' }}>
-                    <Link href="/reservation">
+                    <Link href="/room/pool">
                       <button className="px-8 py-2 border border-gray-800 rounded-full text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors">
-                        Reservation
+                        Room
                       </button>
                     </Link>
                   </div>
