@@ -80,11 +80,17 @@ export default function ContactSection() {
         
         {/* 오른쪽 지도 영역 - 이미지만 표시 */}
         <div className="w-full md:w-[55%] h-[350px] md:h-[500px]">
-          <img 
-            src={contactData.map_image?.image_url || '/images/main/map-placeholder.jpg'}
-            alt="지도"
-            className="w-full h-full object-cover"
-          />
+          {contactData.map_image?.image_url ? (
+            <img 
+              src={contactData.map_image.image_url}
+              alt="지도"
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+              <span className="text-gray-400">지도 이미지를 업로드해주세요</span>
+            </div>
+          )}
         </div>
       </div>
       

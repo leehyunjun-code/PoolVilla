@@ -1292,6 +1292,7 @@ export default function PageContentsManage() {
                               image_url: '',
                               tag: '',
                               description: '',
+							  link: '',	
                               display_order: 0
                             })
                           }}
