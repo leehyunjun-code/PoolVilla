@@ -360,7 +360,74 @@ export default function Home() {
         </div>
       </div>
 
-    
+      {/* 예약 검색 바 */}
+      <div className="container mx-auto px-2 md:px-4 py-4 md:py-8">
+        <div className="bg-white shadow-xl rounded-lg p-2 md:p-6 max-w-5xl mx-auto">
+          <div className="flex flex-wrap items-end justify-center gap-1 md:gap-4">
+            <div className="flex items-end gap-1 md:gap-2">
+              <div>
+                <label className="block text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">체크인</label>
+                <input 
+                  type="date" 
+                  value={checkIn}
+                  min={new Date().toISOString().split('T')[0]}
+                  onChange={(e) => setCheckIn(e.target.value)}
+                  className="px-1 md:px-3 py-1 md:py-2 text-xs md:text-base text-black border rounded-md focus:outline-none focus:border-blue-500"
+                />
+              </div>
+              <div className="text-center px-1 md:px-3">
+                <div className="text-sm md:text-xl font-bold text-black">{nights}박</div>
+              </div>
+              <div>
+                <label className="block text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">체크아웃</label>
+                <input 
+                  type="date" 
+                  value={checkOut}
+                  min={checkIn || new Date().toISOString().split('T')[0]}
+                  onChange={(e) => setCheckOut(e.target.value)}
+                  className="px-1 md:px-3 py-1 md:py-2 text-xs md:text-base text-black border rounded-md focus:outline-none focus:border-blue-500"
+                />
+              </div>
+            </div>
+            <div className="flex items-end gap-1 md:gap-3">
+              <div className="text-center">
+                <label className="block text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">성인</label>
+                <input 
+                  type="number" 
+                  value={adults}
+                  onChange={(e) => setAdults(parseInt(e.target.value) || 0)}
+                  min="1"
+                  className="px-1 md:px-3 py-1 md:py-2 text-xs md:text-base text-black border rounded-md w-12 md:w-16 text-center"
+                />
+              </div>
+              <div className="text-center">
+                <label className="block text-[10px] md:text-sm text-gray-600 mb-0.5 md:mb-1">소인</label>
+                <input 
+                  type="number" 
+                  value={children}
+                  onChange={(e) => setChildren(parseInt(e.target.value) || 0)}
+                  min="0"
+                  className="px-1 md:px-3 py-1 md:py-2 text-xs md:text-base text-black border rounded-md w-12 md:w-16 text-center"
+                />
+              </div>
+              <button 
+                onClick={() => {
+                  const params = new URLSearchParams({
+                    checkIn: checkIn,
+                    checkOut: checkOut,
+                    adults: adults.toString(),
+                    children: children.toString()
+                  })
+                  window.location.href = `/reservation?${params.toString()}`
+                }}
+                className="bg-gray-800 text-white px-3 md:px-6 py-1 md:py-2.5 text-xs md:text-base rounded-md hover:bg-gray-700 transition-colors"
+              >
+                검색
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* POOL VILLA 섹션 */}
       <main className="container mx-auto px-4 py-8 md:py-16">
@@ -720,32 +787,30 @@ export default function Home() {
       </main>
       
       {/* 예약문의/현장문의 섹션 */}
-      <div className="container mx-auto px-4">
-        <div className="flex">
-          <div className="w-1/2 relative h-64 md:h-96 bg-cover bg-center" style={{ backgroundImage: contactData.reservation.backgroundImage ? `url(${contactData.reservation.backgroundImage})` : 'none' }}>
-            <div className="absolute inset-0 bg-black/40"></div>
-            <div className="relative z-10 p-4 md:p-12 text-white h-full">
-              <div className="h-[30px] md:h-[60px]">
-                <h3 className="text-xs md:text-2xl pb-1 md:pb-2 border-b border-white">예약문의</h3>
-              </div>
-              <div className="mt-2 md:mt-6">
-                <p className="text-base md:text-4xl font-bold mb-1 md:mb-4">{contactData.reservation.phone}</p>
-                <div className="text-[9px] md:text-base whitespace-pre-line">
-                  {contactData.reservation.description.replace(/\|/g, '\n')}
-                </div>
+      <div className="flex">
+        <div className="w-1/2 relative h-64 md:h-96 bg-cover bg-center" style={{ backgroundImage: contactData.reservation.backgroundImage ? `url(${contactData.reservation.backgroundImage})` : 'none' }}>
+          <div className="absolute inset-0 bg-black/40"></div>
+          <div className="relative z-10 p-4 md:p-12 text-white h-full">
+            <div className="h-[30px] md:h-[60px]">
+              <h3 className="text-xs md:text-2xl pb-1 md:pb-2 border-b border-white">예약문의</h3>
+            </div>
+            <div className="mt-2 md:mt-6">
+              <p className="text-base md:text-4xl font-bold mb-1 md:mb-4">{contactData.reservation.phone}</p>
+              <div className="text-[9px] md:text-base whitespace-pre-line">
+                {contactData.reservation.description.replace(/\|/g, '\n')}
               </div>
             </div>
           </div>
-          
-          <div className="w-1/2 relative h-64 md:h-96 bg-cover bg-center" style={{ backgroundImage: contactData.onsite.backgroundImage ? `url(${contactData.onsite.backgroundImage})` : 'none' }}>
-            <div className="absolute inset-0 bg-black/40"></div>
-            <div className="relative z-10 p-4 md:p-12 text-white h-full">
-              <div className="h-[30px] md:h-[60px]">
-                <h3 className="text-xs md:text-2xl pb-1 md:pb-2 border-b border-white">현장문의</h3>
-              </div>
-              <div className="mt-2 md:mt-6">
-                <p className="text-base md:text-4xl font-bold">{contactData.onsite.phone}</p>
-              </div>
+        </div>
+        
+        <div className="w-1/2 relative h-64 md:h-96 bg-cover bg-center" style={{ backgroundImage: contactData.onsite.backgroundImage ? `url(${contactData.onsite.backgroundImage})` : 'none' }}>
+          <div className="absolute inset-0 bg-black/40"></div>
+          <div className="relative z-10 p-4 md:p-12 text-white h-full">
+            <div className="h-[30px] md:h-[60px]">
+              <h3 className="text-xs md:text-2xl pb-1 md:pb-2 border-b border-white">현장문의</h3>
+            </div>
+            <div className="mt-2 md:mt-6">
+              <p className="text-base md:text-4xl font-bold">{contactData.onsite.phone}</p>
             </div>
           </div>
         </div>
