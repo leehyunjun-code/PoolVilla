@@ -339,7 +339,13 @@ export default function PageContentsManage() {
   
       // 모든 탭이 같은 테이블 사용
       const updatePromises = updates.map(content => {
-        const updateData: any = {
+        const updateData: {
+          title: string | null;
+          subtitle: string | null;
+          description: string | null;
+          image_url: string | null;
+          extra_data?: ExtraData | null;
+        } = {
           title: content.title || null,
           subtitle: content.subtitle || null,
           description: content.description || null,
