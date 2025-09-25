@@ -563,7 +563,7 @@ export default function Home() {
           {/* 모바일 화살표 */}
           <button 
             onClick={() => {
-              const swiperElement = document.querySelector('.pool-villa-swiper') as HTMLElement & { swiper: any }
+              const swiperElement = document.querySelector('.pool-villa-swiper') as HTMLElement & { swiper: { slidePrev: () => void } }
               if (swiperElement?.swiper) {
                 swiperElement.swiper.slidePrev()
               }
@@ -576,7 +576,7 @@ export default function Home() {
           </button>
           <button 
             onClick={() => {
-              const swiperElement = document.querySelector('.pool-villa-swiper') as HTMLElement & { swiper: any }
+              const swiperElement = document.querySelector('.pool-villa-swiper') as HTMLElement & { swiper: { slideNext: () => void } }
               if (swiperElement?.swiper) {
                 swiperElement.swiper.slideNext()
               }
