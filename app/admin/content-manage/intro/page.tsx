@@ -1596,7 +1596,8 @@ export default function PageContentsManage() {
                       onChange={(e) => {
                         const current = getContent('kakao_link')
                         if (current) {
-                          handleLocalUpdate('kakao_link', 'extra_data', { ...current.extra_data, link: e.target.value })
+                          const updatedExtraData = { ...current.extra_data, link: e.target.value }
+                          handleLocalUpdate('kakao_link', 'extra_data', JSON.stringify(updatedExtraData))
                         }
                       }}
                       placeholder="https://map.kakao.com/..."
