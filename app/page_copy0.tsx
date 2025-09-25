@@ -284,14 +284,14 @@ export default function Home() {
       {/* 네비게이션 */}
       <Navigation />
       
-      {/* 3분할 메인 슬라이더 - 컨테이너 너비 적용 */}
-      <div className="container mx-auto px-4">
+      {/* 3분할 메인 슬라이더 - 전체 너비 적용 */}
+      <div className="w-full">
         <div className="h-[400px] md:h-[600px] relative overflow-hidden mt-8 md:mt-[50px]">
           {sliderData.length > 0 ? (
             <Swiper
               modules={[SwiperNavigation, Autoplay]}
-              spaceBetween={20}
-              slidesPerView={1.2}
+              spaceBetween={0}
+              slidesPerView={2}
               centeredSlides={true}
               navigation={{
                 nextEl: '.swiper-button-next-custom',
@@ -305,20 +305,20 @@ export default function Home() {
               watchSlidesProgress={true}
               breakpoints={{
                 640: {
-                  slidesPerView: 1.4,
-                  spaceBetween: 25,
+                  slidesPerView: 2,
+                  spaceBetween: 0,
                 },
                 768: {
-                  slidesPerView: 1.6,
-                  spaceBetween: 35,
+                  slidesPerView: 2,
+                  spaceBetween: 0,
                 },
                 1024: {
-                  slidesPerView: 1.8,
-                  spaceBetween: 45,
+                  slidesPerView: 2,
+                  spaceBetween: 0,
                 },
                 1280: {
-                  slidesPerView: 2.2,
-                  spaceBetween: 60,
+                  slidesPerView: 2,
+                  spaceBetween: 0,
                 },
               }}
               className="h-full"
