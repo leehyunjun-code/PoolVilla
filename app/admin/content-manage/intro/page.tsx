@@ -1612,7 +1612,7 @@ export default function PageContentsManage() {
                       onChange={(e) => {
                         const current = getContent('naver_link')
                         if (current) {
-                          handleLocalUpdate('naver_link', 'extra_data', { ...current.extra_data, link: e.target.value })
+                          handleLocalUpdate('naver_link', 'extra_data', JSON.stringify({ ...current.extra_data, link: e.target.value }))
                         }
                       }}
                       placeholder="https://map.naver.com/..."
