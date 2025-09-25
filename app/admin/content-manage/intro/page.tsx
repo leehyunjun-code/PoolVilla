@@ -54,6 +54,7 @@ export default function PageContentsManage() {
     image_url: '',
     tag: '',
     description: '',
+	link: '',  
     display_order: 0
   })
   const [toast, setToast] = useState<{ show: boolean; message: string; type: 'success' | 'error' }>({
