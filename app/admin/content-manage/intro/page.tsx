@@ -455,7 +455,7 @@ export default function PageContentsManage() {
 
       if (error) throw error
       
-      showToast('카페가 추가되었습니다.', 'success')
+      showToast('추가되었습니다.', 'success')
       setAddingCafe(false)
       setNewCafe({
         id: 0,
@@ -464,6 +464,7 @@ export default function PageContentsManage() {
         image_url: '',
         tag: '',
         description: '',
+		link: '',  
         display_order: 0
       })
       fetchContents()
