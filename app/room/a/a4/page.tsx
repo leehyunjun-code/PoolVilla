@@ -289,11 +289,8 @@ export default function C19Page() {
                   <h3 className="text-lg font-medium mb-4 md:mb-0 text-black">어메니티</h3>
                 </div>
                 <div className="col-span-1 md:col-span-3 space-y-3">
-                  {getContent('amenity_1')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">{getContent('amenity_1')?.content}</div>
-                  )}
-                  {getContent('amenity_2')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">{getContent('amenity_2')?.content}</div>
+                  {getContent('amenity')?.content && (
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">{getContent('amenity')?.content}</div>
                   )}
                 </div>
               </div>
@@ -304,15 +301,9 @@ export default function C19Page() {
                   <h3 className="text-lg font-medium mb-4 md:mb-0 text-black">이용안내</h3>
                 </div>
                 <div className="col-span-1 md:col-span-3 space-y-3">
-                  {getContent('guide_pet')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">{getContent('guide_pet')?.content}</div>
-                  )}
-                  {getContent('guide_fireplace')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">{getContent('guide_fireplace')?.content}</div>
-                  )}
-                  {getContent('guide_additional')?.content && (
+                  {getContent('guide')?.content && (
                     <div className="text-sm md:text-base text-black">
-                      {getContent('guide_additional')?.content?.split('\n').map((line, index) => (
+                      {getContent('guide')?.content?.split('\n').map((line, index) => (
                         <div key={index} className={`${line.startsWith('•') ? 'py-1' : 'pb-2'} break-words`}>
                           {line}
                         </div>
@@ -320,7 +311,7 @@ export default function C19Page() {
                     </div>
                   )}
                 </div>
-              </div>		
+              </div>
         
               {/* 동별 바로가기 버튼들 */}
               <div className="flex flex-col items-center gap-8">
