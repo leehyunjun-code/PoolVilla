@@ -407,6 +407,61 @@ export default function RoomManagePage() {
     }
   }
   
+  const handleAddContent = async (sectionPrefix: string) => {
+    try {
+      const existingNumbers = editedContents
+        .filter(c => c.section_name.startsWith(sectionPrefix + '_'))
+        .map(c => {
+          const parts = c.section_name.split('_');
+          return parseInt(parts[parts.length - 1]) || 0;
+        })
+        .filter(n => n >= 1 && n <= 10);
+      
+      let newNumber = 0;
+      for (let i = 1; i <= 10; i++) {
+        if (!existingNumbers.includes(i)) {
+          newNumber = i;
+          break;
+        }
+      }
+      
+      if (newNumber === 0) {
+        showToast('최대 10개까지만 추가 가능합니다.', 'error');
+        return;
+      }
+      
+      const newSectionName = `${sectionPrefix}_${newNumber}`;
+      
+      const { data, error } = await supabase
+        .from('cube45_room_contents')
+        .insert({
+          page_type: selectedRoom ? 'room' : `zone_default_${selectedRoom?.[0].toLowerCase()}`,
+          room_id: selectedRoom,
+          section_name: newSectionName,
+          content: '',
+          image_url: null,
+          display_order: newNumber + 10,
+          is_active: true
+        })
+        .select()
+        .single();
+      
+      if (error) {
+        console.error('항목 추가 실패:', error);
+        showToast('항목 추가에 실패했습니다.', 'error');
+        return;
+      }
+      
+      if (data) {
+        setEditedContents([...editedContents, data]);
+        showToast('항목이 추가되었습니다.', 'success');
+      }
+    } catch (error) {
+      console.error('항목 추가 오류:', error);
+      showToast('항목 추가 중 오류가 발생했습니다.', 'error');
+    }
+  }
+  
   const handleAddImageWithFile = (sectionPrefix: string) => {
     const input = document.createElement('input');
     input.type = 'file';
@@ -1167,7 +1222,45 @@ export default function RoomManagePage() {
                         </div>
                       </div>
 
-                      {/* 기본정보 - 어메니티 - 이용안내는 생략 (너무 길어서) */}
+                      {/* 어메니티 섹션 */}
+                      <div>
+                        <div className="flex justify-between items-center mb-2 md:mb-4">
+                          <h3 className="text-xs md:text-lg font-medium text-black">어메니티</h3>
+                          <button
+                            onClick={() => handleSaveSection(['amenity'])}
+                            className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
+                          >
+                            저장
+                          </button>
+                        </div>
+                        <textarea
+                          value={getContent('amenity')?.content || ''}
+                          onChange={(e) => handleLocalUpdate('amenity', 'content', e.target.value)}
+                          rows={5}
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
+                          placeholder="어메니티 내용을 입력하세요 (줄바꿈으로 구분)"
+                        />
+                      </div>
+
+                      {/* 이용안내 섹션 */}
+                      <div>
+                        <div className="flex justify-between items-center mb-2 md:mb-4">
+                          <h3 className="text-xs md:text-lg font-medium text-black">이용안내</h3>
+                          <button
+                            onClick={() => handleSaveSection(['guide'])}
+                            className="px-2 md:px-4 py-1 md:py-2 bg-blue-600 text-white rounded text-[10px] md:text-sm hover:bg-blue-700"
+                          >
+                            저장
+                          </button>
+                        </div>
+                        <textarea
+                          value={getContent('guide')?.content || ''}
+                          onChange={(e) => handleLocalUpdate('guide', 'content', e.target.value)}
+                          rows={12}
+                          className="w-full px-2 py-1 md:px-3 md:py-2 border border-gray-300 rounded text-[11px] md:text-base text-black"
+                          placeholder="이용안내 내용을 입력하세요 (줄바꿈으로 구분)"
+                        />
+                      </div>
                     </div>
                   </div>
                 </>

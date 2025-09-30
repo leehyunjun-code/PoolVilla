@@ -17,7 +17,23 @@ interface RoomContent {
   is_active: boolean
 }
 
-export default function A7Page() {
+interface Room {
+  id: string
+  name: string
+  zone: string
+  type: string
+  pool: string
+  rooms: string | number
+  bathrooms: string | number
+  standard_capacity: string | number
+  max_capacity: string | number
+  area: string | number
+  pet_friendly: string
+  current_price: number
+  fireplace: string
+}
+
+export default function C19Page() {
   const pathname = usePathname()
   
   // A7 페이지 전용
@@ -27,6 +43,7 @@ export default function A7Page() {
   const [currentImage, setCurrentImage] = useState(0)
   const [galleryImages, setGalleryImages] = useState<string[]>([])
   const [contents, setContents] = useState<RoomContent[]>([])
+  const [roomData, setRoomData] = useState<Room | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
 
   // 콘텐츠 가져오기 헬퍼 함수
@@ -47,10 +64,6 @@ export default function A7Page() {
   // 데이터 조회
   useEffect(() => {
     const fetchData = async () => {
-      if (!roomId) {
-        return;
-      }
-
       try {
         const upperRoomId = roomId.toUpperCase();
         const zone = upperRoomId[0].toLowerCase();
@@ -70,7 +83,17 @@ export default function A7Page() {
           .eq('page_type', `zone_default_${zone}`)
           .order('display_order')
 
-        // 3. 데이터 병합
+        // 3. cube45_rooms 테이블에서 객실 정보 조회
+        const { data: room, error: roomFetchError } = await supabase
+          .from('cube45_rooms')
+          .select('*')
+          .eq('id', upperRoomId)
+          .single()
+
+        if (roomFetchError) throw roomFetchError
+        setRoomData(room)
+
+        // 4. 데이터 병합
         const mergedData: RoomContent[] = [];
         const addedSections = new Set();
         
@@ -246,8 +269,8 @@ export default function A7Page() {
                   {getContent('basic_size')?.content && (
                     <div className="whitespace-pre-line text-sm md:text-base break-words text-black">객실크기 : {getContent('basic_size')?.content}</div>
                   )}
-                  {getContent('basic_capacity')?.content && (
-                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">기준 / 최대인원 : {getContent('basic_capacity')?.content}</div>
+                  {roomData && (
+                    <div className="whitespace-pre-line text-sm md:text-base break-words text-black">기준 / 최대인원 : {roomData.standard_capacity} / {roomData.max_capacity}</div>
                   )}
                   {getContent('basic_pool')?.content && (
                     <div className="whitespace-pre-line text-sm md:text-base break-words text-black">수영장 : {getContent('basic_pool')?.content}</div>
