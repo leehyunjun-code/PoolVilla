@@ -283,7 +283,6 @@ export default function C19Page() {
               </div>
         
               {/* 어메니티 */}
-              <d{/* 어메니티 */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-10 md:mb-16">
                 <div>
                   <h3 className="text-lg font-medium mb-4 md:mb-0 text-black">어메니티</h3>
